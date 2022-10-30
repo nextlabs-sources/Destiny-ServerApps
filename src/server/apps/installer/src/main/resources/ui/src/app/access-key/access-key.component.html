@@ -1,0 +1,26 @@
+<form [formGroup]="welcomeForm" id="accessKeyForm" class="installation-key-form page-content">
+  <div class="d-flex flex-column flex-wrap mt-4">
+    <label for="accessKey">Access Key</label>
+    <div class="input-group w-100">
+      <input [ngClass]="{'form-control-error': welcomeForm.get('accessKey').invalid && !welcomeForm.get('accessKey').errors.required}" type="{{showPassword? 'text': 'password'}}" class="form-control" id="accessKey" formControlName="accessKey">
+      <div class="input-group-append">
+            <span class="input-group-text" (click)="togglePasswordHide()">
+              <i class="fa" [ngClass]="{'fa-eye': !showPassword, 'fa-eye-slash': showPassword}" aria-hidden="true"></i>
+            </span>
+      </div>
+    </div>
+    <div
+      *ngIf="(welcomeForm.get('accessKey').invalid  && !welcomeForm.get('accessKey').errors.required) && (welcomeForm.get('accessKey').dirty || welcomeForm.get('accessKey').touched)"
+      class="installer-error">
+      <div *ngIf="welcomeForm.get('accessKey').errors.keyError">
+        Access Key is invalid.
+      </div>
+    </div>
+    <div class="installation-key-help-text mt-2">Copy and paste the <strong>access key</strong> provided in
+      the Command Prompt.
+    </div>
+<!--    Disable button if form invalid -->
+    <button id="start_install" mat-button class="btn btn-block mt-4 primary" (click)="startInstaller()" type="submit" [disabled]="welcomeForm.get('accessKey').invalid">START INSTALLATION
+    </button>
+  </div>
+</form>

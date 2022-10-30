@@ -1,0 +1,25 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<script type="text/javascript">
+    var element = document.getElementById("birtViewer");
+    if (element) {
+    element.parentNode.removeChild(element);
+    }
+</script>
+
+<f:verbatim><div style="text-align: center;"></f:verbatim>  
+
+<f:verbatim>
+    <iframe id="birtViewer"  src="submitCustomReport.jsf" 
+               frameborder="no" style='height:540px;width:680px;text-align:center;'>
+     </iframe>
+</f:verbatim>
+
+<f:verbatim></div></f:verbatim> 
+
+

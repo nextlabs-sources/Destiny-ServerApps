@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="false" context="filecomment_context" deleted="false" description="Comment for created Java files" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.filecomment" name="filecomment">/*&#13;
+ * Copyright 2015 by Nextlabs Inc.&#13;
+ *&#13;
+ * All rights reserved worldwide.&#13;
+ * Created on ${date}&#13;
+ *&#13;
+ */</template></templates>

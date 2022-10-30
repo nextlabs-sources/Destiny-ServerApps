@@ -1,0 +1,31 @@
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+
+jar.enabled = true
+
+dependencies {
+    implementation "org.springframework.security:spring-security-core:${versions.springSecurity}"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "com.google.guava:guava:${versions.guava}"
+    implementation "commons-io:commons-io:${versions.commonsIo}"
+    implementation "javax.xml.bind:jaxb-api:${versions.jaxb}"
+    implementation "org.slf4j:slf4j-api:${versions.slf4j}"
+    implementation "org.springframework.boot:spring-boot:${versions.springBoot}"
+    implementation "org.springframework:spring-web:${versions.springWeb}"
+    implementation "commons-codec:commons-codec:${versions.commonsCodec}"
+    implementation "org.bitbucket.b_c:jose4j:${versions.jose4j}"
+
+    compileOnly "javax.servlet:javax.servlet-api:${versions.javaxServletApi}"
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}

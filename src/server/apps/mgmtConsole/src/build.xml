@@ -1,0 +1,224 @@
+<project name="Management Console" default="build">
+
+    <property name="src.main.dir"   value="${basedir}/java/main"/>
+    <property name="src.test.dir"   value="${basedir}/java/test"/>   
+    <property name="src.jsp"      value="${basedir}/jsp"/>
+    <property name="src.jspf"      value="${basedir}/jspf"/>   
+    <property name="src.etc"     value="${basedir}/etc"/>   
+    <property name="src.bundles"     value="${basedir}/bundles"/> 
+    <property name="src.hibernate" value="${basedir}/hibernate" />
+    <property name="doc.dest"   value="${build.root.dir}/server/apps/mgmtConsole/doc"/>
+    <property name="build.webapp" value="${build.root.dir}/server/apps/mgmtConsole"/>
+    <property name="build.webinf" value="${build.webapp}/WEB-INF"/>
+    <property name="build.weblib" value="${build.webapp}/WEB-INF/lib"/>
+    <property name="build.webtld" value="${build.webapp}/WEB-INF/tld"/>
+    <property name="build.webconf" value="${build.webapp}/WEB-INF/conf"/>	
+	<property name="mgmtConsole.war.filename" value="mgmtConsole.war"/>
+	
+	<path id="compile.console.classpath">
+		<path refid="compile.classpath"/>
+	    <pathelement path="${build.root.dir}/common-framework.jar"/>
+	    <pathelement path="${build.root.dir}/common-dictionary.jar"/>
+	    <pathelement path="${build.root.dir}/dcsf-types.jar"/>
+	    <pathelement path="${build.root.dir}/dms-services.jar"/>
+		<pathelement path="${build.root.dir}/management-types.jar"/>
+		<pathelement path="${build.root.dir}/server-base.jar"/>
+		<pathelement path="${build.root.dir}/server-dcsf.jar"/>
+		<pathelement path="${build.root.dir}/server-dictionary.jar"/>
+		<pathelement path="${build.root.dir}/dependencies/config-client-*.jar"/>
+	    <pathelement path="${build.dest}"/>
+	</path>
+		
+	<target name="setup-datasources">
+		<mkdir dir="${build.weblib}"/>
+		<copy toDir="${build.weblib}" failonerror="true">
+			<fileset refid="hibernate.lib"/>
+		</copy>
+		<copy file="${xlib_jar_dir}/hibernate2.jar" todir="${build.weblib}" failonerror="true"/>
+		<!-- Copy datasource information -->
+		<copy file="${build.root.dir}/common.repository.properties" todir="${build.webconf}" failonerror="true"/>
+        <copy file="${src.hibernate}/activity.repository.xml" todir="${build.webconf}" failonerror="true"/>      
+        <copy file="${src.hibernate}/dictionary.repository.xml" todir="${build.webconf}" failonerror="true"/>            
+  
+        <!-- This needs to be removed once the directory does not rely on the subject manager -->      
+        <copy file="${src.hibernate}/policyframework.repository.xml" todir="${build.webconf}" failonerror="true"/>                  
+	</target>
+	
+	<target name="setup-webapp" depends="setup-datasources">
+		<mkdir dir="${build.weblib}"/>
+
+		<!-- Copy the basic web framework files -->
+		<copy todir="${build.weblib}">
+			<fileset dir="${faces.lib}">
+				<include name="*.jar"/>
+                <exclude name="commons-collections.jar" />   <!-- A version already copied for Hibernate --> 
+                <exclude name="commons-logging.jar"/> <!-- more recent version included the shared lib of tomcat -->             
+			</fileset>
+		</copy>
+        
+		<copy todir="${build.weblib}" failonerror="true" flatten="true">
+			<fileset dir="${build.root.dir}">
+				<include name="app-framework.jar"/>
+				<include name="client-security-config.jar"/>
+				<include name="common-dictionary.jar"/>
+				<include name="common-domain.jar"/>
+				<include name="common-framework.jar"/> 
+				<include name="common-pf.jar"/> 
+				<include name="common-version-impl.jar"/>
+				<include name="common-versionfactory.jar"/>
+				<include name="crypt.jar"/>
+				<include name="dabs-dcc-services.jar"/> 
+				<include name="dms-services.jar"/>
+				<include name="inquiry-manager-shared.jar"/> 
+				<include name="messages.jar"/>
+				<include name="policy-services.jar"/>
+				<include name="server-datasource.jar"/>
+				<include name="server-dcsf.jar"/> 
+				<include name="server-dictionary.jar"/>
+				<include name="server-framework.jar"/>
+				<include name="server-pf.jar"/>
+				<include name="server-shared-applicationusers.jar"/>
+				<include name="server-shared-services.jar"/>
+				<include name="server-shared-services.jar"/>
+				<include name="storedResults-shared.jar"/>
+				<include name="version.jar"/>
+				<include name="version-types.jar"/>
+				<include name="web-framework.jar"/>
+				<include name="dependencies/config-client-*.jar"/>
+				<include name="dependencies/log-manager-*.jar"/>
+			</fileset>
+			<fileset refid="axis.jars"/>
+			<fileset dir="${xlib_jar_dir}/dependencies">
+				<include name="activemq-client-*.jar"/>
+				<include name="adal4j-*.jar"/>
+				<include name="antlr-runtime-*.jar"/>
+				<include name="antlr-*.jar"/>
+				<include name="commons-codec-*.jar"/>
+				<include name="commons-collections-*.jar"/>
+				<include name="geronimo-j2ee-management_1.1_spec-*.jar"/>
+				<include name="geronimo-jms_1.1_spec-*.jar"/>
+				<include name="hawtbuf-*.jar"/>
+				<include name="jackson-core-*.jar"/>
+				<include name="jackson-databind-*.jar"/>
+				<include name="java-jwt-*.jar"/>
+				<include name="json-*.jar"/>
+				<include name="json-smart-*.jar"/>
+				<include name="log4j-api-*.jar"/>
+				<include name="log4j-core-*.jar"/>
+				<include name="log4j-jcl-*.jar"/>
+				<include name="log4j-web-*.jar"/>
+				<include name="log4j-slf4j-impl-*.jar"/>
+				<include name="javax.mail-*.jar"/>
+				<include name="nimbus-jose-jwt-*.jar"/>
+				<include name="oauth2-oidc-sdk-*.jar"/>
+				<include name="slf4j-api-*.jar"/>
+				<include name="spring-web-*.RELEASE.jar"/>
+			</fileset>
+		</copy>
+
+		<copy file="${build.root.dir}/dcsf-types.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${build.root.dir}/management-types.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${build.root.dir}/common-domain-types.jar" todir="${build.weblib}" failonerror="true"/>   
+        <copy file="${build.root.dir}/common-dictionary.jar" todir="${build.weblib}" failonerror="true"/>   
+        <copy file="${build.root.dir}/server-dictionary.jar" todir="${build.weblib}" failonerror="true"/>   
+        <copy file="${build.root.dir}/common-framework-types.jar" todir="${build.weblib}" failonerror="true"/>       
+		<copy file="${build.root.dir}/deployment-types.jar" todir="${build.weblib}" failonerror="true"/>
+		<copy file="${build.root.dir}/agent-types.jar" todir="${build.weblib}" failonerror="true"/>
+		<copy file="${build.root.dir}/log-types.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${build.root.dir}/policy-types.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${build.root.dir}/server-axis-security.jar" todir="${build.weblib}" failonerror="true"/>     
+		<copy file="${build.root.dir}/server-shared-types.jar" todir="${build.weblib}" failonerror="true"/>     
+		<copy file="${xlib_jar_dir}/bcprov-jdk15on-1.62.jar" todir="${build.weblib}" failonerror="true"/>
+		<copy file="${xlib_jar_dir}/cas-client-core-3.5.1.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${xlib_jar_dir}/jackson-annotations-2.10.0.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${xlib_jar_dir}/jackson-datatype-jsr310-2.10.0.jar" todir="${build.weblib}" failonerror="true"/>
+
+        <copy file="${xlib_jar_dir}/ldap.jar" todir="${build.weblib}" failonerror="true"/>
+        
+		<!-- Copy the EHCACHE jar -->
+		<copy file="${xlib_jar_dir}/ehcache-2.10.6.jar" todir="${build.weblib}" failonerror="true"/>
+
+        <!-- JSTL -->
+		<copy file="${xlib_jar_dir}/jstl-1.2.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${xlib_jar_dir}/taglibs-standard-impl-1.2.5.jar" todir="${build.weblib}" failonerror="true"/>
+        <copy file="${jstl.home}/tld/c.tld" todir="${build.webtld}" failonerror="true"/>
+                
+        <copy file="${xlib_jar_dir}/myfaces-extensions.jar" todir="${build.weblib}" failonerror="true"/>     
+        <copy file="${xlib_jar_dir}/tiles.jar" todir="${build.weblib}" failonerror="true"/>
+
+        <!-- Copy configuration files -->
+        <copy file="${src.etc}/web.xml" todir="${build.webinf}" failonerror="true"/>
+        <copy file="${xlib_platform_dir}/client-config.wsdd" todir="${build.webinf}" failonerror="true"/>
+        <copy file="${src.etc}/faces-config.xml" todir="${build.webinf}" failonerror="true"/>
+        <copy file="${web.framework.dir}/etc/core-tiles-defs.xml" todir="${build.webinf}" failonerror="true"/>      
+        <copy file="${src.etc}/mgmt-console-tiles-defs.xml" todir="${build.webinf}" failonerror="true"/>
+		<copy file="${src.etc}/log4j2.xml" todir="${build.webinf}" failonerror="true"/>
+
+		<!-- Copy common CSS, JPS and JS files -->
+		<copy todir="${build.webapp}" failonerror="true">
+			<fileset dir="${web.framework.dir}/web">
+                <exclude name="**/jspf/**/*"/>            
+                <exclude name="**/jspf"/>                 
+            </fileset>            
+		</copy>		
+  
+        <!-- Copy common jsp fragments -->
+        <copy todir="${build.webinf}/jspf/core" failonerror="true">
+            <fileset dir="${web.framework.dir}/web/core/jspf/" />
+        </copy>
+                     
+        <copy todir="${build.webinf}" failonerror="true">
+            <fileset dir="${web.framework.dir}/tld"/>
+        </copy> 
+
+        <!-- Copy resource files (For messages) -->
+        <copy   file="${src.bundles}/MgmtConsoleMessages.properties"
+                todir="${build.webinf}/classes"/>
+        
+        <!-- Copy jsp pages -->
+        <copy todir="${build.webapp}">
+            <fileset dir="${src.jsp}"/>
+        </copy>   
+  
+        <!-- Copy jspf pages -->
+        <copy todir="${build.webinf}/jspf">
+            <fileset dir="${src.jspf}"/>
+        </copy>      
+  
+        <!-- Copy files for login -->
+        <copy file="${web.framework.dir}/web/core/javascript/core.js" todir="${build.webapp}/login/javascript/"/>
+        <copy file="${xlib_jar_dir}/commons-lang3-3.9.jar" todir="${build.weblib}" failonerror="true"/>
+  
+	</target>
+		
+	<target name="setup-war" depends="setup-webapp">
+		<copy file="${build.root.dir}/common-res.jar" 
+			tofile="${build.webapp}/WEB-INF/lib/common-res.jar" 
+		/>
+
+		<copy file="${web.framework.dir}/web/core/css/login.css" todir="${build.webapp}/login/css/"/>
+		<copy file="${web.framework.dir}/web/core/images/login_administrator.jpg" tofile="${build.webapp}/login/images/login.jpg"/>
+		<copy file="${web.framework.dir}/web/core/images/Bar_right_administrator.jpg" tofile="${build.webapp}/core/images/Bar_right.jpg"/>
+
+		<war destfile="${build.webapp}/${mgmtConsole.war.filename}" 
+			basedir="${build.webapp}" 
+			webxml="${build.webapp}/WEB-INF/web.xml" 
+			excludes="genclasses/**/*.*, WEB-INF/testclasses/**/*.*, ${mgmtConsole.war.filename}"
+		/>
+	</target>
+		
+	<target name="deploy">
+		<copy file="${build.webapp}/${mgmtConsole.war.filename}" todir="${war.dir}"/>
+	</target>
+	
+	<target name="build-main">
+        <ant dir="${src.main.dir}" target="build" inheritrefs="true"/>
+	</target>
+
+    <target name="build-test">
+        <ant dir="${src.test.dir}" target="build" inheritrefs="true"/>      
+    </target>
+    
+	<target name="build" depends="build-main, setup-webapp, setup-war, deploy">
+	</target>
+</project>

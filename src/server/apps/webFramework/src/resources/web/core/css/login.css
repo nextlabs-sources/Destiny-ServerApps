@@ -1,0 +1,116 @@
+body 
+{
+	text-align:center;
+}
+
+/**
+ * For "#box" style, please see customized_login.css
+ **/
+
+#contentleft 
+{
+	width:300px;
+	padding:0px;
+	float:left;
+}
+
+
+/**
+ * For "#contentcenter" style, please see customized_login.css
+ **/
+
+/**
+ * For "#contentright" style, please see customized_login.css
+ **/
+
+p,h1,pre 
+{
+	margin:0px 10px 10px 0px;
+}
+
+h1 
+{
+	font-family: arial;
+	font-size:22px;
+	padding-top:10px;
+	color: #ffffff;
+}
+
+#contentright p 
+{
+	font-family: arial;
+	font-size:14px;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+.errorMsg {
+	float: left;
+	font-family: arial;
+	font-size:9px;
+	color: #990000;
+	margin-right: 8px;
+	background-color: #ffffff;
+	border-width: 0 1 0 0;
+	border-style: solid;
+	border-color: #333399;
+	padding: 5px 5px 5px 5px;
+	text-align:left;
+}
+
+.errorMsg .name {
+	text-align:center;
+  font-weight: bold;
+}
+
+.errorMsg .reason {
+	text-align:center;
+}
+
+table {
+	width: 100%;
+	font-family: tahoma;
+	font-size:14px;
+	color: #646464;
+}
+
+.label {
+	float: right;
+}
+
+.input {
+	padding: 0px;
+	border: 0px;
+	background-color: #ffffff;
+	width: 150px;
+}
+
+.input:hover {
+	background-color: #eeeeee;
+}
+
+.button {
+	float:right;
+	width: 60px;
+	margin-right: 8px;
+	margin-bottom: 5px;
+	border: 0px;
+	color: #ffffff;
+	background-color: #646464;
+}
+
+.button:hover {
+	background-color: #444444;
+}
+
+#userInfo {
+	width:250px;
+	margin-right:auto;
+	margin-left:auto;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	position:relative;
+	padding:0px 0px 0px 0px;
+	top: -135px;
+	left: 180px;
+}

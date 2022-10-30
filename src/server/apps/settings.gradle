@@ -1,0 +1,12 @@
+rootProject.name = 'server-apps'
+include 'cas-extension'
+include 'cc-console'
+include 'config-service'
+include 'inquiryCenter'
+include 'mgmtConsole'
+include 'webFramework'
+include 'installer'
+include 'serverapps-common'
+
+project(':webFramework').name = 'common-web-framework'
+project(':installer').name = 'server-installer'

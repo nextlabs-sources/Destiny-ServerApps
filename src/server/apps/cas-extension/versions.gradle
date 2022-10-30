@@ -1,0 +1,4 @@
+def versions = [:]
+versions.springBoot = '2.3.7.RELEASE'       // Used by cas 6.3.3
+
+ext.versions = ext.versions + versions

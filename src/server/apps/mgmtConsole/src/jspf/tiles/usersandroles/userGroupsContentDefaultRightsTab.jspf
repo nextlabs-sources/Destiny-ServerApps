@@ -1,0 +1,70 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<f:verbatim><div id="aclInstrDv" class="tabinstructions"></f:verbatim>
+  <h:outputText id="aclInstrTxt" value="#{bundle.users_and_roles_user_groups_default_rights_tab_instructions}" />
+<f:verbatim></div></f:verbatim>
+
+<d:standardDataTable id="defaulAccessAssignmentsTable" styleClass="defaultsecurity" columnClasses=",label, , , , , , " value="#{userGroupsViewBean.selectedUserGroup.defaultAccessAssignments}" var="defaultAccessAssignmentItem" >
+  <h:column id="rmCol">
+    <f:verbatim><input id="rmCkbx" type="checkbox" name="remove_principal_</f:verbatim><h:outputText value="#{defaultAccessAssignmentItem.receivingPrincipalId}" /><f:verbatim>"></f:verbatim>
+  </h:column>
+  <h:column id="prncpTtleCol">
+    <h:outputText id="prncpTtle" value="#{defaultAccessAssignmentItem.receivingPrincipalTitle}" />
+  </h:column>
+  <h:column id="edtPrmCol">
+    <f:facet name="header">
+      <h:outputText id="edtPrmLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_edit_permissions_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="willHaveEditPermissionAccess" value="#{defaultAccessAssignmentItem.principalGivenEditPermissionAccess}" />
+  </h:column>
+  <h:column id="rdCol">
+    <f:facet name="header">
+      <h:outputText id="rdLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_read_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="willHaveReadAccessCheckbox" value="#{defaultAccessAssignmentItem.principalGivenReadAccess}" />
+  </h:column>
+  <h:column id="wrtCol">
+    <f:facet name="header">
+      <h:outputText id="wrtLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_write_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="willHaveWriteAccessCheckbox" value="#{defaultAccessAssignmentItem.principalGivenWriteAccess}" />          
+  </h:column>
+  <h:column id="delCol">
+    <f:facet name="header">
+      <h:outputText id="delLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_delete_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="willHaveDeleteAccessCheckbox" value="#{defaultAccessAssignmentItem.principalGivenDeleteAccess}" />          
+  </h:column>
+  <h:column id="sbmtCol">
+    <f:facet name="header">
+      <h:outputText id="sbmtLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_submit_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="willHaveSubmitAccessCheckbox" value="#{defaultAccessAssignmentItem.principalGivenSubmitAccess}" />
+  </h:column>
+  <h:column id="dplCol">
+    <f:facet name="header">
+      <h:outputText id="dplLbl" value="#{bundle.users_and_roles_user_groups_default_object_security_deploy_access_checkbox_column_header}" />
+    </f:facet>
+    <h:selectBooleanCheckbox id="withHaveDeployAccessCheckbox" value="#{defaultAccessAssignmentItem.principalGivenDeployAccess}" />
+  </h:column>
+</d:standardDataTable>
+
+<f:verbatim><div id="actnBtnsDv" class="buttonsleft"></f:verbatim>
+<h:commandLink id="addAclLnk" action="usersAndRolesUserGroupsBrowsePrincipals" immediate="true">
+  <h:commandButton id="addAclBtn" type="button" value="#{bundle.users_and_roles_user_groups_default_object_security_add_principals_button_label}" />
+  <f:param id="srcBnNm" name="selectableItemSourceBeanName" value="principalSelectableItemSourceBean"/>
+  <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+</h:commandLink>
+<f:verbatim>&nbsp;</f:verbatim>
+<h:commandLink id="delAclLnk" action="" immediate="true">
+  <h:commandButton id="delAclBtn" type="button" value="#{bundle.users_and_roles_user_groups_default_object_security_delete_principals_button_label}" />
+  <f:param id="grpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+  <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.RemoveSelectedPrincipalsActionListener"/>
+</h:commandLink>
+<f:verbatim></div></f:verbatim>

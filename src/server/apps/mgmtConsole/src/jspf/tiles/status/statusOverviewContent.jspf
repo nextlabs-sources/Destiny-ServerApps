@@ -1,0 +1,159 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<div id="stsOvrwPnlDv" class="statusoverviewpanel">
+
+<h:panelGrid id="stsOvrwPnlGrd" columns="2" columnClasses="statsbox, componentstatus">
+  <h:panelGroup id="stsOvrwPnlGrp">
+
+<f:verbatim><div id="stsBxTtleDv" class=title></f:verbatim><h:outputText id="stsBxTtleTxt" value="#{bundle.status_overview_page_system_status_box_title}" /><f:verbatim></div></f:verbatim>
+<f:verbatim><div id="stsLstUpdDv" class=subtitle></f:verbatim>
+<h:outputText id="stsLstUpdLbl" value="#{bundle.status_overview_page_last_updated_label}" />
+<h:outputFormat id="stsLstUpdFmt" value="{0,time,short}" >
+  <f:param id="stsLstUpdPrm" value="#{serverStatisticsBean.lastUpdatedTimestamp.time}" />
+</h:outputFormat>
+<f:verbatim></div></f:verbatim>
+<f:verbatim><div id="cnvtyDv" class=sectionheader></f:verbatim><h:outputText id="cnvtyLbl" value="#{bundle.status_overview_page_agent_connectivity_statistic_title}"/> <f:verbatim><span id="cnvtySpn" class="sectionnotes"> (</f:verbatim><h:outputText id="cnvty24HrLbl" value="#{bundle.status_overview_page_last_24_hours_label}"/><f:verbatim>)</span></div></f:verbatim>
+
+<h:panelGrid id="cnvtyGrd" columns="2" rowClasses="none" columnClasses="label, value">
+  <h:outputText id="msngAgntLbl" value="#{bundle.status_overview_page_agents_not_connecting_statistic_label}"/>
+  <h:outputText id="msngAgntTxt" value="#{serverStatisticsBean.numDisconnectedAgentsInLastDay}"/>
+</h:panelGrid>
+
+<f:verbatim><div id="cnstcyDv" class=sectionheader></f:verbatim><h:outputText id="cnstcyLbl" value="#{bundle.status_overview_page_policy_consistency_statistic_title}"/><f:verbatim></div></f:verbatim>
+<h:panelGrid id="cnstcyGrd" columns="2" rowClasses="none" columnClasses="label, value">
+  <h:outputText id="cnstPlcyLbl" value="#{bundle.status_overview_page_total_policy_consistency_statistic_label}"/>
+  <h:outputText id="clstPlcyTxt" value="#{serverStatisticsBean.numAgentsWithOutOfDatePolicies}"/>
+</h:panelGrid>
+
+<f:verbatim><div id="statBxTtleDv" class=title></f:verbatim><h:outputText id="statBxTtleTxt" value="#{bundle.status_overview_page_server_statistics_box_title}" /><f:verbatim></div></f:verbatim>
+<f:verbatim><div id="statLstUpdDv" class=subtitle></f:verbatim>
+<h:outputText id="statLstUpdLbl" value="#{bundle.status_overview_page_last_updated_label}" />
+<h:outputFormat id="statLstUpdFmt" value="{0,time,short}" >
+  <f:param id="statLstUpdPrm" value="#{serverStatisticsBean.lastUpdatedTimestamp.time}" />
+</h:outputFormat>
+<f:verbatim></div></f:verbatim>
+<f:verbatim><div id="agntStatsDv" class=sectionheader></f:verbatim><h:outputText id="agntStatsLbl" value="#{bundle.status_overview_page_agent_count_statistic_title}"/><f:verbatim></div></f:verbatim>
+
+
+  <h:dataTable id="agentCountsTable" value="#{serverStatisticsBean.numAgents}" var="nextAgentCount" rowClasses="substat" columnClasses="label, value">
+    <h:column id="agentCountLabel">
+      <h:outputFormat id="ceCntLbl" value="#{bundle.status_overview_page_agent_count_statistic_label}">
+        <f:param value="#{nextAgentCount.agentType.agentTypeTitle}" />
+      </h:outputFormat>
+    </h:column>
+    
+    <h:column id="agentCountValue">
+      <h:outputText id="ceCntTxt" value="#{nextAgentCount.numRegistered}"/>      
+    </h:column>    
+  </h:dataTable>
+
+<h:panelGrid id="agntStatsGrd" columns="2" columnClasses="label, value">
+  <h:outputText id="agntTtlCntLbl" value="#{bundle.status_overview_page_total_agent_count_statistic_label}"/>
+  <h:outputText id="agntTtlCntTxt" value="#{serverStatisticsBean.totalNumAgents}"/>
+  <h:panelGroup id="hbGrp">
+    <h:outputText id="hbCntLbl" value="#{bundle.status_overview_page_heartbeat_count_statistic_label}"/>
+    <f:verbatim>&nbsp;<span id="hbCntSpn" class="sectionnotes"> (</f:verbatim><h:outputText id="hbCnt24HrTxt" value="#{bundle.status_overview_page_last_24_hours_label}"/><f:verbatim>)</span></f:verbatim>
+  </h:panelGroup>
+  <h:outputText id="hbCntTxt" value="#{serverStatisticsBean.numHeartbeatsInLastDay}"/>
+</h:panelGrid>
+
+
+<%-- <h:panelGrid id="agntStatsGrd" columns="2" rowClasses="substat, substat, none" columnClasses="label, value">
+  <h:outputText id="ceCntLbl" value="#{bundle.status_overview_page_file_server_agent_count_statistic_label}"/>
+  <h:outputText id="ceCntTxt" value="#{serverStatisticsBean.numAgents.FILE_SERVER}"/>
+  <h:outputText id="caCntLbl" value="#{bundle.status_overview_page_desktop_agent_count_statistic_label}"/>
+  <h:outputText id="caCntTxt" value="#{serverStatisticsBean.numAgents.DESKTOP}"/>
+  <h:outputText id="agntTtlCntLbl" value="#{bundle.status_overview_page_total_agent_count_statistic_label}"/>
+  <h:outputText id="agntTtlCntTxt" value="#{serverStatisticsBean.totalNumAgents}"/>
+  <h:panelGroup id="hbGrp">
+    <h:outputText id="hbCntLbl" value="#{bundle.status_overview_page_heartbeat_count_statistic_label}"/>
+    <f:verbatim>&nbsp;<span id="hbCntSpn" class="sectionnotes">(</f:verbatim><h:outputText id="hbCnt24HrTxt" value="#{bundle.status_overview_page_last_24_hours_label}"/><f:verbatim>)</span></f:verbatim>
+  </h:panelGroup>
+  <h:outputText id="hbCntTxt" value="#{serverStatisticsBean.numHeartbeatsInLastDay}"/>
+</h:panelGrid> --%>
+
+<f:verbatim><div id="plcyCntGrd" class=sectionheader></f:verbatim><h:outputText id="plcyCntLbl" value="#{bundle.status_overview_page_policy_count_statistic_title}"/><f:verbatim></div></f:verbatim>
+
+<h:panelGrid id="plcyCntGrd" columns="2" rowClasses="none" columnClasses="label, value">
+  <h:outputText id="ttlCntLbl" value="#{bundle.status_overview_page_total_policy_count_statistic_label}"/>
+  <h:outputText id="ttlCntTxt" value="#{serverStatisticsBean.numPolicies}"/>
+</h:panelGrid>
+
+<f:verbatim><div id="actJrnlStatsDv" class=sectionheader></f:verbatim><h:outputText id="actJrnlStatsLbl" value="#{bundle.status_overview_page_log_entry_statistics_title}"/><f:verbatim><span class="sectionnotes"> (</f:verbatim><h:outputText id="actJrnlStats24HrsTxt" value="#{bundle.status_overview_page_last_24_hours_label}"/><f:verbatim>)</span></div></f:verbatim>
+<h:panelGrid id="actJrnlStatsGrd" columns="2" rowClasses="substat, substat, none" columnClasses="label, value">
+  <h:outputText id="plcyActyLbl" value="#{bundle.status_overview_page_policy_log_entry_count_statistics_label}"/>
+  <h:outputText id="plcyActyTxt" value="#{serverStatisticsBean.numPolicyActivityLogEntriesInLastDay}"/>
+  
+  <%--<h:outputText id="docActyLbl" value="#{bundle.status_overview_page_tracking_log_entry_count_statistics_label}"/>
+  <h:outputText id="docActyTxt" value="#{serverStatisticsBean.numTrackingActivityLogEntriesInLastDay}"/>
+  <h:outputText id="ttlActyLbl" value="#{bundle.status_overview_page_total_log_entry_count_statistics_label}"/>
+  <h:outputText id="ttlActyTxt" value="#{serverStatisticsBean.totalActivityLogEntriesInLastDay}"/> --%>
+  
+</h:panelGrid>
+
+</h:panelGroup>
+<h:panelGroup id="srvrStatsGrp">
+
+<f:verbatim><div id="srvrStatsTtleDv" class="tabletitle"></f:verbatim><h:outputText id="srvrStatsTtleLbl" value="#{bundle.status_overview_page_component_status_data_table_title}" /><f:verbatim></div></f:verbatim>
+<d:dataTable id="comptable" value="#{componentStatusBean.componentData}" var="dataItem">  
+  <h:column id="comptable_name_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_name_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_name_header}" />
+    </f:facet>
+    <h:outputText id="comptable_name_column_data" value="#{dataItem.componentName}" />
+  </h:column>
+  
+  <h:column id="comptable_type_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_type_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_type_header}" />
+    </f:facet>
+    <h:outputText id="comptable_type_column_data" value="#{dataItem.componentType}" />
+  </h:column>
+
+  <h:column id="comptable_host_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_host_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_host_header}" />
+    </f:facet>
+    <h:outputText id="comptable_host_column_data" value="#{dataItem.componentHostName}" />
+  </h:column>
+
+  <h:column id="comptable_port_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_port_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_port_header}" />
+    </f:facet>
+    <h:outputText id="comptable_port_column_data" value="#{dataItem.componentPort}" />
+  </h:column>
+
+  <h:column id="comptable_last_heartbeat_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_last_heartbeat_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_last_heartbeat_header}" />
+    </f:facet>
+    <h:outputFormat id="comptable_last_heartbeat_column_data" value="{0, date, medium} - {0, time, medium}">
+      <f:param id="comptable_last_heartbeat_column_data_param" value="#{dataItem.componentLastHeartbeatTime.time}" />
+    </h:outputFormat>
+  </h:column>
+  
+  <h:column id="comptable_expected_heartbeat_column">
+    <f:facet name="header">
+      <h:outputText id="comptable_expected_heartbeat_column_header_text" value="#{bundle.status_overview_page_component_status_data_table_expected_heartbeat_header}" />
+    </f:facet>
+    <h:outputFormat id="comptable_expected_heartbeat_column_active" value="{0, date, medium} - {0, time, medium}" rendered="#{dataItem.active}">
+      <f:param id="comptable_expected_heartbeat_column_active_param" value="#{dataItem.componentExpectedHeartbeatTime.time}" />
+    </h:outputFormat>
+    <h:outputFormat id="comptable_expected_heartbeat_column_not_active" styleClass="warningtext" value="{0, date, medium} - {0, time, medium}" rendered="#{not dataItem.active}">
+      <f:param id="comptable_expected_heartbeat_column_not_active_param" value="#{dataItem.componentExpectedHeartbeatTime.time}" />
+    </h:outputFormat>
+  </h:column>
+
+</d:dataTable>
+
+</h:panelGroup>
+</h:panelGrid>
+
+</div>

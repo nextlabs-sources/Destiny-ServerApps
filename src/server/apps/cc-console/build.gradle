@@ -1,0 +1,387 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+apply plugin: 'eclipse'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
+    }
+}
+
+configurations {
+    download
+    tomcatLib
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-annotation_1.0_spec'
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion "${versions.springWeb}"
+            } else if (details.requested.group == 'org.apache.logging.log4j') {
+                details.useVersion "${versions.log4j}"
+            }
+        }
+    }
+}
+
+ext {
+    hibernateVersion = dependencyManagement.importedProperties.get('hibernate.version')
+}
+
+dependencies {
+    implementation "com.bettercloud:scim2-sdk-common:${versions.betterCloudScim2}"
+    implementation "com.bettercloud:spring-boot-starter-scim2:${versions.betterCloudScim2}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions.jacksonYaml}"
+    implementation "com.github.librepdf:openpdf:${versions.openpdf}"
+    implementation "com.google.code.gson:gson:${versions.googleGson}"
+    implementation "com.google.guava:guava:${versions.guava}"
+    implementation "com.googlecode.json-simple:json-simple:${versions.jsonSimple}"
+    implementation "com.mchange:c3p0:${versions.c3p0}"
+    implementation "com.microsoft.azure:msal4j:${versions.msal4j}"
+    implementation "com.nextlabs.cc.base:agent-controlmanager:${version}"
+    implementation "com.nextlabs.cc.base:app-framework:${version}"
+    implementation "com.nextlabs.cc.base:client-pf:${version}"
+    implementation "com.nextlabs.cc.base:common-dictionary:${version}"
+    implementation "com.nextlabs.cc.base:common-domain-types:${version}"
+    implementation "com.nextlabs.cc.base:common-domain:${version}"
+    implementation "com.nextlabs.cc.base:common-framework-types:${version}"
+    implementation "com.nextlabs.cc.base:common-framework:${version}"
+    implementation "com.nextlabs.cc.base:common-pf:${version}"
+    implementation "com.nextlabs.cc.base:configurationFileParser:${version}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.cc.base:enrollment-service:${version}"
+    implementation "com.nextlabs.cc.base:nextlabs-openaz-pep:${version}"
+    implementation "com.nextlabs.cc.base:policy-services:${version}"
+    implementation "com.nextlabs.cc.base:policy-types:${version}"
+    implementation "com.nextlabs.cc.base:server-base:${version}"
+    implementation "com.nextlabs.cc.base:server-dictionary:${version}"
+    implementation "com.nextlabs.cc.base:server-framework:${version}"
+    implementation "com.nextlabs.cc.base:server-pf:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-services:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-types:${version}"
+    implementation "com.nextlabs.cc:pac4j-saml:${versions.pac4jCas}"
+    implementation "com.nextlabs.common:log-manager:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "com.sun.mail:javax.mail:${versions.mail}"
+    implementation "com.unboundid.product.scim2:scim2-sdk-server:${versions.unboundScim2}"
+    implementation "com.unboundid.product.scim2:scim2-sdk-common:${versions.unboundScim2}"
+    implementation "commons-beanutils:commons-beanutils:${versions.commonsBeanutils}"
+    implementation "commons-codec:commons-codec:${versions.commonsCodec}"
+    implementation "commons-digester:commons-digester:${versions.commonsDigester}"
+    implementation "commons-discovery:commons-discovery:${versions.commonsDiscovery}"
+    implementation "commons-fileupload:commons-fileupload:${versions.commonsFileupload}"
+    implementation "commons-io:commons-io:${versions.commonsIo}"
+    implementation "io.springfox:springfox-swagger2:${versions.springfoxSwagger2}"
+    implementation "io.springfox:springfox-bean-validators:${versions.springfoxSwagger2}"
+    implementation "io.springfox:springfox-swagger-ui:${versions.springfoxSwagger2}"
+    implementation "io.swagger.core.v3:swagger-annotations:${versions.swaggerAnnotations}"
+    implementation "javax.xml.soap:saaj-api:${versions.saajApi}"
+    implementation "javax.xml:jaxrpc:${versions.jaxrpc}"
+    implementation "jcifs:jcifs:${versions.jcifs}"
+    implementation "net.minidev:json-smart:${versions.jsonSmart}"
+    implementation "net.sf.ehcache:ehcache:${versions.ehcache}"
+    implementation "org.apache.activemq:activemq-client:${versions.activemq}"
+    implementation "org.apache.axis2:axis2-adb:${versions.axis}"
+    implementation "org.apache.axis2:axis2-jaxws:${versions.axis}"
+    implementation "org.apache.axis2:axis2-kernel:${versions.axis}"
+    implementation "org.apache.axis2:axis2-transport-http:${versions.axis}"
+    implementation "org.apache.axis2:axis2-transport-local:${versions.axis}"
+    implementation "org.apache.commons:commons-exec:${versions.commonsExec}"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "org.apache.commons:commons-text:${versions.commonsText}"
+    implementation "org.apache.logging.log4j:log4j-web:${versions.log4j}"
+    implementation "org.apache.openaz:openaz-pep:${versions.openaz}"
+    implementation "org.apache.openaz:openaz-xacml:${versions.openaz}"
+    implementation "org.apache.poi:poi-ooxml:${versions.poi}"
+    implementation "org.apache.poi:poi:${versions.poi}"
+    implementation "org.apache.velocity:velocity-engine-core:${versions.velocity}"
+    implementation "org.apache.ws.commons.axiom:axiom-api:${versions.axiom}"
+    implementation "org.apache.ws.commons.axiom:axiom-impl:${versions.axiom}"
+    implementation "org.apache.ws.xmlschema:xmlschema-core:${versions.xmlschema}"
+    implementation "org.apache.xmlgraphics:batik-svgbrowser:${versions.batikSvgBrowser}"
+    implementation "org.apache.xmlgraphics:xmlgraphics-commons:${versions.xmlGraphicsCommons}"
+    implementation "org.bitbucket.b_c:jose4j:${versions.jose4j}"
+    implementation "org.hibernate:hibernate-envers:${hibernateVersion}"
+    implementation "org.jasig.cas.client:cas-client-core:${versions.casClientCore}"
+    implementation "org.javassist:javassist:${versions.javassist}"
+    implementation "org.json:json:${versions.json}"
+    implementation "org.pac4j:pac4j-core:${versions.pac4jCas}"
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation "org.springframework.ldap:spring-ldap-core:${versions.ldapCore}"
+    implementation "org.springframework.ldap:spring-ldap-ldif-core:${versions.ldapLdifCore}"
+    implementation 'org.springframework.security:spring-security-cas'
+    implementation 'org.springframework.security:spring-security-messaging'
+    implementation "wsdl4j:wsdl4j:${versions.wsdl4j}"
+    implementation "xerces:xercesImpl:${versions.xercesImpl}"
+    implementation "xerces:xmlParserAPIs:${versions.xmlParserAPIs}"
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    implementation project(':serverapps-common')
+    download "com.nextlabs.cc.base:license:${version}"
+    download "com.nextlabs.cc.base:tools:${version}@zip"
+    download "com.nextlabs.cc.java.openjdk:jre-linux:${versions.java}@zip"
+    download "com.nextlabs.cc:apache-tomcat:${versions.tomcat}@zip"
+    tomcatLib "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    tomcatLib "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    tomcatLib "com.nextlabs.cc.base:crypt:${version}"
+    tomcatLib "com.nextlabs.cc.base:server-security:${version}"
+    tomcatLib "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    tomcatLib "commons-logging:commons-logging:${versions.commonsLogging}"
+    tomcatLib "org.postgresql:postgresql:${versions.postgresql}"
+
+    // to support running as a spring boot application in development
+    developmentOnly "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    developmentOnly "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    developmentOnly "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    developmentOnly "javax.servlet:javax.servlet-api:${versions.javaxServletApi}"
+    developmentOnly "org.postgresql:postgresql:${versions.postgresql}"
+}
+
+springBoot {
+    mainClassName = 'com.nextlabs.destiny.console.ConsoleApplication'
+}
+
+bootRun {
+    systemProperties System.properties
+}
+
+bootWar {
+    archiveFileName = packageName
+    doFirst {
+        manifest {
+            attributes('Implementation-Vendor': 'NextLabs, Inc.',
+                    'Implementation-Title': 'Control Center Console',
+                    'Implementation-Version': version,
+                    'Implementation-Time': new Date()
+            )
+        }
+    }
+    from(System.getenv('DESTINY_UI_SRC_TREE_ROOT') == null ? uiProjectLocation : System.getenv('DESTINY_UI_SRC_TREE_ROOT')) {
+        include 'ui/**', 'favicon.ico', 'saas.ico', 'index.html'
+    }
+    rootSpec.exclude('**/com/nextlabs/destiny/console/utils/logfilehandler', '**/geronimo-annotation_*.jar')
+    doLast {
+        println('Building ' + archiveFileName.get() + ' completed at ' + new Date())
+        if (project.hasProperty('includeApiDocs') && includeApiDocs.toBoolean()) {
+            println('API documentation is included in the build.')
+        }
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+task deploy {
+    doLast {
+        if (project.hasProperty('deploymentDeleteDir')) {
+            delete deploymentDeleteDir
+            println('Deleted: ' + deploymentDeleteDir)
+        }
+        copy {
+            from bootWar.archiveFile
+            into deploymentLocation
+        }
+        println('Copied ' + bootWar.archiveFileName.get() + ' from: ' + bootWar.archiveFile.get() + ' into: ' + deploymentLocation)
+    }
+    onlyIf {
+        project.hasProperty('deploymentLocation')
+    }
+}
+
+task buildLogFileHandler(type: Jar) {
+    archiveFileName = 'nxl-filehandler.jar'
+    from(sourceSets.main.output) {
+        include 'com/nextlabs/destiny/console/utils/logfilehandler/**'
+    }
+    doLast {
+        println('Building nxl-filehandler.jar completed at ' + new Date())
+    }
+}
+
+task deployLogFileHandler {
+    doLast {
+        def logFileHandlerDeploymentLocation = deploymentLocation + '/../tomcat/shared/lib/'
+        copy {
+            from buildLogFileHandler.archiveFile
+            into logFileHandlerDeploymentLocation
+        }
+        println('Copied ' + buildLogFileHandler.archiveFileName.get() + ' from: ' + buildLogFileHandler.archiveFile.get() + ' into: ' +
+                logFileHandlerDeploymentLocation)
+    }
+    onlyIf {
+        project.hasProperty('deploymentLocation')
+    }
+}
+
+task copyClasses {
+    doLast {
+        copy {
+            from sourceSets.main.output
+            into deploymentDeleteDir + '/WEB-INF/classes'
+        }
+    }
+    onlyIf {
+        project.hasProperty('deploymentDeleteDir')
+    }
+}
+
+def ccPackageDir = "${buildDir}/distributions/control-center"
+
+task buildPackage {
+    doLast {
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        ant.replaceregexp(match: 'keystore.type=pkcs12', replace: 'keystore.type=jks', flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/java/jre/conf/security", includes: 'java.security')
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "apache-tomcat-${versions.tomcat}.zip" })
+            into "${ccPackageDir}/server"
+            exclude "*/webapps/"
+        }
+        file("${ccPackageDir}/server/apache-tomcat-${versions.tomcat}").renameTo(file("${ccPackageDir}/server/tomcat"))
+        copy {
+            from './src/main/resources/server'
+            into "${ccPackageDir}/server"
+        }
+        copy {
+            from './src/main/resources/server/tomcat/bin/setenv.sh'
+            into "${ccPackageDir}/server/tomcat/bin"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from configurations.tomcatLib
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        mkdir "${ccPackageDir}/server/tomcat/shared/lib"
+        ant.replaceregexp(match: 'shared\\.loader=',
+                replace: 'shared.loader="${catalina.home}/shared/lib", "${catalina.home}/shared/lib/*.jar"',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        ant.replaceregexp(match: 'tomcat\\.util\\.scan\\.StandardJarScanFilter\\.jarsToSkip=',
+                replace: 'tomcat.util.scan.StandardJarScanFilter.jarsToSkip=common-*.jar, crypt.jar, osdt_*.jar, policy-*.jar, secure-session.jar, server-*.jar, pdq.jar, ',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        mkdir "${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util"
+        new File("${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util/ServerInfo.properties").text = 'server.info=Apache Tomcat'
+        mkdir "${ccPackageDir}/server/certificates/cacerts"
+        copy {
+            from configurations.download.find { it.name == "license-${version}.jar" }
+            into "${ccPackageDir}/server/license"
+            rename "license-${version}.jar", 'license.jar'
+        }
+        copy {
+            from "${buildDir}/libs/control-center-console.war"
+            into "${ccPackageDir}/server/apps"
+        }
+        mkdir "${ccPackageDir}/tools/enrollment/data"
+        copy {
+            from zipTree(configurations.download.find { it.name == "tools-${version}.zip" })
+            into "${ccPackageDir}"
+            exclude 'tools/appdiscovery/**'
+            exclude 'tools/enrollmentPreview/**'
+            exclude 'tools/InstallService/**'
+            exclude 'tools/jbosscrypt/**'
+        }
+    }
+}
+
+def containerImageTag = String.format("%s${appName}:${appVersion}",
+        project.hasProperty('containerRegistryURL') ? "${containerRegistryURL}/" : "")
+
+task buildContainer(type: Exec) {
+    doFirst {
+        copy {
+            from './src/main/resources/scripts/start.sh'
+            into "${ccPackageDir}"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        copy {
+            from './src/main/resources/scripts/passwd.template'
+            into "${buildDir}/distributions"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        if(System.getProperty('os.name').startsWith('Linux')) {
+            exec { commandLine 'sudo', 'chgrp', '-R', '0', "${ccPackageDir}" }
+            exec { commandLine 'sudo', 'chmod', '-R', 'g+rwX', "${ccPackageDir}" }
+        }
+    }
+    workingDir "${buildDir}/distributions"
+    commandLine 'docker', 'build',
+            '--build-arg', "APP_DISPLAY_NAME=${appDisplayName}",
+            '--build-arg', "VERSION=${appVersion}",
+            '--build-arg', "BUILD_NUMBER=${buildNumber}",
+            '-f', "${projectDir}/Dockerfile",
+            '-t', "${containerImageTag}",
+            '.'
+}
+
+task publishContainer(type: Exec) {
+    commandLine 'docker', 'push', "${containerImageTag}"
+}
+
+def helmChartDir = "${buildDir}/helm-chart/"
+task packageHelmChart(type: Exec) {
+    doFirst {
+        mkdir helmChartDir
+        copy {
+            from "./helm-chart"
+            into "${helmChartDir}/helm-chart"
+        }
+        ant.replaceregexp(match: '\\$\\{appVersion\\}', replace: appVersion, flags: 'g', byline: true) {
+            fileset(dir: "${helmChartDir}/helm-chart", includes: 'Chart.yaml')
+        }
+    }
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'package', './helm-chart'
+}
+
+task publishHelmChart(type: Exec) {
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'push', "--username=${helmChartRepositoryUsername}",
+            "--password=${helmChartRepositoryPassword}", "${appName}-${appVersion}.tgz", "${helmChartRepositoryName}"
+}
+
+buildLogFileHandler.finalizedBy(deployLogFileHandler)
+deploy.finalizedBy(buildLogFileHandler)
+build.finalizedBy(deploy)
+compileJava.finalizedBy(copyClasses)
+

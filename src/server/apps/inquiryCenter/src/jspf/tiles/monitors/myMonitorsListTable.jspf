@@ -1,0 +1,2588 @@
+<%@ page buffer="none" errorPage="/error" %>
+<%@ page import="com.nextlabs.destiny.inquirycenter.monitor.service.MonitoringService" %>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+<d:includeJS location="/core/javascript/jquery-1.10.2.js"/>
+<d:includeJS location="/core/javascript/jquery.dataTables.js" />
+<d:includeJS location="/core/javascript/bootstrap/js/bootstrap.js" />
+<d:includeJS location="/core/javascript/jquery-ui-1.10.3.custom.js" />
+<d:includeJS location="/core/javascript/jquery.layout-latest.js" />
+<d:includeJS location="/core/javascript/jquery.multiselect2side.js" />
+<d:includeJS location="/core/javascript/lookup.js" />
+<d:includeJS location="/core/javascript/common.js" />
+<d:includeJS location="/core/javascript/tag-it.js" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<d:includeCSS location="/core/javascript/bootstrap/css/bootstrap.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables.css"/>
+<d:includeCSS location="/core/css/jquery-ui-1.10.3.custom.css"/>
+<d:includeCSS location="/core/css/jquery.multiselect2side.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables_themeroller.css"/>
+<d:includeCSS location="/core/css/jquery.tagit.css" />
+<d:includeCSS location="/core/css/tagit.ui-zendesk.css" />
+
+<%@ include file="../shared/lookupDivs.jspf"%>
+
+<style type="text/css">
+button:focus {
+    outline: 1px #808080 dotted !important;  /*mising button outline on IE9*/
+}
+
+
+#shared_mode_users_list {
+	border: 1px solid;
+	height: auto;
+   
+}
+
+</style>
+
+<f:verbatim>
+
+<div style="background-color: #f5f5f5">
+<h3 class='panetitle'>Monitors</h3>
+</div>
+
+<div align="center" style="width:90%;margin:10px;margin-left: 50px;min-height: 750px;">
+<div align="right">
+<button type="button" class="btn btn-primary btn-sm" id="addMonitor">Add Monitor
+</button>
+</div>
+
+<div style="margin-top:10px" id="monitors"></div>
+			<div id="add-monitor" style="display:none; overflow-x:hidden;overflow-y:auto;">
+			<form id="monitor-form">
+				<div id="monitor-tabs">
+					<ul>
+						<li><a href="#mtabs-1" id="link-1">General</a></li>
+						<li><a href="#mtabs-2" id="link-2">Filters</a></li>
+						<li><a href="#mtabs-3" id="link-3">Tags</a></li>
+						<li><a href="#mtabs-4" id="link-4">Access Control</a></li>
+					</ul>
+
+					<div id="mtabs-1" style="width: 750px;">
+						<div class="container-fluid" id="general_content">
+							<div class="row">
+								<div class="col-xs-12">
+									<div id="generalFormErrorAlert" class="alert alert-danger"
+										style='display: none;'>
+										<a href="#" style="bottom:5px; position:relative;" class="close"
+											onclick="$('#generalFormErrorAlert').hide();">&times;</a> <strong>Error!</strong>
+										<span id="generalErrorMsg"></span>
+									</div>
+								</div>
+							</div>
+							<div class="row" style="margin-top:10px;">
+								<div class="col-xs-12">
+									<div class="col-xs-2">
+										<label for="name" class="control-label">Name: </label> 
+									</div>
+									<div class="col-xs-10">	
+										<input type="text" id="name" name="name"
+											class="form-control input-xs"  maxlength="255" placeholder="Max 255 characters" tabindex="1">
+									</div>		
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-top:10px;">
+									<div class="col-xs-2">
+										<label for="description" class="control-label">Description:</label>
+									</div>
+									<div class="col-xs-10">
+										<textarea rows="3" cols="30" name="description"
+											id="description" class="form-control input-xs" tabindex="2"  maxlength="2000" placeholder="Max 2000 characters" ></textarea>
+									</div>		
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-11">
+									<br />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+								<div class="form-group row">
+									<div class="col-xs-12 form-inline">
+										<div class="col-xs-2">
+											<label for="duration" class="control-label">Duration: </label>
+										</div>	
+										<div class="col-xs-10">
+											<select name="duration" id="duration"
+											class="form-control input-xs" style="width:40%;" tabindex="3">
+											  <option value="today">Today</option>
+											  <option value="current_week">Current Week</option>
+											  <option value="current_month">Current Month</option>
+											  <option value="current_quarter">Current Quarter</option>
+											  <option value="yesterday">Yesterday</option>
+										      <option value="last_week">Last Calendar Week</option>
+											  <option value="last_month">Last Calendar Month</option>
+											  <option value="last_quarter">Last Calendar Quarter</option>
+											  <option value="last_7_days">Last 7 days</option>
+					    				      <option value="last_30_days">Last 30 days</option>
+											</select>
+										</div>	
+									</div>
+								</div>
+								</div>
+							</div>
+
+							<div class="row top3">
+								<div class="col-xs-12">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">									
+												<label for="groupby" class="control-label">Group By: </label> 
+											</div>	
+											<div class="col-xs-10">									
+												<select	name="groupby" id="groupby" class="form-control input-xs" style="width:40%;" tabindex="4">
+												<option value="-" selected>Select</option>
+												<option value="GROUP_BY_USER">Group by User</option>
+												<option value="GROUP_BY_RESOURCE">Group by Resource</option>
+												<option value="GROUP_BY_POLICY">Group by Policy</option>
+												<option value="GROUP_BY_MONTH">Group by Month</option>
+												<option value="GROUP_BY_DAY">Group by Day</option>
+												</select>
+											</div>	
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="aggregator" class="control-label">Aggregators:</label> 
+											</div>
+											<div class="col-xs-10">	
+												<button type="button" class="btn btn-sm input-xs" id="addAggregate"
+													name="addAggregate" style="float:right;" tabindex="9">
+													<img src='../core/images/glyphicon_plus.png' width="50%"
+														height="50%" />
+												</button>
+												<span style="display:block;overflow:hidden;">
+													<select name="aggregator" id="aggregator"
+														class="form-control input-xs" style="width:20%;" tabindex="5">
+														<option value="file_size">File Size</option>
+														<option value="number_records">Number of Records</option>
+													</select> 
+													<select name="function" id="function"
+														class="form-control input-xs" style="width:20%;" tabindex="6">
+														<option value="sum">Sum</option>
+														<option value="average">Average</option>
+													</select> 
+													<select name="aggregate_operator" id="aggregate_operator"
+														class="form-control input-xs" style="width:20%;" tabindex="7">
+														<option value="EQ">Equals</option>
+														<option value="NE">Not Equals</option>
+														<option value="GT">Greater than</option>
+														<option value="GE">Greater than or Equals</option>
+														<option value="LT">Lesser than</option>
+														<option value="LE">Less than or Equals</option>
+													</select> 
+													<input type="text" name="aggregate_value"
+														id="aggregate_value" class="form-control input-xs"  maxlength="40" style="width:37%;" tabindex="8">
+												</span>		
+											</div>	
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-10" style="padding-left:20.5%;">
+											<div id="aggregatorsDiv"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-11">
+									<hr />
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="col-xs-12">
+										<label for="alert" class="control-label">Alert</label>
+									</div>	
+								</div>
+							</div>
+
+
+							
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="row form-group ">
+										<div class="col-xs-6" style="margin-left:13px;">
+											<table>
+												<tr>
+													<td style="vertical-align:top;padding-top:0px;">
+														<input type="checkbox" name="log" id="log" tabindex="10" class="input-xs" checked="checked"> 
+													</td>
+													<td>	
+														<label for="log">Show In Overview Tab</label>
+													</td>	 
+												</tr>
+												<tr>	
+													<td style="vertical-align:top;padding-top:0px;">
+														<input  type="checkbox" name="send_email" id="send_email" class="input-xs" tabindex="11"> 
+													</td>
+													<td>	
+														<label for="send_email" >Send Email</label>
+													</td>	
+												</tr>	
+											</table>
+
+											<input type="text" name="email" id="email" class="form-control input-xs" placeholder="admin@test.com" style="width:100%;" tabindex="12">
+											<label for="level" class="control-label" style="margin-top:10px;">Level:</label> 
+												
+											<select
+												name="level" id="level" class="form-control input-xs" style="width:100%;" tabindex="13">
+												<option value="L1">L1</option>
+												<option value="L2">L2</option>
+												<option value="L3">L3</option>
+											</select>
+										</div>
+
+										<div class="col-xs-5" style="float:right;margin-right:13px;">
+											<label for="alert_message" class="control-label" style="margin-top:20px;">Message:</label>
+											<textarea style="height:92px;" cols="30" name="alert_message"
+												id="alert_message" class="form-control input-xs" tabindex="14"  maxlength="255" placeholder="Max 255 characters"></textarea>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div id="mtabs-2" style="width: 750px;">
+						<div class="container-fluid" id="general_content">
+							<div class="row">
+								<div class="col-xs-12">
+									<div id="filterFormErrorAlert" class="alert alert-danger"
+										style='display: none;'>
+										<a href="#" style="bottom: 5px; position: relative;"
+											class="close" onclick="$('#filterFormErrorAlert').hide();">&times;</a><strong>Error!</strong>
+										<span id="filterErrorMsg"></span>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="row">
+										<div class="col-xs-6">
+											<label for="action" class="control-label">Action: </label> <select
+												id="action" size="5" multiple="multiple" name="action"
+												class="form-control input-xs">
+											</select>
+										</div>
+										<div class="col-xs-6">
+											<label for="decision" class="control-label">Decision:
+											</label> <select name="decision" id="decision"
+												class="form-control input-xs">
+												<option value="B">Both</option>
+												<option value="A">Allow</option>
+												<option value="D">Deny</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<hr />
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group" style="margin-left: -13px;">
+									<div class="col-xs-12 form-inline">
+										<div class="col-xs-2">
+											<label for="user_operator" class="control-label">User:
+											</label>
+										</div>
+										<div class="col-xs-8">
+											<input type="text" name="rptDefCntInUsrTxt"
+												id="rptDefCntInUsrTxt" class="form-control input-xs"
+												value="Any User" style="width: 88%;" readonly />
+											<button type="button" class="btn btn-xs lookup"
+												id="lookupUsrBtn" name="lookupUsrBtn">
+												<img src='../core/images/glyphicon_search.png' width="50%"
+													height="50%" />
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<br />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="user_filter" class="control-label">User
+													Criteria:</label>
+											</div>
+											<div class="col-xs-8">
+												<select name="user_filter" id="user_filter"
+													class="form-control input-xs" style="width: 30%;"></select>
+												<select name="user_filter_operator"
+													id="user_filter_operator" class="form-control input-xs"
+													style="width: 19%;">
+													<option value="EQ">Equals</option>
+													<option value="NE">Not Equals</option>
+													<option value="LIKE">Like</option>
+													<option value="IN">In</option>
+												</select> <input type="text" name="user_filter_value"
+													id="user_filter_value" class="form-control input-xs"
+													maxlength="255" style="width: 38%;"
+													placeholder="Max 255 characters" />
+												<button type="button" class="btn btn-sm addFilter user"
+													id="user_addFilter" name="user_addFilter">
+													<img src='../core/images/glyphicon_plus.png' width="50%"
+														height="50%" />
+												</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12" style="padding-left: 20%;">
+											<div id="user_filtersDiv"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<hr />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="resource_operator" class="control-label">Resource
+													Name:</label>
+											</div>
+											<div class="col-xs-8">
+												<input type="text" name="resource_value" id="resource_value"
+													class="form-control input-xs" style="width: 100%;"
+													maxlength="255" placeholder="Maximum 255 characters"></input>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="resource_filter" class="control-label">Resource
+													Criteria:</label>
+											</div>
+											<div class="col-xs-8">
+												<select name="resource_filter" id="resource_filter"
+													class="form-control input-xs" style="width: 30%;">
+												</select> <select name="resource_filter_operator"
+													id="resource_filter_operator" class="form-control input-xs"
+													style="width: 19%;">
+													<option value="EQ">Equals</option>
+													<option value="NE">Not Equals</option>
+													<option value="LIKE">Like</option>
+													<option value="IN">In</option>
+												</select> <input type="text" name="resource_filter_value"
+													id="resource_filter_value" class="form-control input-xs"
+													style="width: 38%;" maxlength="255"
+													placeholder="Max 255 characters"></input>
+												<button type="button" class="btn btn-sm addFilter resource input-xs"
+													id="resource_addFilter" name="resource_addFilter">
+													<img src='../core/images/glyphicon_plus.png' width="50%"
+														height="50%" />
+												</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12" style="padding-left: 20%;">
+											<div id="resource_filtersDiv" class="input-xs"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<hr />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="policy_operator" class="control-label">Policy
+													Full Name:</label>
+											</div>
+											<div class="col-xs-8">
+												<input type="text" name="rptDefCntInPlcTxt"
+													id="rptDefCntInPlcTxt" class="form-control input-xs"
+													value="Any Policy" style="width: 90%;" readonly>
+												<button type="button" class="btn btn-xs lookup input-xs"
+													id="lookupPlcBtn" name="lookupPlcBtn">
+													<img src='../core/images/glyphicon_search.png' width="50%"
+														height="50%" />
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="policy_filter" class="control-label">Policy
+													Criteria:</label>
+											</div>
+											<div class="col-xs-8">
+												<select name="policy_filter" id="policy_filter"
+													class="form-control input-xs" style="width: 30%;">
+												</select> <select name="policy_filter_operator"
+													id="policy_filter_operator" class="form-control input-xs"
+													style="width: 19%;">
+													<option value="EQ">Equals</option>
+													<option value="NE">Not Equals</option>
+													<option value="LIKE">Like</option>
+													<option value="IN">In</option>
+												</select> <input type="text" name="policy_filter_value"
+													id="policy_filter_value" class="form-control input-xs"
+													style="width: 38%;" maxlength="255"
+													placeholder="Max 255 characters"></input>
+												<button type="button" class="btn btn-sm addFilter policy input-xs"
+													id="policy_addFilter" name="policy_addFilter">
+													<img src='../core/images/glyphicon_plus.png' width="50%"
+														height="50%" />
+												</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12" style="padding-left: 20%;">
+											<div id="policy_filtersDiv" class="input-xs"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<hr />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12" style="margin-left: -13px;">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+											<div class="col-xs-2">
+												<label for="others_filter" class="control-label">Other
+													Criteria:</label>
+											</div>
+											<div class="col-xs-8">
+												<select name="others_filter" id="others_filter"
+													class="form-control input-xs" style="width: 30%;">
+												</select> <select name="others_filter_operator"
+													id="others_filter_operator" class="form-control input-xs"
+													style="width: 19%;">
+													<option value="EQ">Equals</option>
+													<option value="NE">Not Equals</option>
+													<option value="LIKE">Like</option>
+													<option value="IN">In</option>
+												</select> <input type="text" name="others_filter_value"
+													id="others_filter_value" class="form-control input-xs"
+													style="width: 38%;" maxlength="255"
+													placeholder="Max 255 characters"></input>
+												<button type="button" class="btn btn-sm addFilter others input-xs"
+													id="others_addFilter" name="others_addFilter">
+													<img src='../core/images/glyphicon_plus.png' width="50%"
+														height="50%" />
+												</button>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12" style="padding-left: 20%;">
+											<div id="others_filtersDiv" class="input-xs"></div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12"></div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12" style="margin-top: 10px;padding-left: 4%;">
+											<label for="selectDisplay">Display Columns :</label> <span
+												id="displayColumnTable" class="formtable"></span>
+											<button id="selectDisplay" name="selectDisplay" type="button"
+												class="btn btn-xs btn-default input-xs">
+												<img src='../core/images/glyphicon-align-justify.png'
+													width="60%" height="60%" />
+												<!--  <i class="glyphicon glyphicon-align-justify"></i> -->
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="mtabs-3" style="width: 750px;">
+						<div class="container-fluid" id="general_content">
+						    <div class="row">
+							    <div class="col-xs-12">
+									<div id="tagFormErrorAlert" class="alert alert-danger"
+										style='display: none;'>
+										<a href="#" style="bottom:5px; position:relative;" class="close"
+											onclick="$('#tagFormErrorAlert').hide();">&times;</a><strong>Error!</strong>
+										<span id="tagErrorMsg"></span>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="form-group row">
+										<div class="col-xs-12 form-inline">
+												<div class="col-xs-5">
+													<label for="tag_name" class="control-label">Name</label> <input
+														type="text" name="tag_name" id="tag_name" class="form-control input-xs" style="width:80%;" maxlength="255" placeholder="Max 255 characters" tabindex="1">
+												</div>
+												<div class="col-xs-7">
+													<button type="button" class="btn btn-sm input-xs" id="addTag"
+														name="addTag" style="float:right;" tabindex="3">
+														<img src='../core/images/glyphicon_plus.png' width="50%"
+															height="50%" />
+													</button>
+													<span style="display:block;overflow:hidden;">
+														<label for="tag_value" class="control-label">Value</label> 
+														<input type="text" name="tag_value" id="tag_value" class="form-control input-xs" style="width:85%;" maxlength="255" placeholder="Max 255 characters" tabindex="2">
+													</span>
+												</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div id="tagsDiv"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="mtabs-4" style="width: 750px;">
+						<div class="container-fluid" id="general_content">
+							<div class="row">
+								<div class="col-xs-12">
+									<div id="accessFormErrorAlert" class="alert alert-danger"
+										style='display: none;'>
+										<a href="#" style="bottom: 5px; position: relative;"
+											class="close" onclick="$('#accessFormErrorAlert').hide();">&times;</a><strong>Error!</strong>
+										<span id="accessFormErrorMsg"></span>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="form-group row">
+										<div class="row" style="margin-top: 10px;">
+											<div class="col-xs-8 form-group">
+												<div class="control-group">
+													<input id="is_save_only_mode" type="hidden" value="true" />
+													<label for="monitor_shared_mode" class="control-label">Share with :</label>
+													<div class="controls"
+														style="margin-left: 15px; margin-top: -10px;">
+														<label class="radio "> <input type="radio"
+															name="monitor_shared" id="monitor_shared_only_me"
+															value="only_me" checked="checked" class="input-xs"> Only me
+														</label> <label class="radio"> <input type="radio"
+															name="monitor_shared" id="monitor_shared_public"
+															value="public"  class="input-xs"> Public
+														</label> <label class="radio"> <input type="radio"
+															name="monitor_shared" id="monitor_shared_users"
+															value="users"  class="input-xs"> Users/Groups
+														</label>
+													</div>
+												</div>
+
+											</div>
+											<div id="shared_mode_users" class="col-xs-8 form-group" style="margin-top: -10px;">
+												<ul id='shared_mode_users_list'
+													class="form-control input-xs"></ul>
+												<input id="selected_users_to_share" type="hidden" value="">
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<div id="tagsDiv"></div>
+								</div>
+							</div>
+						</div>
+					</div></form>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-12"   align="center" style="bottom:0px;top:5px;">
+				<button type="button" class="btn btn-primary btn-sm" id="save">Save</button>
+				<button type="reset" class="btn btn-primary btn-sm" id="cancel">Cancel</button>
+				<input type="hidden" id="id" name="id" />
+			</div>
+		</div>
+
+		<div id="sel-column" style="display: none">
+			<div class="row">
+				<div class="col-xs-12">
+					<form id="column-form">
+						<label for="colToDisplay">Columns to display :</label><br>
+						<div>
+							<select name="columnDispSelect[]" id='columnDispSelect'
+								multiple='multiple' size='15'>
+
+							</select>
+						</div>
+						<div align="center">
+							<button id="ok" type="button" class="btn btn-primary btn-sm">Ok</button>
+							<button type="button" class="btn btn-primary btn-sm"
+								onclick="closeColumnDisplayModal()">Cancel</button>
+							<input type="hidden" id="id" name="id" />
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+
+		<%!MonitoringService service = new MonitoringService();%>
+
+<script type="text/javascript">
+var monitors = <%=service.getMonitorsJSON(request).toString()%>;
+
+var contextPath = "${pageContext.request.contextPath}";
+
+var monitorURL = "${pageContext.request.contextPath}/monitorServlet";
+
+var saveReportURL = "${pageContext.request.contextPath}/reportServlet";
+
+var oTable;
+
+var selectedData = {};
+var shared_mode = "only_me";
+var user_ids = [];
+
+var appUsersData = null;
+var appUsersMap = {};
+var appUsersDisplay = [];
+var isAdminUser;
+
+var groupUsersData = null;
+var groupUsersMap = {};
+var groupUsersDisplay = [];
+var group_ids = [];
+
+var resourceTypeColumnMap = new Object(); 
+var listOfUserAndGroup = [];
+
+$(document).ready(function() {
+	var style = "<style type=\"text\/css\"> " +
+	"table.dataTable tbody td {" +
+		  "text-align:left;" +
+	"} </style>";
+	
+	$("head").append(style);
+
+	//checkUserRole();
+	
+	//show dialog on button click
+	validateSession();
+	
+	loadActions(saveReportURL, 'action');
+	$( "[id='myMonitorsDefinitionSubview:primaryNavSubview:prmNavFrm:primaryNavMenu-monitors:li']" ).addClass("current2");
+	$( "[id='myMonitorsDefinitionSubview:secondaryNavSubview:monitoringSecNavFrm:monitoringSecondaryNavMenu-monitors']" ).css("color","green");
+	$("#monitor-tabs").tabs({active:0});
+	$("#monitor-tabs").tabs().css({
+   		'min-height': '700px',
+   		'max-height': '700px',
+   		'height': '750px',
+   		'overflow-y': 'auto',
+   		'overflow-x': 'hidden',
+	});
+
+	$("#addMonitor").click(function() {
+
+		validateSession();
+		resetMonitorForm();
+		
+		//always show the first tab
+		$('#link-1').click();
+		
+		
+	    var popup = $( "#add-monitor" ).dialog({
+		      modal: true,
+		      width: '750px',
+
+		      resizable: false,
+		      close: function(){
+		    	 	$("div#filtersDiv").html("");
+		  			$("div#aggregatorsDiv").html("");
+		  			$("div#tagsDiv").html("");
+		      }
+		    });
+	    
+	    popup.dialog('option', 'title', 'Create Monitor');
+	    popup.dialog('option', 'position', 'center');
+	    //$('input, text').placeholder();
+	});
+
+	$("#send_email").change(function() {
+		
+		if($("#send_email").is(":checked")) {
+			$("#email").attr("disabled", false);
+		} else {
+			$("#email").attr("disabled", true);
+		}
+	});
+	
+	
+	$("#email").attr("disabled", true);
+	
+	$("body").on("click",".addFilter",addFilter);
+	$("body").on("click","#addAggregate",addAggregate);
+	$("body").on("click","#addTag",addTag);
+	$("body").on("click", ".remove", removeDiv);
+	$("body").on("click", ".removeTag", removeTag);
+	
+	// when clicked on close
+	$("body").on("click", "#cancel", closeModal);
+	// when clicked on cancel
+	$("body").on("click", "#save", saveMonitor);
+	
+	//When click on Ok button on select column dialog
+	$("body").on("click", "#ok", showDisplayColumn);
+	$("body").on("click", "#resetColumnToDisplay", clearColumnsToDisplay);
+	
+	getFilterLists("RESOURCE","res_criteria", 'resource_col', 'sort_grp_resource', 'res');
+    getFilterLists("USER","usr_criteria", 'user_col', 'sort_grp_user', 'usr');
+	getFilterLists("POLICY","plc_criteria", 'policy_col', 'sort_grp_policy', 'plc');
+	getFilterLists("OTHERS","oth_criteria", 'others_col', 'sort_grp_others', 'oth');
+	
+	
+	checkPermissionToEdit();
+	//in lookup.js
+	initializeLookupComponents(saveReportURL);
+	
+	$("body").on("click","#lookupUsrBtn", lookupUsersPopup);
+	$("body").on("click","#lookupPlcBtn", lookupPoliciesPopup);
+	
+	
+	//show dialog on button click
+	$("#selectDisplay").click(function() {
+		
+	    var popup = $( "#sel-column" ).dialog({
+		      height: 'auto',
+		      width:'auto',
+		      modal: true,
+		      close : function(){
+		    	  selectColumnPopupCanceled();
+		      }
+		    });
+	    
+	    popup.dialog('option', 'title', 'Select Display Column');
+	 });
+    
+	renderMonitorsTable();
+    //fetchPolicies();
+    fetchFields();
+    
+    shared_mode = "only_me";
+    radioButtonSelectedValueSet("monitor_shared", shared_mode);
+	appUsersData = populateAppUsers();
+	groupUsersData = populateGroupUsers();
+	
+	prepareDataForSavePopup();
+    
+} );
+
+
+
+	//Disable the right to edit saved reports for Report User
+	function disableFormForReportUser(canEdit) {
+		var permissionToEdit = !canEdit;
+		
+		$('#user_addFilter').attr('disabled', permissionToEdit);
+		$('#resource_addFilter').attr('disabled', permissionToEdit);
+		$('#lookupPlcBtn').attr('disabled', permissionToEdit);
+		$('#policy_addFilter').attr('disabled', permissionToEdit);
+		$('#others_addFilter').attr('disabled', permissionToEdit);
+		$('#selectDisplay').attr('disabled', permissionToEdit);
+		$("#tagsDiv").attr('disabled', permissionToEdit);
+		$('#save').attr('disabled', permissionToEdit);
+		$('.input-xs').attr('disabled', permissionToEdit);
+		$('.removeTag').attr('disabled', permissionToEdit);
+		$('.lookup').attr('disabled', permissionToEdit);
+		
+		
+		if(permissionToEdit) {
+			$('#shared_mode_users_list .tagit-new > input').hide()
+			$('#shared_mode_users_list > li > a').hide()
+		} else {
+			$('#shared_mode_users_list .tagit-new > input').show()
+			$('#shared_mode_users_list > li > a').show()
+		}
+	}
+
+	function populateColumnDispSelect(selectedColumns) {
+		tempSelectColumns = [];
+		// keep in temp list for reset in cancel or close.
+		tempSelectColumns = selectedColumns.slice();
+		
+		var userTypes = resourceTypeColumnMap['USER'];
+		var resourceTypes = resourceTypeColumnMap['RESOURCE'];
+		var policyTypes = resourceTypeColumnMap['POLICY'];
+		var otherTypes = resourceTypeColumnMap['OTHERS'];
+
+		var allTypes = [];
+
+		getOptionTypes(allTypes, userTypes);
+		getOptionTypes(allTypes, resourceTypes);
+		getOptionTypes(allTypes, policyTypes);
+		getOptionTypes(allTypes, otherTypes);
+
+		$('#columnDispSelect optgroup').remove();
+		$('#columnDispSelect option').remove();
+
+		if (selectedColumns != null) {
+			$('#columnDispSelect').empty().multiselect2side('destroy');
+		}
+
+		var selectList = "";
+		var selectedOptions = "";
+
+		selectList += createOptionListWithSelectedData(allTypes,
+				selectedColumns);
+		selectedOptions += createOptionsforSelectedList(allTypes,
+				selectedColumns);
+
+		$('#columnDispSelect').append(selectList);
+		if (selectedColumns != null) {
+			$('#columnDispSelect').multiselect2side({
+			//optGroupSearch : "Group: "
+			});
+
+			$(".ms2side__header ").css({
+				"background-color" : "whitesmoke",
+				"margin-left" : "0px"
+			});
+		}
+
+		$("#columnDispSelectms2side__dx option").remove();
+		$("#columnDispSelectms2side__dx").append(selectedOptions);
+
+		if (!isAdminUser)
+			$("#selectDisplay").attr("disabled", true);
+		else
+			$("#selectDisplay").attr("disabled", false);
+	}
+
+	function createOptionListWithSelectedData(optionTypes, selectedColumns) {
+		var selectOptions = "";
+		var isSelected = false;
+
+		for ( var i in optionTypes) {
+
+			var optVal = optionTypes[i].split("|");
+			isSelected = false;
+
+			if (selectedColumns != null && selectedColumns.length > 0) {
+				$.each(selectedColumns, function(index, item) {
+					if (selectedColumns[index] == optVal[0]) {
+						isSelected = true;
+					}
+				});
+			}
+
+			if ('DATE' == optVal[1]) {
+
+			} else {
+				selectOptions += "<option value='" + optVal[0] + "' "
+						+ (isSelected ? "selected='selected'" : "") + ">"
+						+ optVal[1] + "</option>";
+			}
+
+		}
+		return selectOptions;
+	}
+
+	function createOptionsforSelectedList(optionTypes, selectedColumns) {
+		var selectedOptions = "";
+		for ( var i in selectedColumns) {
+			var colValue = selectedColumns[i];
+
+			$.each(optionTypes,
+							function(index, item) {
+								var optVal = optionTypes[index].split("|");
+								
+								if (colValue != null && colValue == optVal[0]) {
+									selectedOptions += "<option value='" + optVal[0] + "' selected='selected' >"
+											+ optVal[1] + "</option>";
+								}
+							});
+		}
+		return selectedOptions;
+	}
+
+	function selectColumnPopupCanceled() {
+		populateColumnDispSelect(tempSelectColumns);
+	}
+
+	function getOptionTypes(allTypes, optionTypes) {
+		for ( var i in optionTypes) {
+			allTypes.push(optionTypes[i]);
+		}
+		return allTypes;
+	}
+
+	function getFilterLists(sType, sSelectName, sCheckboxName, sSortList,
+			sPrefix) {
+
+		$
+				.ajax({
+					type : 'POST',
+					url : saveReportURL,
+					data : {
+						"TYPE" : sType,
+						"action" : "GET_MAPPING_DATA"
+					},
+					dataType : 'json',
+					success : function(data) {
+						populateResourceFilterList(sType, data, sSelectName,
+								sCheckboxName, sSortList, sPrefix);
+					},
+					error : function(xhr, status) {
+						handleError(xhr,
+								'Error encountered in loading report details');
+					},
+					async : false
+				});
+	}
+
+	function populateResourceFilterList(sType, data, sSelectName,
+			sSelectGroupCategName, sSortList, sPrefix) {
+
+		var dataValues = [];
+		for (var i = 0; i < data.length; i++) {
+
+			var attrName = data[i].attr_name;
+			var col_name = data[i].col_name
+			/* 
+			 if ("ACTION" == attrName.toUpperCase()
+			 || "LOG_LEVEL" == attrName.toUpperCase()
+			 || "USER_NAME" == attrName.toUpperCase()
+			 || "FROM_RESOURCE_NAME" == attrName.toUpperCase()
+			 || "POLICY_DECISION" == attrName.toUpperCase()
+			 || "POLICY_FULLNAME" == attrName.toUpperCase()
+			 || "DATE" == attrName.toUpperCase()) {
+			 // do not add				
+			 } else {
+			 select.options[select.options.length] = new Option(attrName,
+			 attrName);
+			 } */
+
+			dataValues[i] = sPrefix + "_" + attrName + "|" + attrName;
+		}
+		resourceTypeColumnMap[sType] = dataValues;
+	}
+
+	$(function() {
+		$("#columnDispSelectms2side__dx").selectable(
+				{
+					selected : function(event, ui) {
+						$(ui.selected).addClass("ui-selected").siblings()
+								.removeClass("ui-selected");
+					}
+				});
+	});
+
+	String.prototype.trim = function() {
+		return this.replace(/^\s+|\s+$/g, '');
+	};
+        
+	function prepareDataForSavePopup() {
+		appUsersDisplay = [];
+		if (appUsersData != null) {
+			$.each(appUsersData, function(index, value) {
+			    var fullName = value.first_name + " " + value.last_name;
+                fullName = fullName.trim();
+				appUsersDisplay.push(fullName);
+				appUsersMap[value.username] = fullName;
+				listOfUserAndGroup.push(fullName);
+			});
+		}
+
+		groupUsersDisplay = [];
+		if (groupUsersData != null) {
+			$.each(groupUsersData, function(index, value) {
+				var groupName = value.grp_title;
+				groupUsersDisplay.push(groupName);
+				groupUsersMap[value.grp_Id] = groupName;
+				listOfUserAndGroup.push(groupName);
+			});
+		}
+
+		$('#shared_mode_users_list').hide();
+		$('input[type=radio][name="monitor_shared"]').change(
+				function() {
+					if (this.value == 'only_me') {
+						$('#shared_mode_users_list').hide();
+						$('#accessFormErrorAlert').hide();
+					} else if (this.value == 'public') {
+						$('#shared_mode_users_list').hide();
+						$('#accessFormErrorAlert').hide();
+					} else {
+						$('#selected_users_to_share').val('');
+						if (!hasAppUsers) {
+							$('#accessFormErrorAlert').html(
+									'No application users exist in system.');
+							$('#accessFormErrorAlert').show();
+							return;
+						}
+						creatNPopulateShareUsersField();
+					}
+				});
+	}
+
+	function checkPermissionToEdit() {
+		var action = "CHECK_USER_ACCESS";
+		post_data = {};
+
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				//alert("app permission:" + response.is_reproter_admin);
+				isAdminUser = response.is_reproter_admin[0];
+				$('#addMonitor').attr('disabled', !isAdminUser);
+			},
+			error : function(xhr, status) {
+				handleError(xhr,
+						'Error encountered in loading the saved report');
+			},
+			async : false
+		});
+	}
+
+	function populateAppUsers() {
+		var action = "LIST_APPLICATION_USERS";
+		post_data = {};
+		var appUsers;
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				hasAppUsers = true;
+				appUsers = response.app_users;
+				return appUsers;
+			},
+			error : function(xhr, status) {
+				hasAppUsers = false;
+				errorHandlerWithReload();
+			},
+			async : false
+		});
+		return appUsers;
+	}
+
+	function populateGroupUsers() {
+		var action = "LIST_USER_GROUPS";
+		post_data = {};
+		var appUsers;
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				groupUser = response.user_groups;
+			},
+			error : function(xhr, status) {
+				errorHandlerWithReload();
+			},
+			async : false
+		});
+		return groupUser;
+	}
+
+	/*
+	function checkUserRole() {
+	 	var action = "CHECK_USER_ACCESS";
+		post_data = {};
+
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				//alert("app permission:" + response.is_reproter_admin);
+				isAdminUser = response.is_reproter_admin[0];
+				if (!isAdminUser) {
+					window.location = contextPath + "/login/login.jsf";
+				}
+			},
+			error : function(xhr, status) {
+				handleError(xhr,
+						'Error encountered in loading the saved report');
+			},
+			async : false
+		}); 
+	}*/
+
+	function renderMonitorsTable() {
+		var tableHdr = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="monitorsList">'
+				+ '<thead><tr>'
+				+ '<th>Name</th><th>Description</th><th>Level</th><th>Created At</th><th>Last Updated At</th><th>Actions</th>'
+				+ '</tr></thead></table>';
+
+		$('#monitors').html(tableHdr);
+		oTable = $('#monitorsList')
+				.DataTable(
+						{
+							"pagingType" : "full_numbers",
+							"bAutoWidth" : false,
+							"bJQueryUI" : true,
+							"aaData" : monitors,
+							"fnCreatedRow" : function(nRow, aData, iDataIndex) {
+								$(nRow).attr("id", $.trim(aData.monitor_uid));
+							},
+							"aoColumns" : [ {
+								"sTitle" : "Name",
+								"mData" : "name",
+								"sWidth" : "25%"
+							}, {
+								"sTitle" : "Description",
+								"mData" : "description",
+								"sWidth" : "25%"
+							}, {
+								"sTitle" : "Level",
+								"mData" : "level",
+								"sWidth" : "8%"
+							}, {
+								"sTitle" : "Created At",
+								"mData" : "created_at",
+								"sWidth" : "13%"
+							}, {
+								"sTitle" : "Last Updated At",
+								"mData" : "updated_at",
+								"sWidth" : "13%"
+							}, {
+								"sTitle" : "Actions",
+								"mData" : "id",
+								"bSortable" : false,
+								"bSearchable" : false,
+								"sWidth" : "16%"
+							} ],
+							"columnDefs" : [
+									{
+										"targets" : 0,
+										"data" : "name",
+										"render" : function(data, type, full,
+												meta) {
+											var name = shortenString(data);
+											return escapeHTML(name);
+										}
+									},
+									{
+										"targets" : 1,
+										"data" : "description",
+										"render" : function(data, type, full,
+												meta) {
+											if (data == null
+													|| typeof data == 'undefined') {
+												return "";
+											}
+											var description = shortenString(data);
+											return escapeHTML(description);
+										}
+									},
+									{
+										"targets" : 5,
+										"render" : function(data, type, full,
+												meta) {
+											var activeLink = "<span style='cursor:pointer' id='status_monitor_" + full.id + "' class='deactivate'>Deactivate</span>";
+											if (full.is_active == false) {
+												activeLink = "<span style='cursor:pointer' id='status_monitor_" + full.id + "' class='activate'>Activate</span>";
+											}
+											
+											var actionHtml = "";
+											
+											if(full.can_edit) {
+												actionHtml = "<span style='cursor:pointer' id='edit_monitor_" + full.id + "' class='edit'>Edit</span> | "
+												+ "<span style='cursor:pointer' id='delete_monitor_" + full.id + "' class='delete'>Delete</span> | " + activeLink;
+											} else {
+												actionHtml = "<span style='cursor:pointer' id='edit_monitor_" + full.id + "' class='edit'>View</span> "
+											}
+											return actionHtml;
+										}
+									} ]
+						});
+		attachEventsHandlersForMonitorActions();
+		//highlight the selected monitor
+		$('#monitorsList tbody').on('click', 'tr', function() {
+			if ($(this).hasClass('row_selected')) {
+				$(this).removeClass('row_selected');
+			} else {
+				oTable.$('tr').removeClass('row_selected');
+				$(this).addClass('row_selected');
+			}
+		});
+		$('#monitorsList tbody').on('click', 'tr td span', function() {
+			oTable.$('tr').removeClass('row_selected');
+		});
+	}
+
+	var policyList = [];
+
+	var prefixMap = {};
+
+	prefixMap["RESOURCE"] = "res";
+	prefixMap["USER"] = "usr";
+	prefixMap["POLICY"] = "plc";
+	prefixMap["OTHERS"] = "oth";
+
+	/*
+	 * This map will contain field type as key and list of fields as value
+	 */
+	var fieldsMap = {};
+
+	/**
+	 * populate watches select element using the watches in policyList
+	 */
+	function populateFields() {
+		function capitalize(string) {
+			return string.charAt(0).toUpperCase()
+					+ string.slice(1).toLowerCase();
+		}
+
+		var groupingOption = "";
+		for ( var key in fieldsMap) {
+			var fieldObjArray = fieldsMap[key];
+
+			var prefix = prefixMap[key];
+			var filterOptions = "";
+
+			for (i = 0; i < fieldObjArray.length; i++) {
+
+				var attrName = fieldObjArray[i].attr_name;
+
+				if (key == "OTHERS") {
+					if ("ACTION" == attrName.toUpperCase()
+							|| "LOG_LEVEL" == attrName.toUpperCase()
+							|| "DATE" == attrName.toUpperCase()) {
+						continue;
+					}
+				} else if (key == "USER") {
+					if ("USER_NAME" == attrName.toUpperCase()) {
+						continue;
+					}
+				} else if (key == "POLICY") {
+					if ("POLICY_DECISION" == attrName.toUpperCase()
+							|| "POLICY_FULLNAME" == attrName.toUpperCase()) {
+						continue;
+					}
+				} else if (key == "RESOURCE") {
+					if ("FROM_RESOURCE_NAME" == attrName.toUpperCase()) {
+						continue;
+					}
+				}
+				var option = "<option value='"+ prefix + "_" + fieldObjArray[i].attr_name + "'>"
+						+ fieldObjArray[i].attr_name + "</option>";
+				filterOptions += option;
+
+			}
+			/*
+			populate the respective filter dropdown
+			 */
+			$('#' + key.toLowerCase() + '_filter').append(filterOptions);
+		}
+	}
+
+	/**
+	 * fetch policies from the server side
+	 */
+	function fetchFields() {
+		// Send the data using post
+		var fieldsRequest = $.post(monitorURL, {
+			"action" : "FIELDS_LIST"
+		});
+
+		/*
+		success
+		 */
+		fieldsRequest.done(function(data) {
+
+			var fields = data;
+			/*
+			clear fieldsMap
+			 */
+			delete fieldsMap;
+			fieldsMap = {};
+
+			/*
+			segregate fields based on their type
+			 */
+			for (var i = 0; i < fields.length; i++) {
+				var obj = fields[i];
+				/*
+				if type not already present, initialize with empty array
+				 */
+				if (!(obj.attr_type in fieldsMap)) {
+					fieldsMap[obj.attr_type] = [];
+				}
+				fieldsMap[obj.attr_type].push(obj);
+			}
+
+			populateFields();
+
+		});
+
+		/*
+		fail
+		 */
+		fieldsRequest
+				.fail(function(data) {
+					$
+							.alert(
+									"Error fetching data required to load the page. Please try after sometime",
+									"ERROR!", function() {
+									});
+				});
+	}
+
+	function attachEventsHandlersForMonitorActions() {
+		//$("#monitors").on("click", "span.run", runMonitor);
+		$("#monitors").on("click", "span.edit", showEditForm);
+		$("#monitors").on("click", "span.delete", deleteMonitorWrapper);
+		$("#monitors").on("click", "span.deactivate", deactivateMonitor);
+		$("#monitors").on("click", "span.activate", activateMonitor);
+	}
+
+	function deleteMonitorWrapper() {
+		var monitor = this;
+
+		var td = $(this).closest('tr').children();
+		var monitorName = $(td[0]).text();
+		$
+				.confirm(
+						"Are you sure you want to delete \""
+								+ monitorName
+								+ "\"? All Alerts generated by this Monitor will also be deleted",
+						"Delete Monitor", function() {
+							deleteMonitor(monitor);
+						});
+	}
+
+	function deleteMonitor(that) {
+		validateSession();
+		var id = $(that).attr('id').replace('delete_monitor_', '');
+
+		$(that).closest('tr').attr('id', 'row_' + id);
+
+		// Send the data using post
+		var posting = $.post(monitorURL, {
+			"action" : "DELETE_MONITOR",
+			"id" : id
+		});
+
+		// Put the results in a div
+		posting.done(function(data) {
+			oTable.row($(that).parents('tr')).remove().draw(false);
+			//alert("deletion successful");
+		});
+
+		posting.fail(function(data) {
+			//alert("deletion failed");
+
+			$.alert("Error deleting Monitor", "ERROR!", function() {
+			});
+
+		});
+	}
+
+	function deactivateMonitor() {
+		validateSession();
+		var id = $(this).attr('id').replace('status_monitor_', '');
+
+		// Send the data using post
+		var posting = $.post(monitorURL, {
+			"action" : "DEACTIVATE_MONITOR",
+			"id" : id
+		});
+
+		// Put the results in a div
+		posting.done(function(data) {
+			$("#status_monitor_" + id).html("Activate").switchClass(
+					"deactivate", "activate");
+		});
+
+		posting.fail(function(data) {
+			$.alert("Error deactivating Monitor", "ERROR!", function() {
+			});
+		});
+	}
+
+	function activateMonitor() {
+		validateSession();
+		var id = $(this).attr('id').replace('status_monitor_', '');
+
+		// Send the data using post
+		var posting = $.post(monitorURL, {
+			"action" : "ACTIVATE_MONITOR",
+			"id" : id
+		});
+
+		// Put the results in a div
+		posting.done(function(data) {
+			$("#status_monitor_" + id).html("Deactivate").switchClass(
+					"activate", "deactivate");
+			//alert("activation successful");
+		});
+
+		posting.fail(function(data) {
+			$.alert("Error activating Monitor", "ERROR!", function() {
+			});
+		});
+	}
+
+	function addFilter() {
+		$("#filterFormErrorAlert").hide();
+		/*
+		find addFilter is clicked for what attr type
+		 */
+		var attr_type = $(this).attr('id').replace("_addFilter", "");
+		attr_type = $.trim(attr_type);
+
+		var fValue = $("#" + attr_type + "_filter_value").val();
+
+		$("#" + attr_type + "_filter_value").val("");
+
+		if (fValue === "" || checkForiChars(fValue)) {
+			$("#filterErrorMsg").html(
+					"Please enter a non-empty valid String. characters "
+							+ iChars + " are not allowed.")
+			$("#filterFormErrorAlert").show();
+			return;
+		}
+
+		var filter = $("#" + attr_type + "_filter").val();
+		var filter_operator = $("#" + attr_type + "_filter_operator").val();
+
+		addFilterHTML(filter, filter_operator, fValue, attr_type);
+	}
+
+	function addFilterHTML(filter, operator, value, attr_type) {
+
+		if (operator.toUpperCase() == 'LIKE') {
+			value = value.trim();
+			value = (value.indexOf('%') == 0) ? value.substring(1) : value;
+			value = (value.lastIndexOf('%') == (value.length - 1)) ? value
+					.substring(0, (value.length - 1)) : value;
+		}
+
+		value = value.trim();
+
+		var content = "<div class='col-xs-4 row' style='word-wrap:break-word;'><span class='filter_name' style='word-wrap:break-word;'>"
+				+ escapeHTML(filter.replace(/(res_|oth_|plc_|usr_)/, ''))
+				+ "</span></div><div class='col-xs-1'><span class='filter_operator'>"
+				+ getOperator(operator)
+				+ "</span></div><div class='col-xs-4' style='word-wrap:break-word;'><span class='filter_value' style='word-wrap:break-word;'>"
+				+ escapeHTML(value)
+				+ "</span>&nbsp;&nbsp;&nbsp; </div><button type='button' class='btn btn-xs input-xs remove' name='remove'>[<span class='glyphicon glyphicon-minus'></span>]</button>";
+
+		var filter_class = escapeClass(filter);
+
+		if ($("#" + attr_type + "_filtersDiv " + "div.filter." + filter_class).length > 0) {
+			$(
+					$("#" + attr_type + "_filtersDiv " + "div.filter."
+							+ filter_class)[0]).html(content);
+			return;
+		}
+
+		var filterHTML = "<div class='filter " + filter_class + "'>" + content
+				+ "</div>";
+
+		$("#" + attr_type + "_filtersDiv").append(filterHTML);
+	}
+
+	function addTag() {
+		$("#tagFormErrorAlert").hide();
+		var tagName = $.trim($("#tag_name").val());
+		var tagValue = $.trim($("#tag_value").val());
+
+		$("#tag_value").val("");
+		$("#tag_name").val("");
+
+		if (tagValue === "" || tagName === "" || checkForiChars(tagValue)
+				|| checkForiChars(tagName)) {
+			$("#tagErrorMsg").html(
+					"Please enter a non-empty valid String. characters "
+							+ iChars + " are not allowed.")
+			$("#tagFormErrorAlert").show();
+			return;
+		}
+
+		addTagHTML(tagName, tagValue);
+	}
+
+	function addTagHTML(tagName, tagValue) {
+
+		var alreadyExists = false;
+		$("#tagsDiv > div.tag").each(function() {
+			if ($(this).find("span.tag_name").text() == escapeHTML(tagName)) {
+				$(this).find("span.tag_value").text(escapeHTML(tagValue));
+				alreadyExists = true;
+				return;
+			}
+		});
+
+		if (alreadyExists) {
+			return;
+		}
+
+		var content = "<div class=\"col-xs-12\" style='margin-left:-13px;'> <div class='col-xs-5' style='word-wrap:break-word;'>"
+				+ "<b>Name:</b> <span class='tag_name' style='word-wrap:break-word;'>"
+				+ escapeHTML(tagName)
+				+ "</span> </div>"
+				+ "<div class=\"col-xs-5\" style='margin-left:12px;word-wrap:break-word;'>"
+				+ "<b>Value:</b> <span class='tag_value' style='word-wrap:break-word;'>"
+				+ escapeHTML(tagValue)
+				+ "</span></div> <button type='button' class='btn btn-xs removeTag' name='remove'>[<span class='glyphicon glyphicon-minus'></span>]</button></div>";
+
+		var tagHTML = "<div class='tag'>" + content + "</div>";
+
+		$("#tagsDiv").append(tagHTML);
+	}
+
+	function addAggregate() {
+		$("#generalFormErrorAlert").hide();
+		var aValue = $.trim($("#aggregate_value").val());
+
+		if (aValue === "" || isNaN(aValue)) {
+			$("#generalErrorMsg").html(
+					"Please enter a valid number as Aggregate value")
+			$("#generalFormErrorAlert").show();
+			return;
+		}
+
+		$("#aggregate_value").val("");
+
+		var aggregate = $("#aggregator").val();
+		var aggregate_operator = $("#aggregate_operator").val();
+		var aggregate_function = $("#function").val();
+
+		addAggregatorHTML(aggregate, aggregate_function, aggregate_operator,
+				aValue);
+	}
+
+	function addAggregatorHTML(aggregate, aggregate_function,
+			aggregate_operator, value) {
+		var content = "<span class='aggregate_name'>"
+				+ aggregate
+				+ "</span>&nbsp;&nbsp;<span class='aggregate_function'>"
+				+ aggregate_function
+				+ "</span>&nbsp;&nbsp;<span class='aggregate_operator'>"
+				+ getOperator(aggregate_operator)
+				+ "</span>&nbsp;&nbsp;<span class='aggregate_value'>"
+				+ escapeHTML(value)
+				+ "</span>&nbsp;&nbsp;&nbsp; <button type='button' class='btn btn-xs input-xs remove' name='remove'>[<span class='glyphicon glyphicon-minus'></span>]</button>";
+
+		var aggregate_class = escapeClass(aggregate);
+
+		if ($("div.aggregate." + aggregate_class).length > 0) {
+			$($("div.aggregate." + aggregate_class)[0]).html(content);
+			return;
+		}
+
+		var aggregateHTML = "<div class='aggregate " + aggregate_class + "'>"
+				+ content + "</div>";
+
+		$("#aggregatorsDiv").append(aggregateHTML);
+	}
+
+	function removeDiv() {
+		$(this).closest("div").remove();
+	}
+
+	function removeTag() {
+		$(this).closest("div.tag").remove();
+	}
+
+	function closeModal() {
+		$("#add-monitor").dialog("close");
+	}
+
+	function closeColumnDisplayModal() {
+		$("#sel-column").dialog("close");
+	}
+
+	function showEditForm() {
+		resetMonitorForm();
+
+		var id = $(this).attr('id').replace('edit_monitor_', '');
+
+		var request = $.post(monitorURL, {
+			"id" : id,
+			"action" : "MONITOR_DETAILS"
+		});
+
+		request.done(populateFormForEdit);
+		request.fail(function() {
+			$.alert("Error fetching Monitor Details", "ERROR!", function() {
+			});
+		});
+
+	}
+
+	function getAttrType(attr_name) {
+
+		if (attr_name.indexOf("usr_") == 0) {
+			return "USER";
+		} else if (attr_name.indexOf("res_") == 0) {
+			return "RESOURCE";
+		} else if (attr_name.indexOf("plc_") == 0) {
+			return "POLICY";
+		} else {
+			return "OTHERS";
+		}
+	}
+
+	function getOperator(operator) {
+		operator = operator.toLowerCase();
+		if (operator == 'eq') {
+			return '==';
+		} else if (operator == 'in') {
+			return 'in';
+		} else if (operator == 'ne') {
+			return '!=';
+		} else if (operator == 'like') {
+			return 'like';
+		} else if (operator == 'gt') {
+			return '&gt;';
+		} else if (operator == 'ge') {
+			return '&gt;=';
+		} else if (operator == 'lt') {
+			return '&lt;';
+		} else if (operator == 'le') {
+			return '&lt;=';
+		} else
+			return '==';
+	}
+
+	function getTextOperator(oper) {
+		if (oper == '==') {
+			return 'EQ';
+		} else if (oper == 'in') {
+			return 'IN';
+		} else if (oper == '!=') {
+			return 'NE';
+		} else if (oper == 'like') {
+			return 'LIKE';
+		} else if (oper == '>') {
+			return 'GT';
+		} else if (oper == '>=') {
+			return 'GE';
+		} else if (oper == '<') {
+			return 'LT';
+		} else if (oper == '<=') {
+			return 'LE';
+		} else
+			return 'EQ';
+	}
+
+	function populateFormForEdit(data) {
+		validateSession();
+
+		clearLookupSelectedValues();
+
+		$("#id").val(data.id);
+		$("#name").val(data.name);
+		$("#description").val(data.description);
+		$("#alert_message").val(data.message);
+		$('#log').prop('checked', !data.auto_dismiss);
+		$('#send_email').prop('checked', data.send_email);
+
+		if ($("#send_email").is(":checked")) {
+			$("#email").attr("disabled", false);
+		} else {
+			$("#email").attr("disabled", true);
+		}
+		$("#email").val(data.email);
+
+		//$("#level").val(data.level);
+
+		var criteria = data.criteria;
+		
+		user_ids = criteria.save_info.user_ids;
+		group_ids = criteria.save_info.group_ids;
+		
+		$('#selected_users_to_share').val("");
+	 	var selectedUsersString = "";
+	 	if(user_ids != null) {
+		 	for (i = 0; i < user_ids.length; i++) 
+		 		selectedUsersString += appUsersMap[user_ids[i]] + ",";
+	 	}
+	 	
+		if(group_ids != null) {
+	 	for (i = 0; i < group_ids.length; i++) 
+	 		selectedUsersString += groupUsersMap[group_ids[i]] + ",";
+		}
+	 	
+	 	$('#selected_users_to_share').val(selectedUsersString);
+
+		
+		if(criteria.save_info == null || criteria.save_info.shared_mode == null){
+			shared_mode = "public";
+		} else {
+			shared_mode = criteria.save_info.shared_mode;
+		}
+
+
+		if (shared_mode == "only_me") {
+			radioButtonSelectedValueSet("monitor_shared", "only_me");
+			$('#shared_mode_users_list').hide();
+
+		} else if (shared_mode == "public") {
+			radioButtonSelectedValueSet("monitor_shared", "public");
+			$('#shared_mode_users_list').hide();
+		} else {
+			radioButtonSelectedValueSet("monitor_shared", "users");
+			creatNPopulateShareUsersField();
+		}
+	 	
+	 	populateDisplayColumns(criteria.header);
+
+		$("#groupby").val(criteria.grouping_mode);
+
+		var filters = criteria.filters;
+
+		if (filters == null) {
+			return;
+		}
+
+		var general = filters.general;
+
+		$("#duration").val(general.window_mode);
+
+		var generalFields = general.fields;
+
+		$.each(generalFields, function() {
+
+			$('#' + this.name).val(this.value);
+
+			if ($('#' + this.name + "_operator").length == 1) {
+				$('#' + this.name + "_operator").val(this.operator);
+			}
+		});
+
+		var user_criteria = filters.user_criteria;
+		var resource_criteria = filters.resource_criteria;
+		var policy_criteria = filters.policy_criteria;
+		var other_criteria = filters.other_criteria;
+
+		var aggregators = criteria.aggregators;
+		var tags = data.tags;
+
+		var userLookup = user_criteria.look_up_field;
+
+		if (userLookup != null) {
+			$('#rptDefCntInUsrTxt').val(userLookup.value);
+			setSelectedUsers(userLookup.value);
+			$('#user_operator').val(userLookup.operator);
+		}
+
+		$.each(user_criteria.fields, function() {
+
+			if (this.operator.toUpperCase() == 'IN'
+					|| this.operator.toUpperCase() == 'NOT_IN') {
+				this.value = this.value.join();
+			}
+
+			addFilterHTML(this.name, this.operator, this.value, getAttrType(
+					this.name).toLowerCase());
+		});
+
+		var resLookup = resource_criteria.look_up_field;
+
+		if (resLookup != null) {
+			$('#resource_value').val(resLookup.value);
+			$('#resource_operator').val(resLookup.operator);
+		}
+
+		$.each(resource_criteria.fields, function() {
+
+			if (this.operator.toUpperCase() == 'IN'
+					|| this.operator.toUpperCase() == 'NOT_IN') {
+				this.value = this.value.join();
+			}
+
+			addFilterHTML(this.name, this.operator, this.value, getAttrType(
+					this.name).toLowerCase());
+		});
+
+		var plcLookup = policy_criteria.look_up_field;
+
+		if (plcLookup != null) {
+			$('#rptDefCntInPlcTxt').val(plcLookup.value);
+			setSelectedPolicies(plcLookup.value);
+			$('#policy_operator').val(plcLookup.operator);
+		}
+
+		$.each(policy_criteria.fields, function() {
+
+			if (this.operator.toUpperCase() == 'IN'
+					|| this.operator.toUpperCase() == 'NOT_IN') {
+				this.value = this.value.join();
+			}
+
+			addFilterHTML(this.name, this.operator, this.value, getAttrType(
+					this.name).toLowerCase());
+		});
+
+		$.each(other_criteria.fields, function() {
+
+			if (this.operator.toUpperCase() == 'IN'
+					|| this.operator.toUpperCase() == 'NOT_IN') {
+				this.value = this.value.join();
+			}
+
+			addFilterHTML(this.name, this.operator, this.value, getAttrType(
+					this.name).toLowerCase());
+		});
+
+		$.each(aggregators, function() {
+			addAggregatorHTML(this.name, this["function"], this.operator,
+					this.value);
+		});
+
+		$.each(tags, function() {
+			/*
+			handle alert level attribute seperately
+			 */
+			if (this.name == "level") {
+				$("#level").val(this.value);
+				return;
+			}
+			addTagHTML(this.name, this.value);
+		});
+
+		disableFormForReportUser(data.can_edit);
+		//always show the first tab
+		$('#link-1').click();
+
+		var popup = $("#add-monitor").dialog({
+			modal : true,
+			width : '750px;',
+			resizable : false,
+			close : function() {
+				$("div#filtersDiv").html("");
+				$("div#aggregatorsDiv").html("");
+			}
+		});
+		popup.dialog('option', 'title', 'Edit/View Monitor');
+		popup.dialog('option', 'position', 'center');
+	}
+
+	function creatNPopulateShareUsersField() {
+		var parentElement = $('#shared_mode_users_list').parent();
+		$('#shared_mode_users_list').remove();
+		parentElement.prepend('<ul id="shared_mode_users_list"></ul>');
+
+		$('#shared_mode_users_list').tagit({
+			availableTags : listOfUserAndGroup,
+			singleField : true,
+			singleFieldNode : $('#selected_users_to_share')
+		});
+		$('#shared_mode_users_list').show();
+	}
+
+	function radioButtonSelectedValueSet(name, SelectdValue) {
+		$('input[name="' + name + '"][value="' + SelectdValue + '"]').prop(
+				'checked', true);
+	}
+
+	function validateMonitorName(name, monitor_id) {
+		var validationSuccess = false;
+		var action = "VALIDATE_MONITOR_NAME";
+
+		var error = false;
+
+		$.ajax({
+			type : 'POST',
+			url : monitorURL,
+			data : {
+				"id" : monitor_id,
+				"name" : name,
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				var status = response.status;
+
+				if (status == 'false') {
+					//alert("There is already a monitor with the name: " + name);
+				} else {
+					validationSuccess = true;
+				}
+			},
+			error : function(xhr, status) {
+				error = true;
+			},
+			async : false
+		});
+		return {
+			"error" : error,
+			"validation" : validationSuccess
+		};
+	}
+
+	function resetMonitorForm() {
+		$("form#monitor-form")[0].reset();
+		$("#id").val("");
+
+		if ($("#send_email").is(":checked")) {
+			$("#email").attr("disabled", false);
+		} else {
+			$("#email").attr("disabled", true);
+		}
+
+		$("#rptDefCntInUsrTxt").val("Any User");
+		$("#resource_value").val("Any Resource");
+		$("#rptDefCntInPlcTxt").val("Any Policy");
+
+		//clear all the criteria fields 
+		$("#tagsDiv").html("");
+		$("#aggregatorsDiv").html("");
+
+		$("#others_filtersDiv").html("");
+		$("#policy_filtersDiv").html("");
+
+		$("#resource_filtersDiv").html("");
+		$("#user_filtersDiv").html("");
+		$("#generalFormErrorAlert").hide();
+		$("#filterFormErrorAlert").hide();
+		$("#tagFormErrorAlert").hide();
+		
+		$('#shared_mode_users_list').hide();
+		$("#selected_users_to_share").html("");
+		
+		disableFormForReportUser(true);
+		clearLookupSelectedValues();
+
+		clearColumnsToDisplay();
+		$('#selectedDispColumns').remove();
+		// default selected columns
+		var defaultSelectedColumns = [ "usr_USER_NAME", "oth_HOST_NAME",
+				"oth_APPLICATION_NAME", "plc_POLICY_FULLNAME",
+				"plc_POLICY_DECISION" ];
+		populateColumnDispSelect(defaultSelectedColumns);
+		showDisplayColumn(false);
+
+	}
+
+	function clearColumnsToDisplay() {
+		$("form#column-form")[0].reset();
+	}
+
+	function populateDisplayColumns(headerColumns) {
+
+		if (headerColumns == null || headerColumns.length == 0) {
+			return;
+		}
+		
+		var propVal = (headerColumns + ",").toString().split(",", -1);
+		populateColumnDispSelect(propVal);
+		showDisplayColumn(false);
+	}
+
+	function validateGeneralTab() {
+		$("#generalFormErrorAlert").hide();
+		$("#accessFormErrorAlert").hide();
+		
+		validateSession();
+
+		var id = $("#id").val();
+		var name = $("#name").val();
+		var result = {};
+
+		if (name == null || name == "" || name.lenght < 1) {
+			$("#generalErrorMsg").html("Monitor name is required")
+			$("#generalFormErrorAlert").show();
+			
+			result['validated'] = false;
+			result['link'] = '#link-1';
+			return result;
+		}
+
+		if (checkForiChars(name)) {
+			$("#generalErrorMsg")
+					.html(
+							"Characters " + iChars
+									+ " are not allowed in Monitor name")
+			$("#generalFormErrorAlert").show();
+			
+			result['validated'] = false;
+			result['link'] = '#link-1';
+			return result;
+		}
+
+		var validationResult = validateMonitorName(name, id);
+		if (!validationResult.error && !validationResult.validation) {
+			$("#generalErrorMsg").html(
+					"Monitor with the same name already exists")
+			$("#generalFormErrorAlert").show();
+			
+			result['validated'] = false;
+			result['link'] = '#link-1';
+			return result;
+		}
+		if (validationResult.error) {
+			$.alert("Error saving Monitor", "ERROR!", function() {
+			});
+			
+			result['validated'] = false;
+			result['link'] = '#link-1';
+			return result;
+		}
+
+		var aggregateCount = 0;
+		$('div#aggregatorsDiv div.aggregate').each(function(index) {
+			aggregateCount++;
+		});
+
+		if (aggregateCount < 1) {
+			$("#generalErrorMsg").html(
+					"There must be at least one aggregator defined")
+			$("#generalFormErrorAlert").show();
+			
+			result['validated'] = false;
+			result['link'] = '#link-1';
+			return result;
+		}
+
+		var send_admin = $("#send_email").is(":checked");
+		var email = $("#email").val();
+
+		if (send_admin == true) {
+			if ($.trim(email) == "" || validateEmail(email)) {
+				$("#generalErrorMsg").html("Enter valid email address")
+				$("#generalFormErrorAlert").show();
+				
+				result['validated'] = false;
+				result['link'] = '#link-1';
+				return result;
+			}
+		}
+		
+		shared_mode = $("input[name='monitor_shared']:checked").val();
+
+		//get selected users
+		users_fullName = $('#selected_users_to_share').val().split(',');
+		
+		user_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+			$.each(appUsersMap, function(key, val) {
+				if (val.localeCompare(users_fullName[i]) == 0) {
+					user_ids.push(key);
+				}
+			});
+		}
+
+		group_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+			$.each(groupUsersMap, function(key, val) {
+				if (val.localeCompare(users_fullName[i]) == 0) {
+					group_ids.push(parseInt(key));
+				}
+			});
+		}
+
+		//validate shared mode 
+		if (shared_mode.localeCompare("only_me") == 0
+				|| shared_mode.localeCompare("public") == 0) {
+			user_ids = [];
+			group_ids = [];
+		} else if (shared_mode.localeCompare("users") == 0) {
+			if (user_ids.length == 0 && group_ids.length == 0) {
+				
+				$('#accessFormErrorMsg').html(
+						'You must choose at least one user or group');
+				$('#accessFormErrorAlert').show();
+				result['validated'] = false;
+				result['link'] = '#link-4';
+				return result;
+			}
+		}
+		
+		result['validated'] = true;
+		result['link'] = '#link-1';
+		return result;
+	}
+
+	function saveMonitor() {
+
+		var result = validateGeneralTab();
+		if (!result.validated) {
+			$(result.link).click();
+			return false;
+		}
+
+		var name = $("#name").val();
+		var id = $("#id").val();
+
+		var errorMessages = [];
+		var action = "CREATE_MONITOR";
+
+		if ($.isNumeric($("#id").val())) {
+			action = "EDIT_MONITOR";
+		}
+
+		var post_data = parseMonitorData(errorMessages);
+
+		if (errorMessages.length > 0) {
+			$.alert(errorMessages.join("<br/>"), "ERROR!", function() {
+			});
+			return false;
+		}
+
+		var posting = $.post(monitorURL, {
+			"data" : JSON.stringify(post_data),
+			"action" : action
+		});
+
+		// Put the results in a div
+		posting.done(function(data) {
+
+			if (action == "CREATE_MONITOR") {
+				oTable.row.add(data).draw(false);
+			} else {
+				var updatedMonitor = data;
+				var uid = updatedMonitor.monitor_uid;
+				oTable.row("#" + uid).data(updatedMonitor).draw(false);
+			}
+
+			$("#add-monitor").dialog("close");
+		});
+
+		posting.fail(function(data) {
+			$.alert("Error saving Monitor", "ERROR!", function() {
+			});
+		});
+
+	}
+
+	function parseAdditionalFilters(type) {
+		var fields = [];
+
+		$('div#' + type + '_filtersDiv div.filter')
+				.each(
+						function(index) {
+							var filter = {};
+
+							var that = $(this);
+							var prefix = prefixMap[type.toUpperCase()];
+
+							//var name= $.trim(that.attr('class').replace('filter','').replace("___", " "));
+							var name = prefix
+									+ "_"
+									+ that.find("div > span.filter_name:first")
+											.text();
+							var operator = that.find(
+									"div > span.filter_operator:first").text();
+							var value = unescapeHTML(that.find(
+									"div > span.filter_value:first").text());
+							operator = operator || "";
+							operator = getTextOperator(operator);
+
+							filter["name"] = name;
+							filter["operator"] = operator;
+
+							if (operator == "LIKE") {
+								value = '%' + value.trim() + '%';
+							}
+
+							filter["has_multi_value"] = ((operator == "IN" || operator == "NOT_IN") ? true
+									: false);
+
+							if (filter["has_multi_value"]) {
+								filter["value"] = value.trim().split(",");
+							} else {
+								filter["value"] = value.trim();
+							}
+
+							filter["function"] = "";
+							fields.push(filter);
+						});
+
+		return fields;
+	}
+
+	/*
+	 * Return JSON object representing monitor object parsed from the form. 
+	 * Push validation error messages into errorMessages Array 
+	 */
+	function parseMonitorData(errorMessages) {
+		$("#generalFormErrorAlert").hide();
+		var post_data = {};
+
+		var id = $("#id").val();
+		var name = $("#name").val();
+
+		var description = $("#description").val();
+		var watches = $("#rptDefCntInPlcTxt").val();
+		var groupby = $("#groupby").val();
+		var duration = $("#duration").val();
+
+		var alert_message = $("#alert_message").val();
+
+		var auto_dismiss = !$("#log").is(":checked");
+		var level = $("#level").val();
+
+		var send_admin = $("#send_email").is(":checked");
+		var email = $("#email").val();
+
+		var query = {};
+		var filters = {};
+		var general = {};
+
+		general['type'] = 'monitor';
+		general['date_mode'] = 'Relative';
+		general['window_mode'] = duration;
+
+		var generalFields = [];
+
+		var decision = $('#decision').val();
+		var decisionFilter = {};
+		decisionFilter["name"] = "decision";
+		decisionFilter["operator"] = "eq";
+		decisionFilter["value"] = decision;
+		decisionFilter["has_multi_value"] = false;
+		decisionFilter["function"] = "";
+
+		generalFields.push(decisionFilter);
+
+		var log_level = {
+			"name" : "log_level",
+			"operator" : "eq",
+			"value" : "3",
+			"has_multi_value" : "false",
+			"function" : ""
+		};
+
+		generalFields.push(log_level);
+
+		var actions = $('#action').val() || [];
+
+		var actionsFilter = {};
+		actionsFilter["name"] = "action";
+		actionsFilter["operator"] = "in";
+		actionsFilter["value"] = actions;
+		actionsFilter["has_multi_value"] = true;
+		actionsFilter["function"] = "";
+
+		generalFields.push(actionsFilter);
+
+		general["fields"] = generalFields;
+
+		filters["general"] = general;
+
+		var user_criteria = {};
+		var resource_criteria = {};
+		var policy_criteria = {};
+		var other_criteria = {};
+		var grouping_mode = {};
+
+		var header = [];
+
+		var aggregators = [];
+		var tags = [];
+
+		var user_name = $("#rptDefCntInUsrTxt").val();
+		var user_operation = "in"; //$("#user_operator").val();
+
+		var user_lookupField = {};
+
+		user_lookupField["name"] = "user_id";
+		user_lookupField["operator"] = user_operation;
+		user_lookupField["value"] = getSelectedUsers();
+		user_lookupField["has_multi_value"] = true;
+		user_lookupField["function"] = "";
+
+		user_criteria["look_up_field"] = user_lookupField;
+		user_criteria["fields"] = parseAdditionalFilters('user');
+
+		filters["user_criteria"] = user_criteria;
+
+		var resource_path = $("#resource_value").val();
+		var resource_operation = "in"; //$("#resource_operator").val();
+
+		var res_lookupField = {};
+
+		res_lookupField["name"] = "resource_path";
+		res_lookupField["operator"] = resource_operation;
+		res_lookupField["value"] = $.trim(resource_path).split(",");
+		res_lookupField["has_multi_value"] = true;
+		res_lookupField["function"] = "";
+
+		resource_criteria["look_up_field"] = res_lookupField;
+		resource_criteria["fields"] = parseAdditionalFilters('resource');
+
+		filters["resource_criteria"] = resource_criteria;
+
+		var policy_name = $("#rptDefCntInPlcTxt").val();
+		var policy_operation = "in"; //$("#policy_operator").val();
+
+		var plc_lookupField = {};
+
+		plc_lookupField["name"] = "policy_name";
+		plc_lookupField["operator"] = policy_operation;
+		plc_lookupField["value"] = getSelectedPolicies();
+		plc_lookupField["has_multi_value"] = true;
+		plc_lookupField["function"] = "";
+
+		policy_criteria["look_up_field"] = plc_lookupField;
+		policy_criteria["fields"] = parseAdditionalFilters('policy');
+
+		filters["policy_criteria"] = policy_criteria;
+
+		var oth_lookupField = {};
+
+		other_criteria["look_up_field"] = oth_lookupField;
+		other_criteria["fields"] = parseAdditionalFilters('others');
+
+		filters["other_criteria"] = other_criteria;
+
+		query["filters"] = filters;
+
+		var columnDispSelectVals = [];
+
+		$("#columnDispSelectms2side__dx option").each(function(i) {
+			columnDispSelectVals.push($(this).val());
+		});
+
+		query["header"] = columnDispSelectVals;
+		query["grouping_mode"] = groupby;
+		query["group_by"] = [];
+		query["order_by"] = [];
+
+		shared_mode = $("input[name='monitor_shared']:checked").val();
+
+		//get selected users
+		users_fullName = $('#selected_users_to_share').val().split(',');
+
+		user_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+			$.each(appUsersMap, function(key, val) {
+				if (val.localeCompare(users_fullName[i]) == 0) {
+					user_ids.push(key);
+				}
+			});
+		}
+
+		group_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+			$.each(groupUsersMap, function(key, val) {
+				if (val.localeCompare(users_fullName[i]) == 0) {
+					group_ids.push(parseInt(key));
+				}
+			});
+		}
+
+		var reportType = "BAR_CHART";
+
+		if (groupby == "-") {
+			reportType = "TABULAR";
+		}
+
+		query["save_info"] = {
+			"report_type" : reportType,
+			"shared_mode" : shared_mode,
+			"user_ids" : user_ids,
+			"group_ids" : group_ids
+		};
+
+		query["max_rows"] = "-1";
+
+		$('div#aggregatorsDiv div.aggregate').each(
+				function(index) {
+					var aggregate = {};
+
+					var that = $(this);
+
+					var name = that.children("span.aggregate_name:first")
+							.text();
+					var operator = that.children(
+							"span.aggregate_operator:first").text();
+					var value = that.children("span.aggregate_value:first")
+							.text();
+					var aggr_function = that.children(
+							"span.aggregate_function:first").text();
+
+					aggregate["name"] = name;
+					aggregate["operator"] = getTextOperator(operator);
+					aggregate["value"] = unescapeHTML(value);
+					aggregate["function"] = aggr_function;
+					aggregate["has_multi_value"] = false;
+					aggregators.push(aggregate);
+				});
+
+		query["aggregators"] = aggregators;
+
+		$('div#tagsDiv div.tag').each(function(index) {
+			var tag = {};
+			var that = $(this);
+
+			var name = that.find("span.tag_name").text();
+			var value = that.find("span.tag_value").text();
+
+			tag["name"] = unescapeHTML(name);
+			tag["value"] = unescapeHTML(value);
+
+			tags.push(tag);
+		});
+
+		tags.push({
+			"name" : "level",
+			"value" : level
+		}); // adding level as a tag
+
+		var filterJSON = JSON.stringify(filters);
+		var aggregatorJSON = JSON.stringify(aggregators);
+		var tagJSON = JSON.stringify(tags);
+
+		if ($.isNumeric(id)) {
+			post_data["id"] = $.trim(id);
+		}
+		post_data["id"] = id;
+		post_data["name"] = name;
+		post_data["description"] = description;
+
+		post_data["message"] = alert_message;
+		post_data["auto_dismiss"] = auto_dismiss;
+		post_data["send_email"] = send_admin;
+		post_data["email"] = email;
+		post_data["level"] = level;
+		post_data["auto_dismiss"] = auto_dismiss;
+		post_data["tags"] = tags;
+
+		post_data["criteria"] = query;
+
+		clearLookupSelectedValues();
+
+		return post_data;
+	}
+
+	function showDisplayColumn(closeDialog) {
+
+		var content = getSelectedColumns();
+
+		var criteriaHTML = "<span id=\"selectedDispColumns\">" + content
+				+ "</span>";
+
+		$('#selectedDispColumns').remove()
+
+		$("#displayColumnTable").append(criteriaHTML);
+
+		if (closeDialog) {
+			$("#sel-column").dialog("close");
+		}
+	}
+
+	function getSelectedColumns() {
+		var selectedColumns = "";
+		var count = 0;
+		var content = "";
+		tempSelectColumns = [];
+
+		$("#columnDispSelectms2side__dx option").each(function(i) {
+
+			tempSelectColumns.push($(this).val());
+			if (count < 4) {
+				content += '' + $(this).text() + ',&nbsp;';
+			} else if (count == 4) {
+				content += '...';
+			}
+			count++;
+
+		});
+
+		return content;
+	}
+
+	function validateSession() {
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(""),
+				"action" : "VALIDATE_USER_SESSION"
+			},
+			dataType : 'json',
+			success : function(data) {
+			},
+			error : function(xhr, status) {
+				handleError(xhr, 'Error in validating user session');
+			},
+			async : false
+		});
+	}
+
+	function handleError(xhr, message) {
+		var contentType = xhr.getResponseHeader("content-type").split(";")
+				|| "";
+
+		if (contentType[0] === "text/html" && (xhr.status != 403 || xhr.responseText.indexOf("CSRF") === -1)) {
+			window.location = contextPath + "/login/login.jsf";
+		} else {
+
+			$.alert(message + " Please Logout and Try again.", "ERROR!",
+					function() {
+					});
+		}
+	}
+</script>
+</div>
+</f:verbatim>

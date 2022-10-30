@@ -1,0 +1,136 @@
+<?xml version="1.0" ?>
+<!DOCTYPE project [
+<!ENTITY classpaths SYSTEM "build-scripts/etc/classpath.skel">
+<!ENTITY taskdefs SYSTEM "build-scripts/etc/build-tasks.skel">
+]>
+
+<project name="Destiny" default="build-all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <tstamp>
+        <format property="TODAY" pattern="yyyy-MM-dd"  locale="en,UK" />
+    </tstamp>
+    <property environment="env"/>
+    <echo message="NL External Dir : ${env.NLEXTERNALDIR2}" />
+
+    <!-- Notes: nlbuildroot must be defined before build-scripts/etc/build.properties and
+         build-scripts/etc/build_external.properties
+    -->
+    <property name="nlbuildroot" location="${basedir}/.." />
+
+    <property file="${nlbuildroot}/scripts/build.properties" />
+    <property file="${nlbuildroot}/src/build-scripts/etc/build.properties" />
+    <property file="${nlbuildroot}/src/build-scripts/etc/build_external.properties"/>
+
+    <!-- Need to set this while build.xml lived in this directory rather that top directory -->
+    <property name="ivy.dep.file" value="../ivy.xml" />
+    <property name="package_chef_dir" value="${build.root.dir}/cc_chef" />
+    <property name="cc_chef_linux_dir" value="${package_chef_dir}/cc_linux" />
+    <property name="cc_chef_win_dir" value="${package_chef_dir}/cc_win" />
+	<property name="package_linux_dir" value="${build.root.dir}/package_linux" />
+
+    &classpaths;
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="${xlib_jar_dir}/ant-contrib.jar"/>
+        </classpath>
+    </taskdef>
+
+    <!-- FIX ME - Property should be placed in properties file eventually when top level build file moves -->
+    <property name="common.build.script.dir" value="${nlbuildroot}/build_scripts" />
+    <mkdir dir="${common.build.script.dir}" />
+    <import file="${common.build.script.dir}/version_build.xml" />
+    <import file="${common.build.script.dir}/ivy_build.xml" />
+
+    <target name="build-all" 
+            description="Build all components">
+        <ant dir="build-scripts/project" target="build" inheritRefs="true"/>
+    </target>
+
+    <target name="clean-all" description="Cleans the entire project">
+        <ant dir="build-scripts/project" target="clean" inheritRefs="true"/>
+    </target>
+
+    <target name="rebuild-all" description="Cleans entire project followed by a full build" depends="clean-all, build-all"/>
+    
+    <target name="rebuild-all-java" description="Cleans entire java build followed by a full build" depends="clean-all-java, build-all"/>
+    <target name="rebuild-integration" description="Cleans entire project and builds for the purposes of integration test" depends="clean-all, build-all">
+        <ant dir="build-scripts/project" target="build-native" inheritRefs="true">
+            <property name="enforcers.dir" value="${enforcers.dir}" />
+        </ant>	
+        <!--		<ant dir="build-scripts/project" target="build-drivers" inheritRefs="true"/> -->
+        
+        <!-- temp patch for the build system, fix bugs 6326,6344 -->
+        <copy 
+            file="${build.root.dir}/platform/win32/release/bin/customAttrSetter.exe"
+            todir="${build.root.dir}/tools/setattribute/" 
+            overwrite = "true"
+            />
+    </target>
+
+    <target name="clean-all-java" description="Cleans the entire java build but leaves the C++ projects">
+        <ant dir="build-scripts/project" target="clean-java" inheritRefs="true"/>
+    </target>
+
+    <target name="checkStyleAndTest-all" depends="rebuild-all">
+        <ant dir="build-scripts/project" target="check-style" inheritRefs="true"/>		
+        <ant dir="build-scripts/project" target="all-javadocs" inheritRefs="true"/>		
+        <ant dir="build-scripts/project" target="test-all" inheritRefs="true"/>
+    </target>
+    
+    <target name="installerOnly">
+        <antcall target="package" />
+        <ant dir="build-scripts/project" target="build-installers" inheritRefs="true"/>
+    </target>
+
+    <target name="cc-test-integration">
+        <ant dir="build-scripts/project" target="test-integration-run" inheritRefs="true"/>
+    </target>
+    
+    <target name="cc-test-all">
+        <ant dir="build-scripts/project" target="rebuild-env" inheritRefs="true"/>
+        <ant dir="build-scripts/project" target="test-all" inheritRefs="true"/>
+    </target>
+    
+    <target name="buildOnly">
+        <antcall target="clean-all" inheritRefs="true"/>
+        <antcall target="create_version_jar" inheritRefs="true"/>
+        <ant dir="build-scripts/project" target="build" inheritRefs="true"/>
+   </target>
+    
+    <!-- New build pattern. Build all new build modules-->
+    <target name="new_test_all">
+        <!-- The following two tasks must be ran seperately.  Otherwise, the "resolve" task is not run before publish_report which will cause the publish to function incorrectly.  Fix when the "publish" task allows a resolveId attribute -->
+        <subant buildpathref="build-paths" verbose="true">
+            <property name="build.root.dir" value="${build.root.dir}" />
+            <target name="test" />
+        </subant>	  
+        <subant buildpathref="build-paths" verbose="true">
+            <property name="build.root.dir" value="${build.root.dir}" />
+            <target name="publish_report" />
+        </subant>	
+    </target>
+
+    <target name="test-all" depends="new_test_all" description="Runs all unit tests for the system">
+        <antfetch dir="build-scripts/project" target="test-all" inheritRefs="true" return="junit.fail"/>
+    </target>
+    
+    <!-- Temporary tasks to publish artifacts locally -->
+    <target name="resolve" 
+            description="Resolve all dependencies" 
+            depends="init_ivy">
+        <ivy:resolve conf="*" resolveId="module_resolve_id" file="../ivy.xml"/>
+    </target>
+
+    <target name="publish_locally" depends="resolve">
+        <ivy:publish artifactspattern="${build.root.dir}/([releasetype]_)([os]_)([arch])/([compiler])[artifact].[ext]"
+                     resolver="local-repository"
+                     overwrite="true"
+                     forcedeliver="true"
+                     publishivy="true"
+                     haltonmissing="true"
+                     pubrevision="100000.${ivy.revision.module_resolve_id}"
+                     /> <!-- The pub revision is large to make sure it is taken.  Tried using "latest-strategies" special meaning words, but this didn't work out.  See comments in "ivysettings.xml" file. -->
+        <!-- Need a way to publish ivy files without having to publish all confs-->
+    </target>
+</project>

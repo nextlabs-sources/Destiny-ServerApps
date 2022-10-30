@@ -1,0 +1,48 @@
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url "${artifactoryContextUrl}/libs-release"
+                allowInsecureProtocol true
+                credentials {
+                    username = artifactoryUser
+                    password = artifactoryPassword
+                }
+            }
+        }
+        dependencies {
+            classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8'
+            classpath 'org.owasp:dependency-check-gradle:5.2.4'
+        }
+        configurations.all {
+            resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        }
+    }
+    repositories {
+        maven {
+            url artifactoryContextUrl + (version.endsWith('SNAPSHOT') ? '/libs-snapshot' : '/libs-release')
+            allowInsecureProtocol true
+            credentials {
+                username = artifactoryUser
+                password = artifactoryPassword
+            }
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
+    }
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply from: '../versions.gradle'
+    apply from: 'versions.gradle'
+}
+
+task publishBuild {
+    dependsOn ':server-installer:publishServerApps'
+}

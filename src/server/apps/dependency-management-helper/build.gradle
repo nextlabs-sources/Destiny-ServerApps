@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        maven {
+            url "${artifactoryContextUrl}/libs-release"
+            credentials {
+                username = artifactoryUser
+                password = artifactoryPassword
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url artifactoryContextUrl + (version.endsWith('SNAPSHOT') ? '/libs-snapshot' : '/libs-release')
+        credentials {
+            username = artifactoryUser
+            password = artifactoryPassword
+        }
+    }
+}
+
+apply plugin: 'java'
+
+dependencies {
+    implementation "antlr:antlr:${versions.antlr}"
+    implementation "com.auth0:java-jwt:${versions.javaJwt}"
+    implementation "com.microsoft.azure:msal4j:${versions.msal4j}"
+    implementation "com.nextlabs.common:config-client:${version}"
+    implementation "com.nextlabs.common:log-manager:${version}"
+    implementation "commons-codec:commons-codec:${versions.commonsCodec}"
+    implementation "com.sun.mail:javax.mail:${versions.mail}"
+    implementation "org.apache.logging.log4j:log4j-core:${versions.log4j}"
+    implementation "org.apache.logging.log4j:log4j-jcl:${versions.log4j}"
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${versions.log4j}"
+    implementation "org.apache.logging.log4j:log4j-web:${versions.log4j}"
+    implementation "org.json:json:${versions.json}"
+    implementation "org.springframework:spring-web:${versions.springWeb}"
+}
+
+def internalDependencies = [
+        'config-client*.jar',
+        'log-manager*.jar'
+]
+
+task copyInternalDependencies {
+    doLast {
+        copy {
+            from(sourceSets.main.runtimeClasspath) {
+                include internalDependencies
+            }
+            into internalDependencyLocation
+        }
+        println('Copied internal dependencies to ' + internalDependencyLocation)
+    }
+    onlyIf {
+        project.hasProperty('internalDependencyLocation')
+    }
+}
+
+task copyExternalDependencies() {
+    doLast {
+        copy {
+            from(sourceSets.main.runtimeClasspath) {
+                exclude internalDependencies
+            }
+            into externalDependencyLocation
+        }
+        println('Copied external dependencies to ' + externalDependencyLocation)
+    }
+    onlyIf {
+        project.hasProperty('externalDependencyLocation')
+    }
+}
+
+copyInternalDependencies.finalizedBy(copyExternalDependencies)
+build.finalizedBy(copyInternalDependencies)
+

@@ -1,0 +1,93 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
+
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<d:includeJS location="/core/javascript/disable.js" />
+<a4j:log level="ALL" popup="true" width="600" height="600" name="_blank"
+    hotkey="y" />
+
+<h:panelGrid id="panel" columns="2" border="0" styleClass="formtable">
+        <h:panelGroup>
+        <f:verbatim><div id="rptCntNvDv" class="contentnav"></f:verbatim>
+            <%@ include file="customReportsContentNav.jspf"%>
+        <f:verbatim></div></f:verbatim>
+        </h:panelGroup>
+    <h:panelGroup>
+        <d:form id="rptQryFltrFrm" method="POST">
+            <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+            <f:verbatim><div id="rptCntMnDv" class="contentmain"></f:verbatim>
+            <h:panelGroup id="rptCntDsplyMsgGrp">
+                <d:displayMessages/>
+            </h:panelGroup>
+            <f:verbatim><div id="rptCntExctnVrblDv" class="details"></f:verbatim>
+            <f:verbatim><div id="rptCntExctnVrblSubDv" class="reportcontent"></f:verbatim>
+            <rich:panel id="rptCntPnl" styleClass="green_border" 
+                           headerClass="panelTitle green_background" 
+                           bodyClass="reportPanelContent">
+                <f:facet name="header">
+                    <h:outputText value="#{customReportsBean.parameterPanelHeaderPrefixLabel} - #{customReportsBean.selectedReportTitle}"/>
+                </f:facet>
+                <h:panelGroup id="rptDefFltPnlGrp">
+                <f:verbatim><div id="rptCntExctnVrblFltrDv" class="details"></f:verbatim>
+                <f:verbatim><div id="rptCntExctnVrblFltrSubDv" class="reportcontent"></f:verbatim>
+                <f:verbatim><table id="rptCntTbl" class="formtable"></f:verbatim>
+                <f:verbatim><tr id="CntTblRw" ></f:verbatim>
+                
+                <f:verbatim><td id="ClndrFromLblCol" class="sharepoint_table_label"></f:verbatim>
+                <h:outputText id="CntTblRw2FrmBLblTxt" value="From:"/>
+                <f:verbatim><td></td></f:verbatim> 
+                
+                <f:verbatim><td id="ClndrFromInCol" class="input"></f:verbatim>
+                <d:inputCalendar id="custCalBeg" monthYearRowClass="yearMonthHeader" 
+                                       weekRowClass="weekHeader" currentDayCellClass="currentDayCell" 
+                    value="#{customReportsBean.beginDate}" renderAsPopup="true">
+                </d:inputCalendar>
+                <f:verbatim><td></td></f:verbatim> 
+                
+                <f:verbatim><td id="ClndrToLblCol" class="sharepoint_table_label"></f:verbatim>
+                <h:outputText id="CntTblRw2FrmLblTxt" value="To:"/>
+                <f:verbatim></td></f:verbatim> 
+                
+                <f:verbatim><td id="ClndrToInCol" class="input"></f:verbatim>
+                <d:inputCalendar id="custCalEnd" monthYearRowClass="yearMonthHeader" weekRowClass="weekHeader" currentDayCellClass="currentDayCell" 
+                    value="#{customReportsBean.endDate}" renderAsPopup="true">
+                </d:inputCalendar>
+                <f:verbatim></td></f:verbatim>
+                
+                <f:verbatim><td id="fltrTblRnBtn" class="input"></f:verbatim>
+                <h:commandLink id="execReportLink" actionListener="#{customReportsBean.onExecuteReport}" action="executeCustomReports">
+                    <h:commandButton type="button" value="Run" styleClass="reportButtons"/>
+                </h:commandLink>
+                <f:verbatim></td></f:verbatim>
+                
+                <f:verbatim></tr></f:verbatim>
+                
+                <f:verbatim></table></f:verbatim>
+                <f:verbatim></div></f:verbatim>
+                <f:verbatim></div></f:verbatim>
+                </h:panelGroup>
+                <h:panelGrid id="customParamPanel"   
+                                     binding="#{customReportsBean.customParamPanel }">
+                </h:panelGrid>
+                <f:verbatim><br></f:verbatim>
+                <h:panelGroup id="wizardEx1">
+                <d:showHide id="rprtRsltsIncldVw" rendered="#{customReportsBean.reportDefinitionSelected}">
+                    <jsp:include page="/WEB-INF/jspf/tiles/reports/customReportsDetailResultsContent.jspf"/>
+                </d:showHide>
+                </h:panelGroup>
+            </rich:panel>
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim></div></f:verbatim>
+        </d:form>
+    </h:panelGroup>
+</h:panelGrid>
+

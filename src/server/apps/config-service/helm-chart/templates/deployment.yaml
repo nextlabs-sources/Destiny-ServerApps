@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "config-service.fullname" . }}
+  labels:
+    {{- include "config-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "config-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "config-service.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if or .Values.global.image.imagePullSecret .Values.image.imagePullSecret }}
+      imagePullSecrets:
+      {{- if .Values.global.image.imagePullSecret }}
+      - name: {{ .Values.global.image.imagePullSecret }}
+      {{- else }}
+      - name: {{ .Values.image.imagePullSecret }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+      {{- if .Values.global.securityContext.runAsUser }}
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- else }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        {{- if .Values.global.image.repository }}
+        image: "{{ .Values.global.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- else }}
+        image: "{{ .Values.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- end }}
+        {{- if .Values.global.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        {{- else }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        ports:
+        - name: http-{{ .Release.Name }}-cs
+          containerPort: 7443
+          protocol: TCP
+        - name: tcp-{{ .Release.Name }}-amq
+          containerPort: 61616
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /config-service/status
+            port: http-{{ .Release.Name }}-cs
+          {{- if .Values.global.statusCheck.initialDelay }}
+          initialDelaySeconds: {{ .Values.global.statusCheck.initialDelay }}
+          {{- else }}
+          initialDelaySeconds: {{ .Values.statusCheck.initialDelay | default 180 }}
+          {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /config-service/status
+            port: http-{{ .Release.Name }}-cs
+          {{- if .Values.global.statusCheck.initialDelay }}
+          initialDelaySeconds: {{ .Values.global.statusCheck.initialDelay }}
+          {{- else }}
+          initialDelaySeconds: {{ .Values.statusCheck.initialDelay | default 180 }}
+          {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        - name: application-properties
+          mountPath: /opt/nextlabs/control-center/server/configuration/application.properties
+          subPath: application.properties
+          readOnly: true
+        {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+        - name: logs
+          mountPath: /opt/nextlabs/control-center/server/logs
+        {{- end }}
+      volumes:
+      - name: application-properties
+        secret:
+          secretName: {{ .Release.Name }}-nextlabs-control-center-application-properties
+      {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+      - name: logs
+        persistentVolumeClaim:
+          {{- if .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          claimName: {{ .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          {{- else }}
+          claimName: {{ .Values.nextlabs.cc.logsVolumeClaimName }}
+          {{- end }}
+      {{- end }}

@@ -1,0 +1,135 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<d:includeJS location="core/javascript/modaldialog.js" />
+<d:includeJS location="/core/javascript/core.js"/>
+
+<div id="usrGrpLstDv" class="contentnav">
+  <h2 id="lstHdr"><h:outputText id="lstLbl" value="#{bundle.users_and_roles_user_groups_list_nav_title}" /></h2>
+  <d:form id="lstFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <div id="lstTblDv" class="listtable">    
+      <d:dataTable id="userGroupslist" value="#{userGroupsViewBean.userGroups}" var="userGroupItem">
+        <d:row id="lstRw" styleClass="selected" rendered="#{(!userGroupsViewBean.selectedUserGroup.new) && (userGroupsViewBean.selectedUserGroup.userGroupId == userGroupItem.userGroupId)}"/>
+        <h:column id="rowTitleColumn">  
+          <h:commandLink id="lstGrpLnk" immediate="true" value="#{userGroupItem.userGroupTitle}" title="#{bundle.users_and_roles_user_groups_list_tool_tip_domain_label} #{userGroupItem.domainAsToolTip}">
+            <f:param id="grpIdPrm" name="selectedUserGroupId" value="#{userGroupItem.userGroupId}" />
+            <f:param id="grpBnNmPrm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.SelectUserGroupActionListener"/>
+          </h:commandLink>  
+        </h:column>
+        <h:column id="grpLnkdCol" rendered="#{(userGroupItem.externallyManaged) && (not userGroupItem.orphaned)}">
+            <h:graphicImage id="grpLnkdImg" url="/core/images/icon_link.gif" />
+        </h:column>
+        <h:column id="grpOrphCol" rendered="#{userGroupItem.orphaned}">
+            <h:graphicImage id="grpOrphImg" url="/core/images/icon_link_warn.gif" />
+        </h:column>
+        <h:column id="grpExtCol" rendered="#{not userGroupItem.externallyManaged}">
+            <h:graphicImage id="grpExtImg" url="/core/images/spacer.gif" />
+        </h:column>  
+      </d:dataTable>
+    </div>
+    <div id="lstBtnsDv" class="listbuttons">
+      <h:commandLink id="addGrpLnk">
+        <h:commandButton id="addGrpBtn" value="#{bundle.users_and_roles_user_groups_list_nav_add_button_label}" title="#{bundle.users_and_roles_user_groups_list_nav_add_button_title}"/>
+        <f:param id="addGrpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean" />
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.CreateNewUserGroupActionListener" />
+      </h:commandLink>
+      <h:commandLink id="lnkGrpLnk" action="usersAndRolesUserGroupsBrowseAvailableExternalGroups" immediate="true">
+        <%-- Style attribute below is used to limit size of button in IE.  In IE, the whitespace on the sides of the text in the button increase with the increased length of the text itself --%>
+        <h:commandButton id="lnkGrpBtn" value="#{bundle.users_and_roles_user_groups_list_nav_link_button_label}" title="#{bundle.users_and_roles_user_groups_list_nav_link_button_title}" style="padding:0 .25em 0 .25em; width:auto; overflow:visible"/>
+        <f:param id="srcBnNm" name="selectableItemSourceBeanName" value="availableExternalUserGroupsSelectableItemSourceBean"/>
+        <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+      </h:commandLink>
+      <h:commandButton id="delGrpBtn" type="button" value="#{bundle.users_and_roles_user_groups_list_nav_delete_button_label}" onclick="showModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" disabled="#{userGroupsViewBean.userGroups.rowCount==0}"/>
+    </div>
+  </d:form>
+</div>
+
+<d:form id="userGroupEditForm">
+<h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+<div id="grpDetDv" class="contentmain">
+  <div id="grpTtleDv" class="panetitle"><h:outputText id="selectedUserGroupTitle" value="#{userGroupsViewBean.selectedUserGroup.userGroupTitle}" /></div>
+  <d:displayMessages />
+  
+  <d:tabbedPane id="grpDetPn" binding="#{userGroupsViewBean.userGroupsViewTabbedPane}">
+    <d:tab id="grpEdtTb"  name="#{userGroupsViewBean.generalTabName}">
+      <f:facet name="tab content">
+        <h:outputText id="grpGenLbl" value="#{bundle.users_and_roles_user_groups_general_tab_label}" />
+      </f:facet>
+      <f:facet name="body">
+        <f:subview id="userGroupsGeneralTabBody">
+          <jsp:include page="userGroupsContentGeneralTab.jspf" />
+        </f:subview>
+      </f:facet>
+      <f:facet name="footer">            
+        <h:panelGroup id="genActns">
+          <h:commandLink id="saveGeneralSettingsLink">
+            <h:commandButton id="genSvBtn" type="button" value="#{bundle.users_and_roles_user_groups_save_button_label}" />          
+            <f:param id="svGrpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.SaveSelectedUserGroupActionListener"/>
+          </h:commandLink>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:commandButton id="genRstBtn" type="reset" value="#{bundle.users_and_roles_user_groups_reset_button_label}" />
+        </h:panelGroup>
+      </f:facet>
+    </d:tab>
+    <d:tab id="grpMemTb" name="#{userGroupsViewBean.membersTabName}" disabled="#{userGroupsViewBean.selectedUserGroup.new}">
+      <f:facet name="tab content">
+        <h:outputText id="grpMemLbl" value="#{bundle.users_and_roles_user_groups_members_tab_label}" />
+      </f:facet>
+      <f:facet name="body">
+        <f:subview id="groupsMembersTabBody">
+          <jsp:include page="userGroupsContentMembersTab.jspf" />
+        </f:subview>
+      </f:facet>
+    </d:tab>
+    <d:tab id="grpACLTb" name="#{userGroupsViewBean.defaultRightsTabName}" disabled="#{userGroupsViewBean.selectedUserGroup.new}">
+      <f:facet name="tab content">
+        <h:outputText id="grpACLLbl" value="#{bundle.users_and_roles_user_groups_default_rights_tab_label}" />
+      </f:facet>
+      <f:facet name="body">
+        <f:subview id="userGroupsDefaultRightsTabBody">
+          <jsp:include page="userGroupsContentDefaultRightsTab.jspf" />
+        </f:subview>
+      </f:facet>
+      <f:facet name="footer">            
+        <h:panelGroup id="aclActns">
+          <h:commandLink id="saveDefaultRightsLink">
+            <h:commandButton id="aclSvBtn" type="button" value="#{bundle.users_and_roles_user_groups_default_rights_save_button_label}" />          
+            <f:param id="svAclGrpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.SaveDefaultAccessRightsActionListener"/>            
+          </h:commandLink>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:commandButton id="aclRstBtn" type="reset" value="#{bundle.users_and_roles_user_groups_default_rights_reset_button_label}" />
+        </h:panelGroup>
+      </f:facet>
+    </d:tab>
+  </d:tabbedPane>
+  
+</div>
+</d:form>
+
+<div id="curtainDiv" class="curtain" style="display: none;"></div>
+<div id="deleteConfirmDialogDiv" class="modalDialog" style="display: none;">
+  <d:form id="delCnfFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <div id="cnfQDv" class="title">
+      <h:outputFormat id="cnfQFmt" value="#{bundle.users_and_roles_user_groups_delete_confirmation_question_text}">
+        <f:param id="cnfQTxt" value="#{userGroupsViewBean.selectedUserGroup.userGroupTitle}" />
+      </h:outputFormat>
+    </div>
+    <div id="cnfWrnDv" class="reason"><h:outputText id="cnfWrnTxt" value="#{bundle.users_and_roles_user_groups_delete_confirmation_warning_text}" /></div>
+    <div id="actnBtnsDv" class="buttons">
+      <h:commandLink id="cnfDelLnk">
+        <h:commandButton id="cnfDelBtn" value="#{bundle.users_and_roles_user_groups_delete_confirmation_button_label}" />
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.DeleteSelectedGroupActionListener"/>
+        <f:param id="cnfDelGrpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+      </h:commandLink>
+      <h:commandButton id="cnclDelBtn" type="button" value="#{bundle.users_and_roles_user_groups_cancel_delete_button_label}" onclick="hideModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" />
+    </div>
+  </d:form>
+</div>

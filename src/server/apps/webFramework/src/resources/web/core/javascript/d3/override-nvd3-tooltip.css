@@ -1,0 +1,75 @@
+
+.nvtooltip.with-3d-shadow, .with-3d-shadow .nvtooltip {
+    border-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+.nvtooltip {
+    -moz-user-select: none;
+    background-color: transparent;
+    border: 0;
+    font-family: Arial;
+    font-size: 13px;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    text-align: left;
+    white-space: wrap;
+    z-index: 10000;
+}
+.nvtooltip.with-transitions, .with-transitions .nvtooltip {
+    transition: opacity 250ms linear 250ms;
+}
+.nvtooltip.x-nvtooltip, .nvtooltip.y-nvtooltip {
+    padding: 1px;
+}
+.nvtooltip h3 {
+    background-color: rgba(247, 247, 247, 0.75);
+    border-bottom: 1px solid #EBEBEB;
+    border-radius: 5px 5px 0 0;
+    font-weight: normal;
+    line-height: 18px;
+    margin: 0;
+    padding: 4px 14px;
+    text-align: center;
+}
+.nvtooltip p {
+    margin: 0;
+    padding: 5px 14px;
+    text-align: center;
+}
+.nvtooltip span {
+    display: inline-block;
+    margin: 0;
+}
+.nvtooltip table {
+    border-spacing: 0;
+    margin: 6px;
+}
+.nvtooltip table td {
+    padding: 2px;
+    vertical-align: middle;
+}
+.nvtooltip table td.key {
+    font-weight: normal;
+}
+.nvtooltip table td.value {
+    font-weight: normal;
+    text-align: right;
+}
+.nvtooltip table tr.highlight td {
+	border:0;
+    padding: 0;
+}
+.nvtooltip table td.legend-color-guide div {
+    height: 8px;
+    vertical-align: middle;
+    width: 8px;
+}
+.nvtooltip .footer {
+    padding: 3px;
+    text-align: center;
+}
+.nvtooltip-pending-removal {
+    pointer-events: none;
+    position: absolute;
+}

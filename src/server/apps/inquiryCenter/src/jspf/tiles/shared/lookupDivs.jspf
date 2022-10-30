@@ -1,0 +1,50 @@
+	   <div id="lookup_users-popup" style="display: none">
+		  <div></div>
+		  <div id="user_selected_count"></div>
+		  <form id="user_selected-form">
+					<div>
+						<table class="display" id="lookup_usersTable" cellpadding="0"
+							cellspacing="0" border="0">
+							<thead>
+								<tr>
+									<td>User Name</td>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- data goes here -->
+							</tbody>
+						</table>
+					</div>
+					<br />
+					<div align="center">
+                     	<button type="button" class="btn btn-primary btn-sm" onclick="usersSelected()" >Ok</button>
+                     	<button type="button" class="btn btn-primary btn-sm" onclick="usersCanceled()">Cancel</button>
+					</div>
+				</form>
+			</div>
+
+			<div id="lookup_policy-popup" style="display: none">
+				<div></div>
+				<div id="policy_selected_count"></div>
+				<form id="policy_selected-form">
+					<div>
+						<table class="display" id="lookup_policyTable" cellpadding="0"
+							cellspacing="0" border="0">
+							<thead>
+								<tr>
+									<td>Policy Name</td>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- data goes here -->
+							</tbody>
+						</table>
+					</div>
+					<br />
+					<div align="center">
+					    <button type="button" class="btn btn-primary btn-sm" onclick="policiesSelected()" >Ok</button>
+                     	<button type="button" class="btn btn-primary btn-sm" onclick="policiesCanceled()">Cancel</button>
+					</div>
+				</form>
+			</div>
+			

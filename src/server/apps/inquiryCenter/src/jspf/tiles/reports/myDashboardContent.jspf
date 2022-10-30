@@ -1,0 +1,871 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ page import="com.nextlabs.destiny.inquirycenter.dashboard.DashboardConfiguration,
+com.nextlabs.destiny.inquirycenter.dashboard.NewDashboardService,
+com.nextlabs.destiny.inquirycenter.monitor.service.MonitoringService,
+java.lang.String,java.lang.StringBuilder, java.util.List,java.util.ArrayList,java.util.Map"%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="/birt.tld" prefix="birt" %>
+
+<d:includeJS location="/core/javascript/jquery-1.10.2.js" />
+<d:includeJS location="/core/javascript/jquery.dataTables.js" />
+<d:includeJS location="/core/javascript/d3/d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nv.d3.min.js" />
+<d:includeJS location="/core/javascript/d3/dashboardCharts.js" />
+<d:includeJS location="/core/javascript/bootstrap/js/bootstrap.js" />
+<d:includeJS location="/core/javascript/c3/c3.min.js" />
+<d:includeJS location="/core/javascript/d3/zoomable-treemap.js" />
+<d:includeJS location="/core/javascript/common.js" />
+
+
+<%! 
+	MonitoringService mService = new MonitoringService();
+%>
+
+<% 
+StringBuilder content = new StringBuilder();
+StringBuilder paramsJSON = new StringBuilder(); 
+DashboardConfiguration.populateContentAndParamsJSONFromConfig(content, paramsJSON);
+%>
+
+
+<d:includeCSS location="/core/javascript/bootstrap/css/bootstrap.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables.css"/>
+<d:includeCSS location="/core/javascript/d3/nv.d3.css"/>
+<d:includeCSS location="/core/javascript/d3/override-nvd3-tooltip.css"/>
+<d:includeCSS location="/core/javascript/c3/c3.css"/>
+<d:includeCSS location="/core/javascript/d3/zoomable-treemap-dashboard.css" />
+
+<f:verbatim>
+
+<div class='loadingmessage' style='display:none;align:center'><img src='/reporter/core/images/loader.gif'/></div>
+
+<div id="container" style="padding:10px;display:none">
+<%= content.toString() %>
+</div>
+
+<script>
+
+var BAR_CHART_DEFAULT_DIMENSIONS = {"height":300, "width":300};
+
+var PIE_CHART_DEFAULT_DIMENSIONS = {"height":300, "width":300};
+
+var TABLE_DEFAULT_DIMENSIONS = {"height":300, "width":400};
+
+var TABLE_CONTENT_HEIGHT_NO_PAGINATION = "350px";
+
+var TABLE_CONTENT_HEIGHT_WITH_PAGINATION = "340px";
+
+var contextPath = "${pageContext.request.contextPath}";
+
+var url = "${pageContext.request.contextPath}/newDashboardServlet";
+
+var monitorURL = "${pageContext.request.contextPath}/monitorServlet";
+
+/*
+ * config will contain array of objects. object contains all the properties defined in dashboard.xml
+ */
+var config = <%= paramsJSON %>;
+
+/*
+ * This is necessary to render attribute names in the table headers
+ * for TABULAR gadgets (map column name like 'attr<n>' to the appropriate attribute name)
+ */
+var columnAttributeMapping = <%= NewDashboardService.getColumnNameAttributeNameMapping() %>;
+var showSharePointEnabled = <%= NewDashboardService.showSharePointReports() %>;
+
+var monitors = <%= mService.getMonitorsUIDNameInfo() %>;
+
+var monitorsUIDNameMap = {};
+
+var global_is_navigating = false;
+
+var saveReportURL = "${pageContext.request.contextPath}/reportServlet";
+
+$(document).ready(function() {	
+
+	$(window).on('beforeunload',function() {
+	    global_is_navigating = true;
+	});
+
+	$("a").on('click',function() {
+	    if( $(this).attr('href') ) {
+	        global_is_navigating = true;
+	    }
+	});
+	
+	var style = "<style type=\"text\/css\">"  +
+	"table.dataTable.display tbody td {"+
+	"padding:10px 18px;"+
+	"}"+
+ 	"</style>";
+
+	$("head").append(style);
+	
+	// checkPermissionToViewAlertSection();
+	
+	/*
+	Get rid of all <properties> tags. We are not removing it at the server-side
+	*/
+	$("properties").remove();
+	
+	$("#container").show();
+	
+	prepareNameUIDMap();
+	
+	loadGadgets();
+});
+
+function checkPermissionToViewAlertSection() {
+	 var action = "CHECK_USER_ACCESS";
+	 post_data = {};
+	 var isAdminUser;
+	 $.ajax({
+	 	type : 'POST',
+	 	url : saveReportURL,
+	 	data : {
+	 		"data" : JSON.stringify(post_data),
+	 		"action" : action
+	 	},
+	 	dataType : 'json',
+	 	success : function(response) {
+	 		isAdminUser = response.is_reproter_admin[0];
+	 		if (isAdminUser == false) {
+	 			$('#monitoringSection').hide();
+	 		} else {
+	 			$('#monitoringSection').show();
+	 		}
+	 	},
+	 	error : function(xhr, status) {
+	 		handleError(xhr, 'Error encountered in loading the saved report');
+	 	},
+	 	async : false
+	 });
+}
+
+
+function prepareNameUIDMap()
+{
+	$.each(monitors,function(index, value) 
+	{
+	    monitorsUIDNameMap[""+value.monitor_uid] = value.name;
+	});
+}
+
+function loadGadgets()
+{
+	jQuery.each(config, function(i, val){loadGadget(val)});
+}
+
+/*
+ * this map stores gadget type as key and the renderer function as value
+ */
+var typeRendererMap = {};
+
+/*
+ * go to the saved report corresponding to the gadget
+ */
+function gotoReport(reportId)
+{
+	var action = (showSharePointEnabled) ? contextPath + "/reports/multiReports.jsf" : contextPath + "/reports/myReports.jsf";
+	var csrfToken = $('meta[name="csrfToken"]').attr('content');
+	$("<form method='post' action='" + action + "' id='form_" + reportId+ "'><input type='hidden' name='reportId' value='" + reportId + "'/><input type='hidden' name='csrfToken' value='" + csrfToken + "'/></form>").appendTo('body').submit();
+}
+
+
+/*
+ * go to the alerts sub tab corresponding to the gadget
+ */
+function gotoMonitoringTab(query)
+{
+	var action = contextPath + "/monitors/myAlerts.jsf";
+	var csrfToken = $('meta[name="csrfToken"]').attr('content');
+	$("<form method='post' action='" + action + "' id='form_alert_query'><input type='hidden' name='query' id='alert_query'/><input type='hidden' name='csrfToken' value='" + csrfToken + "'/></form>").appendTo('body');
+	$("#alert_query").val(JSON.stringify(query));
+	$("#form_alert_query").submit();
+}
+
+function hasNoDataToRender(dataArr)
+{
+	return (dataArr == null || dataArr.length == 0);
+}
+
+/*
+ * Renderer for BAR_CHART gadgets
+ */
+function loadBarChartGadget(gadgetConfig, data)
+{
+	var title = gadgetConfig.title || data.report_title;
+	var content = titleLinkRenderer(title, gadgetConfig);
+
+	var targetId = gadgetConfig.targetId;
+	if (hasNoDataToRender(data.data))
+	{
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	
+	var xLabel = gadgetConfig.xLabel || "X";
+	var yLabel = gadgetConfig.yLabel || "Y";
+	
+	var height = gadgetConfig.height || BAR_CHART_DEFAULT_DIMENSIONS.height;
+	var width = gadgetConfig.width || BAR_CHART_DEFAULT_DIMENSIONS.width;
+	var showXAxisLabel = gadgetConfig.showXLabel || false;
+	
+	//var style = "height:" + height + "px;width:" + width + "px;";
+	
+	var style = "height:" + height + "px";
+	
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + "<svg id='chart_"+ targetId +"' style='" + style + "'> </svg>"));
+	
+	//$("#" + targetId).html(getPanel(content, existingContent + "<div id='chart_"+ targetId +"'> </div>"));
+	
+	var chartData = [{"key":"", "values":data.data}];
+	if((data.grouping_mode == "GROUP_BY_DAY" || data.grouping_mode == "GROUP_BY_MONTH") && (data.col_name == "day_nb" || data.col_name == "month_nb")) {
+		chartData[0].values = getDatesInBetweenWithData( data.from_date, data.to_date, chartData[0].values, data.sort_order, data.grouping_mode, data.max_rows, true);
+	}
+	
+	discreteBarChart("chart_" + targetId, chartData, xLabel, yLabel, height, width, 'dimension', 'resultcount', showXAxisLabel);
+	//discreteBarChart_c3("chart_" + targetId, data.data, xLabel, yLabel, height, width, 'dimension', 'resultcount');
+}
+
+
+typeRendererMap["BAR_CHART"] = loadBarChartGadget;
+
+function loadHorizontalBarChart(gadgetConfig, data)
+{
+	var title = gadgetConfig.title || data.report_title;
+	var content = titleLinkRenderer(title, gadgetConfig);
+
+	var targetId = gadgetConfig.targetId;
+	if (hasNoDataToRender(data.data))
+	{		
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	
+	var xLabel = gadgetConfig.xLabel || "X";
+	var yLabel = gadgetConfig.yLabel || "Y";
+	
+	var height = gadgetConfig.height || BAR_CHART_DEFAULT_DIMENSIONS.height;
+	var width = gadgetConfig.width || BAR_CHART_DEFAULT_DIMENSIONS.width;
+	var showXAxisLabel = gadgetConfig.showXLabel || false;
+	
+	//var style = "height:" + height + "px;width:" + width + "px;";
+	
+	var style = "height:" + height + "px";
+	
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + "<svg id='chart_"+ targetId +"' style='" + style + "'> </svg>"));
+	 
+	var chartData;
+	
+	if (gadgetConfig.color!= null && gadgetConfig.color.length > 0)
+	{
+		chartData = [{"key":"", "color":gadgetConfig.color, "values":data.data}];
+	}
+	else
+	{
+		chartData = [{"key":"", "color":"#428BCA", "values":data.data}];
+	}
+	//pass a callback function to handle click events on elements
+	horizontalBarChart("chart_" + targetId, chartData, false, xLabel, yLabel, height, width, 'dimension', 'resultcount', showXAxisLabel);
+}
+
+/*
+ * click event handler for charts
+ */
+function clickHandler(field, dataPoint)
+{
+	 if (typeof dataPoint === "undefined") { // partial
+	        return function (dataPoint) {
+	        	console.log("In clickHandler ::: " + field + ": " + dataPoint.dimension);
+	        };
+     }
+}
+
+typeRendererMap["HORZ_BAR_CHART"] = loadHorizontalBarChart;
+
+/*
+ * provide implementation of 'startsWith' for browsers that don't support it (e.g. IE11)
+ */
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position){
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
+}
+
+  
+/*
+ * Renderer for PIE_CHART gadgets
+ */
+function loadPieChartGadget(gadgetConfig, data)
+{	
+	var dataToDisplay = data.data;
+	for (var i = 0; i < dataToDisplay.length; i++){
+		var rowData = dataToDisplay[i];
+		var dim = rowData.dimension; 
+		if (typeof dim === 'string' && dim.startsWith("/")){
+				var beginIndex = dim.lastIndexOf("/");
+				dim = dim.substring(beginIndex+1);
+				rowData.dimension = dim;
+				dataToDisplay[i] = rowData;
+		}
+	}
+	var title = gadgetConfig.title || data.report_title;
+	var content = titleLinkRenderer(title, gadgetConfig); 
+	var targetId = gadgetConfig.targetId;
+	if (hasNoDataToRender(data.data))
+	{
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	
+	var height = gadgetConfig.height || PIE_CHART_DEFAULT_DIMENSIONS.height;
+	var width = gadgetConfig.width || PIE_CHART_DEFAULT_DIMENSIONS.width;
+	
+	//var style = "height:" + height + "px;width:" + width + "px;";
+	
+	var style = "height:" + height + "px";
+	
+	var existingContent = $("#" + targetId).html();
+	
+	//$("#" + targetId).html(getPanel(content, existingContent + "<svg id='chart_"+ targetId +"' style='" + style + "'> </svg>"));
+	$("#" + targetId).html(getPanel(content, existingContent + "<div id='chart_"+ targetId +"' style='" + style + "'> </div>"));
+	
+	var pieChart = pieChart_c3("chart_" + targetId, data.data, height, width, 0.2, false, 'dimension', 'resultcount');
+	
+	$(window).bind('resize', function() {
+		pieChart.resize();
+	});
+}
+
+
+function getPanel(title, content)
+{
+	return	'<div class="panel panel-default">' +
+	  '<div class="panel-heading">' +
+		'<span class="panel-title h3">' + title + '</span>' +
+	  '</div>' +
+	  '<div class="panel-body">' + content +
+	  '</div>' +
+	'</div>';
+}
+
+typeRendererMap["PIE_CHART"] = loadPieChartGadget;
+
+
+function activityReportTitleLinkRenderer(title, gadgetConfig)
+{
+	return "<a title='See in Reports tab' href='' class='report_title' onclick='gotoReport(" + gadgetConfig.id + ");return false;'>"+title+"</a>";
+}
+
+function alertReportTitleLinkRenderer(title, gadgetConfig)
+{
+	return "<a title='See in Monitoring tab' href='' class='report_title' onclick='gotoMonitoringTab(" + gadgetConfig.query +");return false;'>"+title+"</a>";
+}
+
+function titleLinkRenderer(title, gadgetConfig)
+{
+	if (gadgetConfig.type == 'SAVED_REPORT')
+	{
+		return activityReportTitleLinkRenderer(title, gadgetConfig);
+	}
+	else
+	{
+		return alertReportTitleLinkRenderer(title, gadgetConfig);
+	}
+}
+
+/*
+ * Renderer for TABULAR gadgets
+ */
+function loadTabularGadget(gadgetConfig, data)
+{
+	var title = gadgetConfig.title || data.report_title;
+	var targetId = gadgetConfig.targetId;
+	
+	var content = titleLinkRenderer(title, gadgetConfig); 
+	
+	var theadContent = "";
+	
+	var headerArr = data.header;
+	
+	var dataArr = data.data;
+	/*
+	if there is no data, then do not try to load the datatable
+	*/
+	if (hasNoDataToRender(dataArr))
+	{
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	
+	jQuery.each(data.header, function(i, val){
+
+		var columnName = val["sTitle"];
+		var mapping = columnAttributeMapping[columnName];
+		
+		if (mapping != null)
+		{
+			columnName = mapping["attr_name"] == null ? columnName: mapping["attr_name"];
+		}
+		
+		val["sTitle"] = columnName;
+		
+		theadContent += "<th>" + columnName + "</th>";
+	});
+	
+	var height = gadgetConfig.height || TABLE_DEFAULT_DIMENSIONS.height;
+	var width = gadgetConfig.width || TABLE_DEFAULT_DIMENSIONS.width;
+
+	var tableHdr = '<table cellpadding="0" cellspacing="0" border="0" width="100%" class="display" id="table_' + targetId+ '">' 
+		 + '<thead><tr>'
+		 + theadContent
+		 + '</tr></thead></table>';
+	
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + tableHdr));
+	
+	
+	var oTable = $('#table_' + targetId).dataTable( {
+//		"pagingType" : "simple",
+		"aaData": dataArr,
+		"aoColumns": headerArr,
+		"sScrollX": "100%",
+//	    "sScrollXInner": "100%",
+		"sScrollY": TABLE_CONTENT_HEIGHT_NO_PAGINATION,
+//		"bAutoWidth": true,
+//		"table-layout":"fixed",
+		"bScrollCollapse": true,
+		"bFilter":false,
+		"bSort":false,
+		"bInfo":false,
+		"bPaginate": false,
+		"bLengthChange":false,
+		"fnCreatedRow": function( nRow, aData, iDataIndex ) {
+			if (iDataIndex%2 == 0)
+			{
+				if ($.trim(gadgetConfig.evenRowStyle) != "")
+				{
+		        	$(nRow).css($.parseJSON(gadgetConfig.evenRowStyle));
+				}
+		    }
+			else
+			{
+				if ($.trim(gadgetConfig.oddRowStyle) != "")
+				{
+		        	$(nRow).css($.parseJSON(gadgetConfig.oddRowStyle));
+				}
+			}
+		}
+		} );
+
+		$(window).bind('resize', function() {
+			oTable.fnAdjustColumnSizing();
+		});
+		
+		
+		setTimeout(function() {
+				oTable.fnAdjustColumnSizing();
+			}, 10);
+		
+		
+		//jQuery('.dataTable').wrap('<div style="overflow-x:auto;"/>');
+
+}
+
+
+typeRendererMap["TABULAR"] = loadTabularGadget;
+
+
+function loadEchoGadget(gadgetConfig, data)
+{	  
+	var title = gadgetConfig.title;
+	var targetId = gadgetConfig.targetId;
+	var content = gadgetConfig.content;
+
+	var content = "<b>"+title+"</b><br><br>";
+	$("#"+targetId).append(content + data);
+}
+
+typeRendererMap["ECHO"] = loadEchoGadget;
+
+/**
+ * invoke appropriate renderer based on the type
+ */
+function invokeTypeRenderer(gadgetConfig, data)
+{
+	var type = data.report_type;
+	
+	var renderer = typeRendererMap[type];
+	if (renderer == null)
+	{
+		renderer = loadEchoGadget;
+	}
+	/*
+	call renderer
+	*/
+	renderer(gadgetConfig, data);
+}
+
+/*
+ * This function only makes the ajax calls 
+ * to fetch data based on gadgetConfig
+ */
+function loadGadget(gadgetConfig)
+{
+	var content = gadgetConfig.content;
+	var type = gadgetConfig.type;
+	
+	if (type=='MONITORING')
+	{
+		loadMonitoringGadget(gadgetConfig);
+		return;
+	}
+	
+	var id = gadgetConfig.id;
+	
+	// Send the data using post
+	var request = $.post( url, { "action":type, "content":content, "id": id} );
+	 
+	var targetElement = $("#" + gadgetConfig.targetId);
+	var content = targetElement.html();
+	targetElement.html("<div class='loadingmessage' style='align:center'><img src='/reporter/core/images/loader.gif'/></div>'");
+	
+	  // Put the results in a div
+	  request.done(function( data ) {
+		  handleBrowserBackButtonIssue(request);
+		  targetElement.html(content);
+		  invokeTypeRenderer(gadgetConfig, data);
+	  });
+	  
+	  request.fail(function( data ) {
+		  
+		  if (global_is_navigating){
+			  return;
+		  }
+		  
+		var title = gadgetConfig.title || data.report_title;
+		var targetId = gadgetConfig.targetId;
+		var existingContent = $("#" + targetId).html();
+		var content = "<a title='See in Reports tab' href='' class='report_title' onclick='gotoReport(" + gadgetConfig.id+");return false;'>"+title+"</a>";
+		$("#" + targetId).html(getPanel(content, existingContent + "<b>Error Loading content!!</b>"));
+	  });
+}
+
+function loadMonitoringGadget(gadgetConfig)
+{
+	var query = gadgetConfig.query;
+	
+	// Send the data using post
+	var request = $.post( monitorURL, { "action":"ALERTS_REPORTING", "query":query });
+	 
+	var targetElement = $("#" + gadgetConfig.targetId);
+	var content = targetElement.html();
+	targetElement.html("<div class='loadingmessage' style='align:center'><img src='/reporter/core/images/loader.gif'/></div>'");
+	
+	  // Put the results in a div
+	  request.done(function( data ) {
+		  handleBrowserBackButtonIssue(request);
+		  targetElement.html(content);
+		  invokeMonitoringRenderer(gadgetConfig, data);
+	  });
+	  
+	  request.fail(function( data ) {
+		  if (global_is_navigating){
+			  return;
+		  }
+		var title = gadgetConfig.title || data.report_title;
+		var targetId = gadgetConfig.targetId;
+		var existingContent = $("#" + targetId).html();
+		var content = "<a title='See in Reports tab' href='' class='report_title' onclick='gotoReport(" + gadgetConfig.id+");return false;'>"+title+"</a>";
+		$("#" + targetId).html(getPanel(content, existingContent + "<b>Error Loading content!!</b>"));
+	  });
+}
+
+typeRendererMap["ALERTS_DETAILS"] = loadAlertDetailsGadget;
+typeRendererMap["GROUP_BY_TAGS"] = loadTreeMapGadget;
+typeRendererMap["GROUP_BY_MONITORS"] = loadMonitorBarChartGadget;
+typeRendererMap["GROUP_BY_TIME"] = loadAlertTimeBarChartGadget;
+
+function loadMonitorBarChartGadget(gadgetConfig, data)
+{
+	var processedData = data.data;
+	var dataRows = { "data" : []};
+	
+	$.each(processedData, function(index, value){
+		var dataRow = { "dimension" :  monitorsUIDNameMap["" + value.monitor],
+				        "resultcount" : value.resultcount };
+		
+		dataRows.data.push( dataRow);
+	});
+	loadMonitoringBarChartGadget(gadgetConfig, dataRows);
+}
+
+
+function loadAlertTimeBarChartGadget(gadgetConfig, data)
+{
+	var processedData = {"data": data.data};;
+	
+	if (processedData.data.length > 0){
+		var paramObj = data.param_obj || {};
+		var grouping_field = paramObj.grouping_field;
+		
+		if(grouping_field == "day_nb" || grouping_field == "month_nb") {
+			var field = "GROUP_BY_DAY";
+			if (grouping_field == "month_nb"){
+				field = "GROUP_BY_MONTH";
+			}			
+			processedData.data = getDatesInBetweenWithData( paramObj.begin_date, paramObj.end_date, processedData.data, "asc", field, "ALL", true);
+		}	
+		}
+	
+	loadMonitoringBarChartGadget(gadgetConfig, processedData);
+}
+
+
+/*
+ * Renderer for BAR_CHART gadgets
+ */
+function loadMonitoringBarChartGadget(gadgetConfig, data)
+{
+	var title = gadgetConfig.title || data.report_title;
+	var content = titleLinkRenderer(title, gadgetConfig);
+
+	var targetId = gadgetConfig.targetId;
+	if (hasNoDataToRender(data.data))
+	{
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	
+	var xLabel = gadgetConfig.xLabel || "X";
+	var yLabel = gadgetConfig.yLabel || "Y";
+	
+	var height = gadgetConfig.height || BAR_CHART_DEFAULT_DIMENSIONS.height;
+	var width = gadgetConfig.width || BAR_CHART_DEFAULT_DIMENSIONS.width;
+	var showXAxisLabel = gadgetConfig.showXLabel || false;
+	
+	//var style = "height:" + height + "px;width:" + width + "px;";
+	
+	var style = "height:" + height + "px";
+	
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + "<svg id='chart_"+ targetId +"' style='" + style + "'> </svg>"));
+	
+	//$("#" + targetId).html(getPanel(content, existingContent + "<div id='chart_"+ targetId +"'> </div>"));
+	
+	var chartData = [{"key":"", "values":data.data}];
+	
+	discreteBarChart("chart_" + targetId, chartData, xLabel, yLabel, height, width, 'dimension', 'resultcount', showXAxisLabel);
+}
+
+
+
+
+function loadAlertDetailsGadget(gadgetConfig, data)
+{
+	
+	var title = gadgetConfig.title || data.report_title;
+	var targetId = gadgetConfig.targetId;
+	
+	var content = titleLinkRenderer(title, gadgetConfig);
+	
+	var tableHdr = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_' + targetId+ '">' 
+		 + '<thead><tr>'
+		 + '<th>Level</th><th>Monitor Name</th><th>Alert Message</th><th>Raised At</th>'
+		 + '</tr></thead></table>';
+	
+	var alertsData = data.data;
+		 
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + tableHdr));
+	//$('#overview_content').html( tableHdr );
+	
+	//global variable
+	var oTable = $('#table_' + targetId).dataTable( {
+	"aaData": alertsData,
+	"bAutoWidth": false,
+	"bFilter":false,
+	"bSort":false,
+	"sScrollY": TABLE_CONTENT_HEIGHT_WITH_PAGINATION,
+	"bInfo":false,
+	"bLengthChange":false,
+	"fnCreatedRow": function( nRow, aData, iDataIndex ) {
+		if (iDataIndex%2 == 0)
+		{
+			if ($.trim(gadgetConfig.evenRowStyle) != "")
+			{
+	        	$(nRow).css($.parseJSON(gadgetConfig.evenRowStyle));
+			}
+	    }
+		else
+		{
+			if ($.trim(gadgetConfig.oddRowStyle) != "")
+			{
+	        	$(nRow).css($.parseJSON(gadgetConfig.oddRowStyle));
+			}
+		}
+	},
+	"fnDrawCallback":function(){
+        if (alertsData.length <= 10) {
+        	$('#table_' + targetId + '_paginate').hide();
+        	$('#'+targetId + ' div:first-child').first().attr("style","height:470px");
+        } else {
+        	$('#table_' + targetId + '_paginate').show();
+        }
+    },
+	"aoColumns": [
+	   { "sTitle": "Level", "mData":"alert_level", "sWidth":"10%" },
+	   { "sTitle": "Monitor Name", "mData":"monitor_name", "sWidth":"20%" },
+	   { "sTitle": "Alert Message", "mData":"alert_message", "sWidth":"30%" },
+	   { "sTitle": "Raised At", "mData":"triggered_datetime", "sWidth":"20%"}
+	],
+	"columnDefs": [  
+	{
+		"targets": 1,
+		"data":"monitor_name",
+		"render": function ( data, type, full, meta ) {
+				return escapeHTML(data);
+			}
+	},
+	{
+		"targets": 2,
+		"data":"alert_message",
+		"render": function ( data, type, full, meta ) {
+				var description = data.length > 30? data.substr(0,30) +  '...': data;
+				return escapeHTML(description);
+			}
+	} 
+	]
+	});
+	$(window).bind('resize', function() {
+		oTable.fnAdjustColumnSizing();
+	});
+}
+
+function renderEmptyComponent(title, content, gadgetConfig)
+{
+	var targetId = gadgetConfig.targetId;
+	var height = gadgetConfig.height || PIE_CHART_DEFAULT_DIMENSIONS.height;
+	var existingContent = $("#" + targetId).html();
+	
+	var style = "height:" + height + "px";
+	
+	$("#" + targetId).html(getPanel(title, existingContent + "<div id='chart_"+ targetId +"' style='" + style + "'>" + content + " </div>"));
+}
+
+
+/*
+ * Renderer for PIE_CHART gadgets
+ */
+function loadTreeMapGadget(gadgetConfig, data)
+{
+	var title = gadgetConfig.title || data.report_title;
+	var content = titleLinkRenderer(title, gadgetConfig); 
+	var targetId = gadgetConfig.targetId;
+	
+	if (hasNoDataToRender(data.data))
+	{		
+		renderEmptyComponent(content, "<i>No results for the given criteria.</i>", gadgetConfig);
+		return;
+	}
+	 
+	var targetId = gadgetConfig.targetId;
+	
+	var height = gadgetConfig.height || PIE_CHART_DEFAULT_DIMENSIONS.height;
+	
+	var style = "height:" + height + "px";
+	
+	var existingContent = $("#" + targetId).html();
+	
+	$("#" + targetId).html(getPanel(content, existingContent + "<div id='chart_"+ targetId +"' style='" + style + "'> </div>"));
+	
+	var width =  parseInt(d3.select('#chart_'+ targetId).style('width'), 10);
+	
+	renderTreeMapGadget('chart_' + targetId, data, height, width);
+	
+	$(window).bind('resize', function() {
+		var width =  parseInt(d3.select('#chart_'+ targetId).style('width'), 10);
+		$('#chart_'+ targetId + ' > svg').remove();
+		renderTreeMapGadget('chart_'+ targetId, data, height, width);
+	});
+}
+
+
+function renderTreeMapGadget(targetElementId, data, height, width)
+{
+	var dataArr = data.data;
+	
+	/*
+		sort dataArray by key,value, so that we can effeciently form 
+		the structure needed for treemap
+	*/ 
+	
+	dataArr.sort(function(a,b){
+		var aKey = a.name + a.value;
+		var bKey = b.name + b.value;
+		return aKey.localeCompare(bKey);
+	});
+	
+	var chartData = [];
+	
+	var prevKey = null;
+	var key = null;
+	var children = [];
+	var first = true;
+	for (var i=0; i<dataArr.length; i++) {
+		var obj = dataArr[i];
+		key = obj.name;
+		if (key != prevKey && !first)
+		{
+			chartData.push({"name":prevKey, "children": children});
+			children = [];
+		}
+		children.push({"name":obj.value, "value":obj.resultcount});
+		prevKey = key;
+		first = false;
+	}
+	if (!first)
+	{
+		chartData.push({"name":key, "children":children});
+	}
+	renderTreeMap({"name":"Monitor Tags", "children":chartData}, targetElementId, width, height);
+}
+
+
+function invokeMonitoringRenderer(gadgetConfig, data)
+{
+	var query = $.parseJSON(gadgetConfig.query);
+	var type = $.trim(query["report_type"].toUpperCase());
+	var renderer = typeRendererMap[type];
+	if (renderer == null)
+	{
+		renderer = loadEchoGadget;
+	}
+	/*
+	call renderer
+	*/
+	renderer(gadgetConfig, data);
+}
+
+function handleBrowserBackButtonIssue(request)
+{
+	var contentType = request.getResponseHeader('Content-Type').split(";");
+	if (contentType[0] === "text/html")
+	{
+		window.location =  contextPath + "/login/login.jsf";
+	}
+}
+
+</script>
+</f:verbatim>

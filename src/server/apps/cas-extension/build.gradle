@@ -1,0 +1,362 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+buildscript {
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}"
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE'
+        classpath 'io.freefair.gradle:maven-plugin:5.3.3.3'
+        classpath 'io.freefair.gradle:lombok-plugin:5.3.3.3'
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.freefair.war-overlay'
+apply plugin: 'io.freefair.lombok'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
+        mavenBom "org.apereo.cas:cas-server-support-bom:${versions.casServerCore}"
+    }
+}
+
+configurations {
+    download
+    tomcatLib
+    bootRunConfig.extendsFrom compileClasspath
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion '5.2.22.RELEASE'
+            } else if (details.requested.group == 'org.apache.logging.log4j') {
+                details.useVersion "${versions.log4j}"
+            }
+        }
+    }
+}
+
+dependencies {
+    bootRunConfig "org.apereo.cas:cas-server-webapp-init:${versions.casServerCore}"
+    bootRunConfig "org.apereo.cas:cas-server-webapp-tomcat:${versions.casServerCore}"
+    implementation("org.apereo.cas:cas-server-webapp:${versions.casServerCore}") {
+        exclude module: 'log4j-api'
+    }
+    implementation "com.fasterxml:classmate:${versions.classmate}"
+    implementation "com.github.javaparser:javaparser-core:${versions.javaParser}"
+    implementation "com.google.code.gson:gson:${versions.googleGson}"
+    implementation "com.google.guava:guava:${versions.guava}"
+    implementation "com.mchange:c3p0:${versions.c3p0}"
+    implementation "com.microsoft.azure:msal4j:${versions.msal4j}"
+    implementation "com.nextlabs.cc.base:common-framework:${version}"
+    implementation "com.nextlabs.cc.base:common-pf:${version}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "com.nextlabs.common:log-manager:${version}"
+    implementation "com.nextlabs.cc:pac4j-saml:${versions.pac4jCas}"
+    implementation "com.warrenstrange:googleauth:${versions.googleauth}"
+    implementation "javax.jms:javax.jms-api:${versions.jmsApi}"
+    implementation "javax.xml.bind:jaxb-api:${versions.jaxb}"
+    implementation "javax.annotation:javax.annotation-api:${versions.javaxAnnotationApi}"
+    implementation "net.minidev:accessors-smart:${versions.accessorsSmart}"
+    implementation "net.minidev:json-smart:${versions.jsonSmart}"
+    implementation "net.sf.ehcache:ehcache:${versions.ehcache}"
+    implementation "org.apache.activemq:activemq-client:${versions.activemq}"
+    implementation "org.apache.velocity:velocity-engine-core:${versions.velocity}"
+    implementation "org.apereo.cas:cas-server-core:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-api-configuration-model:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-authentication-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-authentication-attributes:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-cookie:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-cookie-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-logout:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-notifications:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-services:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-services-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-services-registry:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-util:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-core-web-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-actions:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-gauth:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-gauth-core-mfa:${versions.casServerCore}"
+    implementation("org.apereo.cas:cas-server-support-jdbc-authentication:${versions.casServerCore}") {
+        exclude module: 'mssql-jdbc'
+        exclude module: 'ojdbc10'
+        exclude module: 'postgresql'
+    }
+    implementation "org.apereo.cas:cas-server-support-ldap:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oauth-core-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oidc-core-api:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-otp-mfa:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-otp-mfa-core:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-pac4j-authentication:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-pac4j-core:${versions.casServerCore}"
+    implementation ("org.apereo.cas:cas-server-support-pac4j-core-clients:${versions.casServerCore}") {
+        exclude module: 'pac4j-saml'
+    }
+    implementation ("org.apereo.cas:cas-server-support-pac4j-webflow:${versions.casServerCore}") {
+        exclude module: 'pac4j-saml'
+    }
+    implementation "org.apereo.cas:cas-server-support-pm-core:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oidc:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oidc-core:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oidc-services:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oauth:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oauth-services:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-oauth-core:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-pm-webflow:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-pm:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-rest:${versions.casServerCore}"
+    implementation "org.apereo.cas:cas-server-support-thymeleaf:${versions.casServerCore}"
+    implementation "org.bouncycastle:bcpkix-jdk15on:${versions.bcpkixJdk15on}"
+    implementation "org.bouncycastle:bcprov-jdk15on:${versions.bcprovJdk15on}"
+    implementation "org.json:json:${versions.json}"
+    implementation "org.ldaptive:ldaptive:${versions.ldaptive}"
+    implementation('org.apache.logging.log4j:log4j-api') {
+        version {
+            strictly "${versions.log4j}"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-core') {
+        version {
+            strictly "${versions.log4j}"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-jcl') {
+        version {
+            strictly "${versions.log4j}"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-jul') {
+        version {
+            strictly "${versions.log4j}"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-web') {
+        version {
+            strictly "${versions.log4j}"
+        }
+    }
+    implementation "org.pac4j:pac4j-cas:${versions.pac4jCas}"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation "xalan:xalan:${versions.xalan}"
+    providedCompile "jakarta.xml.bind:jakarta.xml.bind-api:${versions.jakartaXmlBind}"
+    providedCompile "javax.servlet:javax.servlet-api:${versions.javaxServletApi}"
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    implementation "com.auth0:java-jwt:${versions.javaJwt}"
+    implementation "org.bitbucket.b_c:jose4j:${versions.jose4j}"
+    implementation('org.slf4j:slf4j-api') {
+        version {
+            strictly "${versions.slf4j}"
+        }
+    }
+    implementation project(':serverapps-common')
+    download "com.nextlabs.cc.base:license:${version}"
+    download "com.nextlabs.cc.java.openjdk:jre-linux:${versions.java}@zip"
+    download "com.nextlabs.cc:apache-tomcat:${versions.tomcat}@zip"
+    tomcatLib "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    tomcatLib "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    tomcatLib "com.nextlabs.cc.base:crypt:${version}"
+    tomcatLib "com.nextlabs.cc.base:server-security:${version}"
+    tomcatLib "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    tomcatLib "commons-logging:commons-logging:${versions.commonsLogging}"
+    tomcatLib "org.postgresql:postgresql:${versions.postgresql}"
+}
+
+sourceSets {
+    bootRunSources {
+        resources {
+            srcDirs new File("//etc/cas/templates/"),
+                    new File("${project.getProjectDir()}/src/main/resources/")
+        }
+    }
+}
+
+springBoot {
+    mainClassName = 'org.springframework.boot.loader.WarLauncher'
+}
+
+bootWar {
+    archiveFileName = packageName
+    entryCompression = ZipEntryCompression.STORED
+    rootSpec.exclude('WEB-INF/classes/messages_*.properties')
+    overlays {
+        cas {
+            from "org.apereo.cas:cas-server-webapp${project.appServer}:${versions.casServerCore}@war"
+            provided = false
+            excludes = ["WEB-INF/lib/log4j-*",
+                        "WEB-INF/lib/slf4j-api-*",
+                        "WEB-INF/lib/log4j-slf4j18-impl-*",
+                        "WEB-INF/lib/logging-interceptor-*",
+                        "WEB-INF/lib/bcpkix-jdk15on-*",
+                        "WEB-INF/lib/bcprov-jdk15on-*",
+                        "WEB-INF/lib/log4j-*",
+                        "WEB-INF/lib/spring-*-5.2.12.RELEASE*"]
+        }
+    }
+    doLast {
+        println("Building " + archiveFileName.get() + " completed at " + new Date())
+    }
+}
+
+bootRun {
+    classpath = configurations.bootRunConfig + sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+    doFirst {
+        sourceResources sourceSets.bootRunSources
+        systemProperties = System.properties
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+task deploy {
+    doLast {
+        if (project.hasProperty('deploymentDeleteDir')) {
+            delete deploymentDeleteDir
+            println("Deleted: " + deploymentDeleteDir)
+        }
+        copy {
+            from bootWar.archiveFile
+            into deploymentLocation
+        }
+        println("Copied " + bootWar.archiveFileName.get() + " from: " + bootWar.archiveFile.get() + " into: " + deploymentLocation)
+    }
+    onlyIf {
+        project.hasProperty('deploymentLocation')
+    }
+}
+
+def ccPackageDir = "${buildDir}/distributions/control-center"
+
+task buildPackage {
+    doLast {
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        ant.replaceregexp(match: 'keystore.type=pkcs12', replace: 'keystore.type=jks', flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/java/jre/conf/security", includes: 'java.security')
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "apache-tomcat-${versions.tomcat}.zip" })
+            into "${ccPackageDir}/server"
+            exclude "*/webapps/"
+        }
+        file("${ccPackageDir}/server/apache-tomcat-${versions.tomcat}").renameTo(file("${ccPackageDir}/server/tomcat"))
+        copy {
+            from './src/main/resources/server'
+            into "${ccPackageDir}/server"
+        }
+        copy {
+            from './src/main/resources/server/tomcat/bin/setenv.sh'
+            into "${ccPackageDir}/server/tomcat/bin"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from configurations.tomcatLib
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        mkdir "${ccPackageDir}/server/tomcat/shared/lib"
+        ant.replaceregexp(match: 'shared\\.loader=',
+                replace: 'shared.loader="${catalina.home}/shared/lib", "${catalina.home}/shared/lib/*.jar"',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        ant.replaceregexp(match: 'tomcat\\.util\\.scan\\.StandardJarScanFilter\\.jarsToSkip=',
+                replace: 'tomcat.util.scan.StandardJarScanFilter.jarsToSkip=common-*.jar, crypt.jar, osdt_*.jar, policy-*.jar, secure-session.jar, server-*.jar, pdq.jar, ',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        mkdir "${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util"
+        new File("${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util/ServerInfo.properties").text = 'server.info=Apache Tomcat'
+        mkdir "${ccPackageDir}/server/certificates/cacerts"
+        copy {
+            from configurations.download.find { it.name == "license-${version}.jar" }
+            into "${ccPackageDir}/server/license"
+            rename "license-${version}.jar", 'license.jar'
+        }
+        copy {
+            from "${buildDir}/libs/cas.war"
+            into "${ccPackageDir}/server/apps"
+        }
+    }
+}
+
+def containerImageTag = String.format("%s${appName}:${appVersion}",
+        project.hasProperty('containerRegistryURL') ? "${containerRegistryURL}/" : "")
+
+task buildContainer(type: Exec) {
+    doFirst {
+        copy {
+            from './src/main/resources/scripts/start.sh'
+            into "${ccPackageDir}"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        copy {
+            from './src/main/resources/scripts/passwd.template'
+            into "${buildDir}/distributions"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        if(System.getProperty('os.name').startsWith('Linux')) {
+            exec {
+                commandLine 'sudo', 'chgrp', '-R', '0', "${ccPackageDir}"
+            }
+            exec {
+                commandLine 'sudo', 'chmod', '-R', 'g+rwX', "${ccPackageDir}"
+            }
+        }
+    }
+    workingDir "${buildDir}/distributions"
+    commandLine 'docker', 'build',
+            '--build-arg', "APP_DISPLAY_NAME=${appDisplayName}",
+            '--build-arg', "VERSION=${appVersion}",
+            '--build-arg', "BUILD_NUMBER=${buildNumber}",
+            '-f', "${projectDir}/Dockerfile",
+            '-t', "${containerImageTag}",
+            '.'
+}
+
+task publishContainer(type: Exec) {
+    commandLine 'docker', 'push', "${containerImageTag}"
+}
+
+def helmChartDir = "${buildDir}/helm-chart/"
+task packageHelmChart(type: Exec) {
+    doFirst {
+        mkdir helmChartDir
+        copy {
+            from "./helm-chart"
+            into "${helmChartDir}/helm-chart"
+        }
+        ant.replaceregexp(match: '\\$\\{appVersion\\}', replace: appVersion, flags: 'g', byline: true) {
+            fileset(dir: "${helmChartDir}/helm-chart", includes: 'Chart.yaml')
+        }
+    }
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'package', './helm-chart'
+}
+
+task publishHelmChart(type: Exec) {
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'push', "--username=${helmChartRepositoryUsername}",
+            "--password=${helmChartRepositoryPassword}", "${appName}-${appVersion}.tgz", "${helmChartRepositoryName}"
+}
+
+build.finalizedBy(deploy)

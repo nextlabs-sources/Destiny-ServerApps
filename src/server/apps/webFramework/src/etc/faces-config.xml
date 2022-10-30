@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<!-- =========== FULL CONFIGURATION FILE ================================== -->
+
+<faces-config>
+	<application>
+		<view-handler>com.bluejungle.destiny.webui.framework.faces.CompoundCustomViewHandler</view-handler>
+		<variable-resolver>com.bluejungle.destiny.webui.framework.faces.CustomVariableResolver</variable-resolver>	
+	</application>
+	
+    <component>
+		<component-type>com.bluejungle.destiny.BarItem</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIBarItem</component-class>
+	</component>
+
+    <component>
+		<component-type>com.bluejungle.destiny.CSSInclude</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UICSSInclude</component-class>
+	</component>
+
+    <component>
+    	<component-type>com.nextlabs.destiny.popupLink</component-type>
+    	<component-class>com.nextlabs.destiny.webui.controls.UIPopupLink</component-class>
+	</component>
+	
+	<component>
+		<component-type>com.bluejungle.destiny.dataTable</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIDataTable</component-class>
+	</component>
+	
+	<component>
+		<component-type>com.nextlabs.destiny.popupDataTable</component-type>
+		<component-class>com.nextlabs.destiny.webui.controls.UIPopupDataTable</component-class>
+	</component>
+	
+	<component>
+		<component-type>com.bluejungle.destiny.dataScroller</component-type>
+		<component-class>org.apache.myfaces.custom.datascroller.HtmlDataScroller</component-class>
+	</component>	
+	
+	<component>
+		<component-type>com.bluejungle.destiny.datePicker</component-type>
+		<component-class>org.apache.myfaces.custom.calendar.HtmlInputCalendar</component-class>
+	</component>	
+	
+	<component>
+		<component-type>com.bluejungle.destiny.Form</component-type>
+		<component-class>javax.faces.component.UIForm</component-class>
+	</component>
+		
+	<component>
+		<component-type>com.bluejungle.destiny.jsInclude</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIJSInclude</component-class>
+	</component>
+
+	<component>
+		<component-type>com.bluejungle.destiny.horDataColumn</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIHorColumn</component-class>
+	</component>
+
+	<component>
+		<component-type>com.bluejungle.destiny.Menu</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIMenu</component-class>
+	</component>
+    
+	<component> 
+		<component-type>com.bluejungle.destiny.numberSelector</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UINumberSelector</component-class>
+	</component>
+
+	<component>
+		<component-type>com.bluejungle.destiny.MenuItem</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIMenuItem</component-class>
+	</component>
+
+	<component>
+		<component-type>com.bluejungle.destiny.Messages</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIMessages</component-class>
+	</component>
+
+	<component>
+		<component-type>com.bluejungle.destiny.ShowHide</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIShowHide</component-class>
+	</component>
+
+	<component>		
+		<component-type>com.bluejungle.destiny.tableRow</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIRow</component-class>
+	</component>
+	
+	<component>		
+		<component-type>com.bluejungle.destiny.TabbedPane</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UITabbedPane</component-class>
+	</component>
+
+	<component>		
+		<component-type>com.bluejungle.destiny.Tab</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UITab</component-class>
+	</component>
+
+	<component>		
+		<component-type>com.bluejungle.destiny.UIPassword</component-type>
+		<component-class>com.bluejungle.destiny.webui.controls.UIPassword</component-class>
+	</component>
+			
+	<converter>
+		<converter-id>URLConverter</converter-id>	
+		<converter-class>com.bluejungle.destiny.webui.converters.URLConverter</converter-class>
+	</converter>
+	
+	<converter>
+		<converter-id>TokenConverter</converter-id>	
+		<converter-class>com.bluejungle.destiny.webui.converters.TokenConverter</converter-class>
+	</converter>
+	
+	<validator>
+		<validator-id>TokenValidator</validator-id>	
+		<validator-class>com.bluejungle.destiny.webui.validators.TokenValidator</validator-class>
+	</validator>
+
+	<converter>
+		<converter-id>RequestAttributeConverter</converter-id>	
+		<converter-class>com.bluejungle.destiny.webui.converters.RequestAttributeConverter</converter-class>
+	</converter>
+	
+	<managed-bean>
+		<description>Login Information Data Bean</description>
+		<managed-bean-name>loginInfo</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.appframework.appsecurity.loginmgr.LoginInfoImpl</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Login Manager</description>
+		<managed-bean-name>loginManager</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.loginmgr.WebLoginMgrImpl</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Version Bean</description>
+		<managed-bean-name>versionBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.version.defaultimpl.VersionBeanImpl</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+		
+	<managed-bean>
+		<description>Installer Version Bean</description>
+		<managed-bean-name>installerVersionBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.version.defaultimpl.InstallerVersionBeanImpl</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description> 
+			The Search Bucket bean is utilized by the browsable data 
+			picket page to determine the list of search buckets to display (eg. 
+			A-B, C-D, etc). This bean reads the list of search buckets from a 
+			resource bundle using a key pattern a key pattern to determine the 
+			how the buckets are formulated. Please see the default bundle for 
+			an example 
+		</description>
+		<managed-bean-name>searchBucketBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.DefaultSearchBucketBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description> 
+			The Browsable Data Picker bean is utilized by the 
+			browsable data picker reusable view to obtain the information 
+			required to display the selectable and selected data 
+		</description>
+		<managed-bean-name>browsableDataPickerBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.DefaultBrowsableDataPickerBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<description>
+				The search bucket bean utilized to load the search buckets to display in the browsable data picker view
+			</description>
+			<property-name>searchBucketBean</property-name>
+			<value>#{searchBucketBean}</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<description>The timestamp bean is used to access some time related functions</description>
+		<managed-bean-name>timestampBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.timestamp.TimestampBeanImpl</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>	
+
+	<render-kit>
+        <render-kit-id>HTML_BASIC</render-kit-id>
+		<renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>com.bluejungle.destiny.SortHeaderRenderer</renderer-type>
+            <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlSortColumnHeaderRenderer</renderer-class>
+        </renderer>
+		
+		<renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>javax.faces.Link</renderer-type>
+            <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlLinkRenderer</renderer-class>
+        </renderer>
+        
+        <renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>com.nextlabs.destiny.popupLinkRenderer</renderer-type>
+            <renderer-class>com.nextlabs.destiny.webui.renderers.HtmlPopupLinkRenderer</renderer-class>
+        </renderer>
+
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>com.bluejungle.destiny.dataTableRenderer</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.HtmlTableRenderer</renderer-class>
+		</renderer>
+
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>com.bluejungle.destiny.tableRow</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.HtmlTableRenderer</renderer-class>
+		</renderer>
+		
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>com.nextlabs.destiny.popupDataTableRenderer</renderer-type>
+			<renderer-class>com.nextlabs.destiny.webui.renderers.HtmlPopupTableRenderer</renderer-class>
+		</renderer>
+				
+		<renderer>
+            <component-family>javax.faces.Input</component-family>
+            <renderer-type>com.bluejungle.destiny.HTMLDatePickerRenderer</renderer-type>
+            <renderer-class>com.bluejungle.destiny.webui.renderers.HTMLDatePickerRenderer</renderer-class>
+        </renderer>
+		
+		<renderer>
+            <component-family>javax.faces.Input</component-family>
+            <renderer-type>com.bluejungle.destiny.webui.renderers.NumberSelectorRenderer</renderer-type>
+            <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlNumberSelectorRenderer</renderer-class>
+        </renderer>
+		
+		<renderer>
+			<component-family>javax.faces.Output</component-family>
+			<renderer-type>com.bluejungle.destiny.webui.renderers.BarItemRenderer</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.BarItemRenderer</renderer-class>
+		</renderer>	
+		
+		<renderer>
+			<component-family>javax.faces.Output</component-family>
+			<renderer-type>com.bluejungle.destiny.webui.renderers.CSSIncludeRenderer</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.CSSIncludeRenderer</renderer-class>
+		</renderer>	
+		
+		<renderer>
+			<component-family>javax.faces.Output</component-family>
+			<renderer-type>com.bluejungle.destiny.webui.renderers.JSIncludeRenderer</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.JSIncludeRenderer</renderer-class>
+		</renderer>
+		
+		<renderer>
+			<component-family>javax.faces.Output</component-family>
+			<renderer-type>com.bluejungle.destiny.webui.renderers.ShowHideRenderer</renderer-type>
+			<renderer-class>com.bluejungle.destiny.webui.renderers.ShowHideRenderer</renderer-class>
+		</renderer>	
+		
+		<renderer>
+            <component-family>javax.faces.Panel</component-family>
+            <renderer-type>com.bluejungle.destiny.dataScrollerRenderer</renderer-type>
+            <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlListScrollerRenderer</renderer-class>
+        </renderer>
+		
+		<renderer>
+          <component-family>javax.faces.Form</component-family>
+          <renderer-type>javax.faces.Form</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlFormRenderer</renderer-class>
+	    </renderer>		
+		
+		<renderer>
+          <component-family>com.bluejungle.destiny.Menu</component-family>
+          <renderer-type>com.bluejungle.destiny.MenuRenderer</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.MenuRenderer</renderer-class>
+	    </renderer>
+		
+		<renderer>
+          <component-family>com.bluejungle.destiny.Messages</component-family>
+          <renderer-type>com.bluejungle.destiny.MessagesRenderer</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.MessagesRenderer</renderer-class>
+	    </renderer>
+
+		<renderer>
+          <component-family>com.bluejungle.destiny.TabbedPane</component-family>
+          <renderer-type>com.bluejungle.destiny.TabbedPaneRenderer</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.TabbedPaneRenderer</renderer-class>
+	    </renderer>
+
+		<renderer>
+          <component-family>javax.faces.Data</component-family>		  
+          <renderer-type>com.bluejungle.destiny.DataGridRenderer</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.datagrid.HtmlDataGridRenderer</renderer-class>
+	    </renderer>		
+		
+		<renderer>
+          <component-family>com.bluejungle.destiny.InputPassword</component-family>		  
+          <renderer-type>com.bluejungle.destiny.HtmlPasswordRenderer</renderer-type>
+          <renderer-class>com.bluejungle.destiny.webui.renderers.HtmlPasswordRenderer</renderer-class>
+	    </renderer>	
+	  </render-kit>
+</faces-config>

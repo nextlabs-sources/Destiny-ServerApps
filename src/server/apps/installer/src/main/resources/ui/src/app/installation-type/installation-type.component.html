@@ -1,0 +1,50 @@
+<form [formGroup]="installationTypeForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div>
+        <div class="text-center">
+          <div class="page-heading">Installation Type</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading">
+            Select the installation type.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center">
+            <mat-radio-group id="installationType" aria-label="Select an option" formControlName="installationType">
+              <div class="d-flex flex-column flex-wrap">
+                <div class="pt-3">
+                  <mat-radio-button value="COMPLETE" id="complete">
+                    <span><strong>Complete Server</strong></span>
+                    <div class="installation-type-desc mt-1">
+                      Install all Control Center components including the Management Server and the ICENet Server.
+                    </div>
+                  </mat-radio-button>
+                </div>
+                <div class="pt-3">
+                  <mat-radio-button value="MANAGEMENT_SERVER" id="mgmt_server">
+                    <span> <strong>Management Server</strong> </span>
+                    <div class="installation-type-desc mt-1">
+                      Install the Management Server only.
+                    </div>
+                  </mat-radio-button>
+                </div>
+                <div class="pt-3">
+                  <mat-radio-button value="ICENET" id="icenet">
+                    <span> <strong>ICENet Server</strong> </span>
+                    <div class="installation-type-desc mt-1">
+                      Install the ICENet Server only.
+                    </div>
+                  </mat-radio-button>
+                </div>
+              </div>
+            </mat-radio-group>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="installationTypeForm"></app-bottom-nav>
+</form>

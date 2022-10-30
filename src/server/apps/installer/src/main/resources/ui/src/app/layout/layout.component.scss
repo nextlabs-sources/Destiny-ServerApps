@@ -1,0 +1,162 @@
+@import "../../style-constants";
+
+.installer-header {
+  height: $header-height;
+  width: 100vw;
+  background-color: #3C3C3C;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.installer-header-logo {
+  background: url("../../assets/images/logo-white.png") no-repeat right center;
+  height: 2rem;
+  width: 10rem;
+  display: inline-block;
+}
+
+.cc-header-icon-smaller {
+  background: url("../../assets/images/cc-icon-smaller.png") no-repeat left center;
+  height: 2rem;
+  width: 2rem;
+  display: inline-block;
+}
+
+.cc-header-icon-small {
+  background: url("../../assets/images/cc-icon-small.png") no-repeat left center;
+  height: 40px;
+  width: 40px;
+  display: inline-block;
+}
+
+.vertical-bar {
+  background: url("../../assets/images/vertical-bar.png") no-repeat center center;
+  height: 2rem;
+  width: 2px;
+  display: inline-block;
+}
+
+.installer-header-text {
+  font-family: Fira Sans, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+
+  color: #FF6800;
+}
+
+.install-version {
+    font-family: Fira Sans, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+
+    color: #CCCCCC;
+  }
+
+.main-container {
+  margin-top: $header-height;
+  //overflow-x: auto;
+  //min-width: 40rem;
+}
+
+mat-sidenav {
+  top: $header-height !important;
+  font-family: 'Fira Sans', sans-serif;
+  //padding: 2rem;
+  overflow: hidden;
+  background: #F6F6F6;
+  width: $sidenav-width;
+}
+
+mat-sidenav-content {
+  font-family: 'Fira Sans', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 15px;
+  line-height: 18px;
+  background: #FFFFFF;
+  overflow-x: hidden;
+}
+
+#sidenav-content {
+  overflow: hidden !important;
+  width: $sidenav-content-width;
+  //min-width: 32rem;
+}
+
+.installer-header-logo-wrapper {
+  width: $sidenav-width;
+}
+
+/* Fix sidenav showing overflow scroll */
+::ng-deep .mat-drawer-inner-container {
+  overflow-x: hidden !important;
+}
+
+a[mat-list-item] {
+  font-family: 'Fira Sans', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 0.937rem;
+  line-height: 1.125;
+  color: #333333;
+
+  &.active-tab {
+    color: #FF6100;
+    background-color: #FFFFFF;
+  }
+}
+
+.cc-installer-header-logo {
+  background: url("src/assets/images/logo-white.png") no-repeat 10px 8px;
+  background-size: 76%;
+  height: 30px;
+  width: 150px;
+  display: inline-block;
+  z-index: 15;
+}
+
+::ng-deep .nav-list-item a {
+  min-height: 4.5rem;
+  .mat-list-item-content {
+    min-height: 100%;
+  }
+}
+
+.nav-text {
+}
+
+//*, *:after, *:before { margin:0; padding:0; }
+*:after, *:before { margin:0; padding:0; }
+
+.node {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  //transition: all 1000ms ease;
+  background-color: #ffffff;
+  &.highlight {
+    background-color: #FF6100;
+  }
+  &.active {
+    border: 5px solid #FF6100;
+  }
+  i {
+    color: #ffffff;
+    font-size: 12px;
+  }
+}
+
+.divider {
+  width: 2px;
+  margin-left: 9px;
+  //transition: all 800ms ease;
+  background-color: #ffffff;
+  &.highlight {
+    background-color: #FF6100;
+  }
+  &.hide {
+    opacity: 0;
+  }
+}

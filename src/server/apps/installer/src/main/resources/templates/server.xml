@@ -1,0 +1,278 @@
+<?xml version="1.0" ?>
+
+<Server xmlns:th="http://www.thymeleaf.org" th:attr="port=${serverShutdownPort}" shutdown="SHUTDOWN">
+
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <GlobalNamingResources>
+    </GlobalNamingResources>
+
+    <Service th:if="${configServicePort > 0}" name="CE-Config">
+        <Connector th:attr="port=${configServicePort}"
+                   enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecurePasswordHttp11NioProtocol"
+                   scheme="https"
+                   secure="true"
+                   SSLEnabled="true"
+                   sslProtocol="TLS"
+                   sslEnabledProtocols="TLSv1.2"
+                   acceptCount="100"
+                   connectionTimeout="60000"
+                   keystoreFile="${catalina.home}/../certificates/dcc-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="control_center"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.home}/../certificates/dcc-truststore.p12"
+                   clientAuth="false">
+        </Connector>
+        <Engine name="CE-Config" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false"
+                  unpackWARs="true"
+                  appBase="${catalina.base}/apps/config">
+                <Context path="/config-service" reloadable="false" docBase="${catalina.home}/../apps/config-service.war"
+                         workDir="${catalina.home}/work/config-service">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+    <Service th:if="${webServicePort > 0}" name="CE-Core">
+        <Connector th:attr="port=${webServicePort}"
+                   enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecureHttp11NioProtocol"
+                   scheme="https"
+                   secure="true"
+                   acceptCount="100"
+                   SSLEnabled="true"
+                   sslProtocol="TLS"
+                   sslEnabledProtocols="TLSv1.2"
+                   connectionTimeout="60000"
+                   keystoreFile="${catalina.base}/../certificates/dcc-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="dcc"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.base}/../certificates/dcc-truststore.p12"
+                   clientAuth="true">
+        </Connector>
+        <Engine name="CE-Core" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false"
+                  unpackWARs="true"
+                  appBase="${catalina.base}/apps/core">
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DMS)}"
+                        path="/dms" reloadable="false" docBase="${catalina.base}/../apps/dms.war"
+                        workDir="${catalina.base}/work/dms">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dms'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DCSF)}"
+                        path="/dcsf" reloadable="false" docBase="${catalina.base}/../apps/dcsf.war"
+                        workDir="${catalina.base}/work/dcsf">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dcsf'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dcsf'"/>
+                    <Parameter name="DMSLocation"
+                               th:attr="value='https://' + ${managementServerHost} + ':' + ${managementServerWebServicePort} + '/dms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DABS)}"
+                        path="/dabs" reloadable="false" docBase="${catalina.base}/../apps/dabs.war"
+                        workDir="${catalina.base}/work/dabs">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dabs'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dabs'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DAC)}"
+                        path="/dac" reloadable="false" docBase="${catalina.home}/../apps/dac.war"
+                        workDir="${catalina.home}/work/dac">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dac'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dac'"/>
+                    <Parameter name="DMSLocation"
+                               th:attr="value='https://' + ${managementServerHost} + ':' + ${managementServerWebServicePort} + '/dms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DEM)}"
+                        path="/dem" reloadable="false" docBase="${catalina.home}/../apps/dem.war"
+                        workDir="${catalina.home}/work/dem">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dem'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dem'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DKMS)}"
+                        path="/dkms" reloadable="false" docBase="${catalina.home}/../apps/dkms.war"
+                        workDir="${catalina.home}/work/dkms">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dkms'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dkms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).DPS)}"
+                        path="/dps" reloadable="false" docBase="${catalina.home}/../apps/dps.war"
+                        workDir="${catalina.home}/work/dps">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_dpms'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dps'"/>
+                    <Parameter name="DMSLocation"
+                               th:attr="value='https://' + ${managementServerHost} + ':' + ${managementServerWebServicePort} + '/dms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+    <Service th:if="${installerServicePort > 0}"
+             name="CE-Apps">
+        <Connector th:attr="port=${installerServicePort}, keystorePass=${keystorePass}, truststorePass=${truststorePass}"
+                   enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecurePasswordHttp11NioProtocol"
+                   scheme="https"
+                   secure="true"
+                   SSLEnabled="true"
+                   sslProtocol="TLS"
+                   sslEnabledProtocols="TLSv1.2"
+                   acceptCount="100"
+                   connectionTimeout="60000"
+                   keystoreFile="${catalina.home}/../certificates/installer-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="installer"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.home}/../certificates/installer-truststore.p12"
+                   clientAuth="false">
+        </Connector>
+        <Engine name="CE-Apps" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false" appBase="${catalina.base}/installerapp">
+                <Context path="" reloadable="false"
+                         docBase="${catalina.home}/../apps/installer.war"
+                         workDir="${catalina.home}/work/installer">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+    <Service th:if="${appServicePort > 0}" name="CE-Apps">
+        <Connector th:attr="port=${appServicePort}"
+                   enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecurePasswordHttp11NioProtocol"
+                   scheme="https"
+                   secure="true"
+                   SSLEnabled="true"
+                   sslProtocol="TLS"
+                   sslEnabledProtocols="TLSv1.2"
+                   acceptCount="100"
+                   connectionTimeout="60000"
+                   maxHttpHeaderSize="65536"
+                   keystoreFile="${catalina.home}/../certificates/web-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="web"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.home}/../certificates/web-truststore.p12"
+                   clientAuth="false">
+        </Connector>
+        <Engine name="CE-Apps" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false">
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).ADMINISTRATOR)}"
+                        path="/administrator" reloadable="false" docBase="${catalina.home}/../apps/mgmtConsole.war"
+                        workDir="${catalina.home}/work/administrator">
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_mgmt'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccExternalName} + ':' + ${appServicePort} + '/mgmt'"/>
+                    <Parameter name="DMSLocation"
+                               th:attr="value='https://' + ${managementServerHost} + ':' + ${managementServerWebServicePort} + '/dms'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).APP_HOME)}"
+                        path="/" reloadable="false"
+                        docBase="${catalina.home}/../apps/app-home.war"
+                        workDir="${catalina.home}/work/app-home">
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).CAS)}"
+                        path="/cas" reloadable="false" docBase="${catalina.home}/../apps/cas.war"
+                        workDir="${catalina.home}/work/cas">
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).CONSOLE)}"
+                        path="/console" reloadable="false"
+                        docBase="${catalina.home}/../apps/control-center-console.war"
+                        workDir="${catalina.home}/work/console">
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).POLICY_CONTROLLER_MANAGER)}"
+                        path="/policy-controllers" reloadable="false"
+                        docBase="${catalina.home}/../apps/policy-controller-manager.war"
+                        workDir="${catalina.home}/work/policy-controller-manager">
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).REPORTER)}"
+                        path="/reporter" reloadable="false" docBase="${catalina.home}/../apps/inquiryCenter.war"
+                        workDir="${catalina.home}/work/reporter">
+                    <Parameter name="DACLocation"
+                               th:attr="value='https://' + ${ccInternalName} + ':' + ${webServicePort} + '/dac'"/>
+                    <Parameter name="DMSLocation"
+                               th:attr="value='https://' + ${managementServerHost} + ':' + ${managementServerWebServicePort} + '/dms'"/>
+                    <Parameter name="ComponentName" th:attr="value=${ccComponentNamePrefix} + '_reporter'"/>
+                    <Parameter name="Location"
+                               th:attr="value='https://' + ${ccExternalName} + ':' + ${appServicePort} + '/reporter'"/>
+                    <Parameter name="InstallHome" th:attr="value=${ccHome} + '/server'"/>
+                </Context>
+                <Context
+                        th:if="${#lists.contains(components, T(com.nextlabs.destiny.cc.installer.enums.Component).SERVICE_MANAGER)}"
+                        path="/services" reloadable="false"
+                        docBase="${catalina.home}/../apps/service-manager.war"
+                        workDir="${catalina.home}/work/service-manager">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+    <Service th:if="${healthCheckServicePort > 0}" name="CE-Health-Check">
+        <Connector th:if="${healthCheckServiceProtocol == 'HTTP'}" th:attr="port=${healthCheckServicePort}"
+                   enableLookups="false">
+        </Connector>
+        <Connector th:if="${healthCheckServiceProtocol == 'HTTPS'}" th:attr="port=${healthCheckServicePort}"
+                   enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecurePasswordHttp11NioProtocol"
+                   scheme="https"
+                   secure="true"
+                   SSLEnabled="true"
+                   sslProtocol="TLS"
+                   sslEnabledProtocols="TLSv1.2"
+                   keystoreFile="${catalina.home}/../certificates/web-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="web"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.home}/../certificates/web-truststore.p12">
+        </Connector>
+        <Engine name="CE-Health-Check" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false"
+                  unpackWARs="true"
+                  appBase="${catalina.base}/apps/health-check">
+                <Context th:attr="path=${healthCheckServiceContextPath}" reloadable="false" docBase="${catalina.home}/../apps/health-check-service.war"
+                         workDir="${catalina.home}/work/health-check-service">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+</Server>

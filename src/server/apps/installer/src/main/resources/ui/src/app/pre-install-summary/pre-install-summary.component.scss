@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page-content {
+  div {
+    font-size: .875rem;
+    line-height: 1.25rem;
+  }
+  .row {
+    div {
+      padding: 0;
+    }
+  }
+}
+
+.summary-section {
+  width: 100%!important;
+  margin-bottom: 2rem;
+}
+
+.summary-heading {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}

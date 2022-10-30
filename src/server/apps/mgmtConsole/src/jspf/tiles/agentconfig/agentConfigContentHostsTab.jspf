@@ -1,0 +1,59 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<%-- Verbatim tags are unfortunately required because this page is included from within a tabbed pane --%>
+
+<f:verbatim>
+  <script language="javascript">
+    function getSearchBoxId() {
+</f:verbatim>
+<h:outputText value="return 'agentConfigDefinitionSubview:contentSubview:agentConfigForm:agentConfigHostsTabBody:searchBox';" />
+<f:verbatim>
+    }
+  </script>
+</f:verbatim>
+
+<h:outputText id="crntHstsDscrTxt" value="#{bundle.agent_config_host_list_content_description}" />
+  
+<f:verbatim><div id="addButtonDiv" style="float:left;"></f:verbatim>
+  <h:commandLink id="caCrntHstsLnk" action="agentConfigBrowseHosts" immediate="true">
+    <h:commandButton id="caAddHstsBtn" styleClass="addhosts" type="button" value="#{bundle.agent_config_add_hosts_button_label}" />
+    <f:param id="caAddHstsPrm" name="selectableItemSourceBeanName" value="hostSelectableItemSourceBean"/>
+    <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+  </h:commandLink>
+<f:verbatim></div></f:verbatim>
+
+<f:verbatim><div id="hostSrchBxDv" class="searchbox"></f:verbatim>
+    <h:outputText id="inptFldLbl" value="#{commonBundle.data_picker_search_box_search_input_field_label}"/> <h:inputText id="searchBox" value="#{agentConfigurationBean.hostSearchString}" />
+    <h:commandButton id="srchBtn" value="#{commonBundle.data_picker_search_box_search_button_label}" />
+    <h:commandLink id="cancelSearchLink" rendered="#{not empty agentConfigurationBean.hostSearchString}">
+      <h:commandButton id="cnclSrchBtn" value="#{commonBundle.data_picker_search_box_cancel_button_label}" type="button" />
+      <f:param id="cancelSearchPageBeanNameParam" name="agentConfigurationViewBeanName" value="agentConfigurationBean" />    
+      <f:actionListener type="com.bluejungle.destiny.mgmtconsole.agentconfig.CancelHostSearchActionListener"/>
+    </h:commandLink>
+    
+    <h:outputText id="spaces" value="&nbsp;&nbsp;" escape="false"/>
+    
+    <h:outputText id="maxResultsSelectLabel" value="#{commonBundle.data_picker_max_selectable_items_select_menu_label}"/> 
+    <h:selectOneMenu id="maxResultsSelect" value="#{agentConfigurationBean.maxHostsToDisplay}" immediate="true" onchange="this.document.getElementById(getSearchBoxId()).value=\"#{agentConfigurationBean.hostSearchString}\";submit();">
+      <f:selectItems id="maxResultsSelectItems" value="#{agentConfigurationBean.maxHostsToDisplayOptions}" />
+    </h:selectOneMenu>
+<f:verbatim></div></f:verbatim>
+
+
+<d:dataTable id="hostTable" 
+             value="#{agentConfigurationBean.selectedProfile.hosts}" 
+             var="currentHost" 
+             styleClass="agentconfighosttable">
+  <f:facet name="header">
+    <h:outputText id="agentConfigHostTableHostNameHeader" value="#{bundle.agent_config_host_list_hostname_header_label}" />
+  </f:facet> 
+  <h:column id="hstCol">
+    <h:outputText id="hstNmTxt" value="#{currentHost}" />
+  </h:column>
+</d:dataTable>

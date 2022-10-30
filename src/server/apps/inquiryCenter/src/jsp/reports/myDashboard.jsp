@@ -1,0 +1,22 @@
+<%@ page errorPage="/error" %> 
+
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+
+<f:view>
+  <%@ include file = "../propertybundles/basicBundle.jsp" %>
+  <%-- Define My Reports Tiles Definition --%>
+  <tiles:definition id="myDashboardDefinition" extends="inquiryCenterMainWithoutContentHeaderDefinition">
+    <tiles:put name="applicationTitle" value="${bundle.inquiry_center_title}" />
+    <tiles:put name="pageTitle" value="${bundle.my_dashboard_page_title}" />
+    <tiles:put name="content" value="/WEB-INF/jspf/tiles/reports/myDashboardContent.jspf" />
+	<tiles:put name="helpURL"><h:outputText value="#{helpBundle.reportcreation_help_url}" /></tiles:put>
+  </tiles:definition>
+
+  <%-- Insert My Reports Definition --%>
+  <f:subview id="myDashboardDefinitionSubview">
+    <tiles:insert beanName="myDashboardDefinition" flush="false" />
+  </f:subview>
+
+</f:view>

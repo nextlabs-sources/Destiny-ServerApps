@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>Password Update Form</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      var policyPattern = /*[[${policyPattern}]]*/;
+      /*]]>*/
+    </script>
+</head>
+<body>
+<main role="main" class="login-details-container" >
+    <div th:fragment="pwdupdateform" th:remove="tag">
+        <div class="reset-password-container">
+            <div>
+                <div class="cc-form-line show-overflow">
+                    <span class="cc-form-title" th:text="#{screen.password.setpassword}"></span>
+                </div>
+            </div>
+            <form id="passwordManagementForm" th:if="${passwordManagementEnabled}" method="post"
+                  th:object="${password}">
+                <div id="msg" class="errors" th:if="${#fields.hasErrors('*')}"
+                     style="background-color: rgb(255, 238, 221);">
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}">Error text</span>
+                </div>
+                <div class="cc-form-line">
+                    <input type="password" id="password" name="password" th:field="*{password}"
+                           th:placeholder="#{screen.new.password}"
+                           th:title="#{pm.policyPattern.message}"
+                           data-toggle="tooltip" data-placement="right" required/>
+                </div>
+                <div class="cc-form-line">
+                    <input type="password" id="confirmedPassword" name="confirmedPassword"
+                           th:field="*{confirmedPassword}" th:placeholder="#{screen.confirm.password}" required/>
+                </div>
+                <div class="form-group" id="password-strength-notes" style="margin-top: 5px;">
+                    <div id="password-policy-violation-msg" class="alert alert-danger" role="alert"
+                         style="display: none;">
+                        <span class="fas fa-exclamation-circle" aria-hidden="true"></span>&nbsp;
+                        <strong th:text="#{screen.pm.password.policyViolation}">Password does not match the password
+                            policy requirement.</strong>
+                    </div>
+                    <div id="password-confirm-mismatch-msg" class="alert alert-danger" role="alert"
+                         style="display: none; background-color: rgb(255, 238, 221); border: none; border-radius: 0; color: #BB0000;">
+                        <span th:text="#{screen.pm.password.confirmMismatch}">Passwords do not match.</span>
+                    </div>
+                </div>
+                <div class="cc-form-btn-line">
+                    <input id="passwordManagementFormCsrfToken" type="hidden" name="csrfToken"
+                           th:value="${@csrfProtectionService.getCsrfToken()}"/>
+                    <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                    <input type="hidden" name="_eventId" value="submit"/>
+                    <input type="submit" id="submit" name="submit" accesskey="s" class="submit"
+                           th:value="#{screen.button.submit}" value="SUBMIT" disabled="true"/>
+                    <input type="button" name="cancel" accesskey="c" class="back-to-login-btn"
+                           th:value="#{screen.password.resetpassword.backToLogin}" value="Back to login screen"
+                           onclick="location.href = location.href;"
+                    />
+                </div>
+            </form>
+            <p th:unless="${passwordManagementEnabled}"
+               th:utext="${expiredPass} ? #{screen.expiredpass.message} : #{screen.mustchangepass.message}">Expired/Must
+                Change Password text</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

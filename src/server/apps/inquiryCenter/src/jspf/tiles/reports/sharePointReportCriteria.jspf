@@ -1,0 +1,663 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%@ page
+	import="com.nextlabs.destiny.inquirycenter.monitor.service.MonitoringService"%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<d:includeJS location="/core/javascript/jquery-1.10.2.js" />
+<d:includeJS location="/core/javascript/jquery.dataTables.js" />
+<d:includeJS location="/core/javascript/jquery-ui-1.10.3.custom.js" />
+<d:includeJS location="/core/javascript/jquery.layout-latest.js" />
+<d:includeJS location="/core/javascript/jquery.multiselect2side.js" />
+<d:includeJS location="/core/javascript/d3/d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nv.d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nextLabsCharts.js" />
+<d:includeJS location="/core/javascript/c3/c3.min.js" />
+<d:includeJS location="/core/javascript/bootstrap/js/bootstrap.js" />
+<d:includeJS location="/core/javascript/common.js" />
+<d:includeJS location="/core/javascript/lookup.js" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<d:includeCSS location="/core/javascript/bootstrap/css/bootstrap.css"/>
+<d:includeCSS location="/core/javascript/d3/nv.d3.css"/>
+<d:includeCSS location="/core/css/jquery.multiselect2side.css"/>
+<d:includeCSS location="/core/javascript/d3/override-nvd3-tooltip.css"/>
+<d:includeCSS location="/core/javascript/c3/c3.css"/>
+
+<%@ include file="../shared/lookupDivs.jspf"%>
+
+<f:verbatim>
+	<div class="container-fluid" id="main_page_content" style="min-height: 750px;">
+		<div class="row">
+			<div class="col-xs-12">
+				<span id="reportQuery_name"
+					class="report_title h4">Report Query</span>
+			</div>
+		</div>
+		<div class="row" id="set-criteria">
+			<div class="col-xs-12">
+			   <div id="formErrorAlert" class="alert alert-danger" style='display:none;' >
+				 <a href="#" class="close" onclick="$('#formErrorAlert').hide();">&times;</a> <strong>Error!</strong>
+				 <span id="errorMsg"></span> 
+			   </div>
+			
+				<form role="form" id="criteria-form">
+					<div class="form-group row">
+						<div class="col-xs-3">
+							<label for="beginDate" class="control-label">From: </label> <input
+								type="text" id="beginDate" name="beginDate"
+								class="form-control input-xs" placeholder="From Date"  onchange="validateFromDate()" >
+						</div>
+						<div class="col-xs-3">
+							<label for="endDate" class="control-label">To: </label> <input
+								type="text" id="endDate" name="endDate"
+								class="form-control input-xs" placeholder="To Date" onchange="validateToDate()">
+						</div>
+					</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-5">
+				<button type="button" id="run_button" class="btn btn-primary btn-sm"
+					onclick="runReport();">
+					Run <i class="glyphicon glyphicon-play"></i>
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-8">
+				<div id='loadingmessage' style='display: none; align: center'>
+					<img src='/reporter/core/images/loader.gif' />
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-12">
+				<div id="reportContentViewer" style="text-align: center;"></div>
+			</div>
+		</div>
+
+<style type="text/css">
+html, body {
+	background-color: white;
+	padding: 0;
+	margin:	0;
+	overflow-y: auto;
+}
+.pane {
+	display: none; /* will appear when layout inits */
+}
+table.dataTable tbody tr {
+	line-height: 1;
+}
+#myReportsTableDiv table.dataTable tbody tr {
+    cursor: pointer;
+}
+</style>
+
+
+		<script type="text/javascript">
+
+var contextPath = "${pageContext.request.contextPath}";
+
+var reportingURL = "${pageContext.request.contextPath}/frameset";
+
+var saveReportURL = "${pageContext.request.contextPath}/reportServlet";
+
+var reportName = "";
+var reportType = "";
+var reportTitle = "";
+var reportDesc = "";
+var dynaParams = [];
+
+var selectCols = [];
+var aggregator = {};
+var groupBy = [];
+var orderBy = [];
+
+var sharePointReportsTable = null;
+
+
+$(document).ready(function() {
+
+	
+	var cssFiles = [contextPath + "/core/css/jquery.dataTables.css", contextPath + "/core/css/jquery-ui-1.10.3.custom.css",
+	                contextPath + "/core/css/jquery.dataTables_themeroller.css", contextPath + "/core/css/layout-default-latest.css"];
+	
+	var style = "";
+	
+	for (i in cssFiles)
+	{
+		style += '<link rel="stylesheet" type="text/css" ' + ' href= "' + cssFiles[i] + '" />';	
+	}
+	
+	$("head").append(style);
+	
+	$('#beginDate').datepicker({dateFormat: 'yy-mm-dd' });
+	$('#beginDate').datepicker('setDate', 'today');
+	
+	$('#endDate').datepicker({dateFormat: 'yy-mm-dd' });
+	$('#endDate').datepicker('setDate', 'today');
+	
+	$('#run_button').attr('disabled', true);
+	
+	// fetch all when loading the page
+	sharePointReportsTable = reloadReportTable("*");
+	$("#sharePointReportsTable tr").css('cursor', 'pointer');
+	
+	$("#share_point_content").show();
+	$("#share_point_main_content_id").show();
+	
+	
+	//increase padding-left for #share_point_main_content_id
+	var leftWidth = $('#share_point_content').width() * 0.16;	//set width for #saved_report
+	var rightWidth = $('#share_point_content').width() * 0.98;	//set width for #main_content (included padding)
+	var paddingValue = ($('#share_point_content').innerWidth() - $('#share_point_content').width()) / 2;
+
+	//Handle the BAR CHART tooltip not complete show issue
+	setMainContentPadding(leftWidth, rightWidth, paddingValue);
+
+	$(window).bind("resize", function resizeWindow( e ) {
+		var leftWidth = $('#share_point_content').width() * 0.16;	
+		var rightWidth = $('#share_point_content').width() * 0.98;	
+		var paddingValue = ($('#share_point_content').innerWidth() - $('#share_point_content').width()) / 2;
+		setMainContentPadding(leftWidth, rightWidth, paddingValue);
+    });
+
+});
+
+	function setMainContentPadding(leftWidth, rightWidth, paddingValue) {
+	  	//this function is to handle the bar chart tooltip issue	
+	
+		$('#share_point_saved_table').css('z-index', '1');
+		$('#share_point_saved_table').css('width', leftWidth); //set width for #saved_report
+		$('#share_point_main_content_id').css('width', rightWidth);  //set width for #main_content
+	
+		$('#share_point_main_content_id').css('padding-left', leftWidth + paddingValue);
+		$('#share_point_main_content_id').css('margin-left', -leftWidth);
+	  }
+
+
+	function selectTableRow(myReportsTable) {
+		
+		/* Add a click handler to the rows - this could be used as a callback */
+		myReportsTable.$("tr").click(function(e) {
+			
+			if ($(this).hasClass('row_selected')) {
+				$(this).removeClass('row_selected');
+			} else {
+				myReportsTable.$('tr.row_selected').removeClass('row_selected');
+				$(this).addClass('row_selected');
+			}
+		     
+			// get the position of the current data from the node
+	        var aPos = myReportsTable.fnGetPosition( this );
+	        // get the data array
+	        var aData = myReportsTable.fnGetData( aPos[0] );
+	        var reportName = aData[aPos].report_name;
+	        populateSharePointCriteria(reportName);
+	        $('#run_button').attr('disabled', false);
+		});
+	}
+	
+	function reloadReportTable(reportName) {
+		var post_data = {};
+		var action = "SHARE_POINT_LOAD_ALL_REPORTS";
+		post_data["report_name"] = reportName;
+	
+		myReportsTable = $('#sharePointReportsTable').dataTable({
+			"pagingType" : "simple",
+			//"sScrollY" : "380px",
+			"bScrollInfinite": true,
+			"aaSorting" : [ [ 0, 'asc' ] ],
+			"aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+			"bLengthChange": false,
+			"bAutoWidth" : true,
+			"bJQueryUI" : true,
+			"bProcessing" : true,
+			"bDestroy" : true,
+			"iDisplayLength" : 25,
+			"sAjaxSource" : saveReportURL,
+			"sAjaxDataProp" : "report_names",
+			"aoColumns" : [{
+				"mData" : "report_name"
+			}],
+			"fnServerData" : function(sSource, aoData, fnCallback, oSettings) {
+				oSettings.jqXHR = $.ajax({
+					type : 'POST',
+					dataType : 'json',
+					url : saveReportURL,
+					data : {
+						"data" : JSON.stringify(post_data),
+						"action" : action
+					},
+					success : fnCallback,
+					async:false
+				});
+			}
+		});
+		
+		selectTableRow(myReportsTable);
+		
+		return myReportsTable;
+	}
+
+   function populateSharePointCriteria(reportName) {
+    	var post_data = {};
+		var action = "SHARE_POINT_LOAD_REPORT_FORM";
+		post_data["report_name"] = reportName;
+
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				createDynamicForm(response);
+				
+			},
+			error : function(xhr, status) {
+				handleError(xhr, "Error encountered in loading share point criteria, ");
+			},
+			async : false
+		});
+
+   }
+   
+   
+   function createDynamicForm(response) {
+	   $( ".dynamic" ).remove();
+	   $("#chartViewer").remove();
+	   
+	   dynaParams = [];
+	   
+	   reportName = response.report_name;
+	   reportType = response.report_type;
+	   reportTitle = response.report_title;
+	   reportDesc = response.report_desc;
+	   var fields = response.fields;
+	   
+	  
+	   $("#reportQuery_name").html("Report Query: " + reportName);
+	   
+	   var dynamicRowDiv;
+	   var counter = 0;
+	 
+		for ( var prop in fields) {
+
+				if (counter % 2 == 0) {
+					dynamicRowDiv = $(document.createElement('div')).attr(
+							"id", 'dynaRow' + counter).attr("class",
+							'form-group row dynamic');
+
+					dynamicRowDiv.appendTo('#criteria-form');
+				}
+
+				var field = fields[prop];
+				
+				if(field.name != 'chartType' && field.name != 'frequency') {
+					dynaParams.push(field.name);
+				}
+				
+				var htmlStr = '<div class="col-xs-3">';
+				htmlStr += '<label for="' + field.name + '" class="control-label">'
+						+ field.display_name + '</label>';
+
+				if (field.type == 'DROP_DOWN') {
+
+					var fieldStr = '<select id="' + field.name + '"  class="form-control input-xs">';
+					for ( var val in field.value) {
+						var value = field.value[val];
+						fieldStr += ' <option value="' + value + '" >'
+								+ value + '</option>';
+					}
+					fieldStr += '</select>';
+					htmlStr += fieldStr;
+
+				} else if (field.type == 'TEXT') {
+					var fieldStr = '<input type="text" id="' + field.name + '"  class="form-control input-xs"></input>';
+					htmlStr += fieldStr;
+				}
+
+				htmlStr += '</div>';
+				dynamicRowDiv.append(htmlStr);
+				counter += 1;
+			}
+	}
+  
+   
+   function getFrequency() {
+ 	  var frequency = $('#frequency').val();
+	   
+	   if(frequency == 'Monthly') {
+		   return "month_nb";
+	   } else {
+		   return "day_nb";
+	   }
+   }
+   
+   function getAggregator() {
+	   return {
+		   "name":"dataCount",
+		   "function":"count",
+		   "operator":"", 
+		   "value":"*",
+		   "has_multi_value" : "false"
+       };
+   }
+   
+   function getAction() {
+	   var chartType = $('#chartType').val();
+	   
+	   if(chartType == 'Bar') {
+		   return 'SHARE_POINT_BAR_REPORT';
+	   } else {
+		   return 'SHARE_POINT_PIE_REPORT';
+	   }
+   }
+   
+   function getOrderBy(colName, sortOder) {
+	   return {
+		   "col_name":colName,
+		   "sort_order":sortOder
+       };
+   }
+   
+   function setQueryRequiredValues(reportType) {
+	   
+	   selectCols = [];
+	   aggregator = {};
+	   groupBy = [];
+	   orderBy = [];
+	   
+	   switch(reportType) {
+		   case 'INFOR_LIFECYCLE_DEPARTMENT': {
+			   selectCols.push("attr_one");
+			   selectCols.push("action");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_one");
+			   groupBy.push("action");
+			   orderBy.push(getOrderBy("attr_one", "asc"));
+			   
+			   break;
+		   }
+		   case 'INFOR_LIFECYCLE_PROCESS' : {
+			   selectCols.push("attr_two");
+			   selectCols.push("action");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_two");
+			   groupBy.push("action");
+			   orderBy.push(getOrderBy("attr_two", "asc"));
+			   
+			   break;
+		   }
+		   case 'INFOR_LIFECYCLE_SITE' : {
+			   selectCols.push("attr_three");
+			   selectCols.push("action");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_three");
+			   groupBy.push("action");
+			   orderBy.push(getOrderBy("attr_three", "asc"));
+			   break;
+		   }
+		   case 'INFOR_LIFECYCLE_TREND' : {
+			   var freq = getFrequency();
+			   selectCols.push(freq);
+			   selectCols.push("action");
+			   aggregator =  getAggregator();
+			   groupBy.push(freq);
+			   groupBy.push("action");
+			   orderBy.push(getOrderBy(freq, "asc"));
+			   break;
+		   }
+		   case 'INFOR_LIFECYCLE_USER' : {
+			   selectCols.push("user_name");
+			   selectCols.push("action");
+			   aggregator =  getAggregator();
+			   groupBy.push("user_name");
+			   groupBy.push("action");
+			   orderBy.push(getOrderBy("user_name", "asc"));
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_DEPARTMENT' : {
+			   selectCols.push("attr_one");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_one");
+			   orderBy.push(getOrderBy("attr_one", "asc"));
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_PROCESS' : {
+			   selectCols.push("attr_two");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_two");
+			   orderBy.push(getOrderBy("attr_two", "asc"));
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_POLICY' : {
+			   selectCols.push("cp.name");
+			   aggregator =  getAggregator();
+			   groupBy.push("cp.name");
+			   orderBy.push(getOrderBy("cp.name", "asc"));
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_SITE' : {
+			   selectCols.push("attr_three");
+			   aggregator =  getAggregator();
+			   groupBy.push("attr_three");
+			   orderBy.push(getOrderBy("attr_three", "asc"));
+			   
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_TREND' : {
+			   var freq = getFrequency();
+			   selectCols.push(freq);
+			   aggregator =  getAggregator();
+			   groupBy.push(freq);
+			   orderBy.push(getOrderBy(freq, "asc"));
+			   break;
+		   }
+		   case 'PLC_ACTIVITY_USER' : {
+			   selectCols.push("user_name");
+			   aggregator =  getAggregator();
+			   groupBy.push("user_name");
+			   orderBy.push(getOrderBy("user_name", "asc"));
+			   break;
+		   }
+	   }
+   }
+   
+	
+  function runReport() {
+	$('#formErrorAlert').hide(); 
+	
+	if(!validateFromDate() || !validateToDate()) {
+	   return;
+	}  
+	
+	var beginDate = $('#beginDate').datepicker({
+			dateFormat : 'yy-mm-dd'
+		}).val();
+	beginDate = beginDate.concat(" 00:00:00");
+
+	var endDate = $('#endDate').datepicker({
+			dateFormat : 'yy-mm-dd'
+		}).val();
+	endDate = endDate.concat(" 23:59:59");
+	
+	var chartType = $('#chartType').val();
+	
+	var fields = [];   
+
+	for ( var param in dynaParams) {
+		
+		var fieldId = dynaParams[param];
+		var value = $('#' + fieldId).val();
+		
+		var field = {
+			    "name": fieldId,
+			    "operator" : "like",
+			    "value": value,
+			    "has_multi_value" : "false",
+			    "function":""
+			}
+		
+		fields.push(field);
+	}
+	
+	setQueryRequiredValues(reportType);
+	
+	
+	var jResp = {
+			"report_name" : reportName,
+			"start_date" : beginDate,
+			"end_date" : endDate,
+			"report_type" : chartType,
+			"fields" : fields,
+			"select_cols": selectCols,
+			"aggregator" : aggregator,
+			"group_by" : groupBy,
+			"order_by" : orderBy	
+		}
+	
+	var jsonStr =  JSON.stringify(jResp);
+	var action = getAction();
+	
+	$('#loadingmessage').show();
+	var resp = getChartDataAsJson( action , jsonStr);
+	
+	$("#chartViewer").remove();
+	
+	if (chartType == 'Bar') {
+
+		$("#reportContentViewer").append('<svg id="chartViewer" style="height:550px; width: 95%"></svg>');
+		
+		var height = 650;
+		 if(resp.chartData.length > 0) {
+			var width = getChartWidth(resp.chartData[0].values.length);
+			var maxLabelLength = getMaxLabelLenght(resp.chartData[0].values);
+			height = getBarChartHeighWithLabel(maxLabelLength);
+			$('#chartViewer').attr("style","height:" + height * 1.3 + "px;width:" + width + "px;");
+		 }
+	  
+	   if(resp.chartData.length > 0 && resp.chartData[0].key == '-') {
+		   discreteBarChart('chartViewer', resp.chartData, '', '', '650');
+		   
+	   } else if (resp.chartData.length > 0){
+			$('#chartViewer_div').attr("style","height:" + height * 1.5 + "px;width:" + width + "px;");	
+		   $('#chartViewer').attr("style","height:" + height * 1.3 + "px;width:95%;");
+	       multiBarChart("chartViewer", resp.chartData, false, '', '', '600');
+	   } else {
+		   noDataMessage();
+	   }
+		
+	} else if (chartType == 'Pie') {  
+		
+		if (resp.chartData.length > 0) {
+	       $("#reportContentViewer").append('<div id="chartViewer" style="height:550px; width: 95%" align="center"></div>');
+		   pieChart("chartViewer", resp.chartData, true,'');
+		} else {
+			noDataMessage();
+		}
+	} 
+	
+	$('#loadingmessage').hide();
+  }
+  
+  function noDataMessage() {
+		$("#chartViewer").remove();
+		
+		$("#reportContentViewer")
+		.append(
+				'<div id="chartViewer" style="height:250px; width:600px" class="nvd3 nv-noData" >No Data Available.</div></div>');
+	}
+  
+  function getChartDataAsJson(action, jSONCriteria) {
+		var reportData = null;
+	
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : jSONCriteria,
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(data) {
+				reportData = data
+			},
+			error : function(xhr, status) {
+				handleError(xhr, "Error encountered in loading report details ");
+			},
+			async : false
+		});
+		
+		return reportData;
+	}
+  
+  
+   function validateFromDate() {
+		$("#beginDate").attr("style", "");
+		$('#formErrorAlert').hide();
+		var fromDate = $('#beginDate').val();
+		if(!isValidDate(fromDate)) {
+			$("#beginDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("Invalid From date")
+     		$("#formErrorAlert").show();
+			return false;
+		}
+		return true;
+	}
+	
+    function validateToDate() {
+		$("#endDate").attr("style", "");
+		$('#formErrorAlert').hide();
+		var fromDate = $('#beginDate').val();
+		var toDate = $('#endDate').val();
+		if(!isValidDate(toDate)) {
+			$("#endDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("Invalid To date")
+     		$("#formErrorAlert").show();
+			return false;
+		}
+		
+		var frmDt = new Date(fromDate);
+		var toDt = new Date(toDate);
+		
+		if(frmDt.getTime() > toDt.getTime()) {
+			$("#endDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("To Date should be equal or greater than From Date");
+     		$("#formErrorAlert").show();
+     		return false;
+		} 
+	   return true;
+	}
+  
+  
+  function handleError(xhr, message)
+	{
+		var contentType = xhr.getResponseHeader("content-type").split(";") || "";
+		if (contentType[0] === "text/html" && (xhr.status != 403 || xhr.responseText.indexOf("CSRF") === -1))
+		{
+			window.location =  contextPath + "/login/login.jsf";
+		} else {
+			alert(message + ", Please Logout and Try again.");
+		}
+	}
+</script>
+			
+</div>
+<br/>
+<br/>
+<br/>
+</f:verbatim>
+

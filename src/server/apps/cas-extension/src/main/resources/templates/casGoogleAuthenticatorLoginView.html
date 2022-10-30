@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title th:text="#{cas.mfa.googleauth.pagetitle}">Google Authentication View</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+</head>
+
+<body>
+<main role="main" class="container mt-3 mb-3">
+    <div layout:fragment="content" id="login">
+        <div class="col-8 p-0">
+            <div>
+                <div class="cc-form-line show-overflow">
+                    <span class="cc-form-title" th:text="#{screen.mfa.verify.title}">Verify One-time Password</span>
+                </div>
+            </div>
+            <form method="post" id="fm1" class="fm-v clearfix mt-5" th:object="${credential}" th:action="@{/login}">
+                <div id="msg" class="errors" th:if="${#fields.hasErrors('*')}">
+                    <span th:each="err : ${#fields.errors('*')}" th:utext="${err}"/>
+                </div>
+
+                <input type="hidden"
+                       id="accountId" name="accountId" size="25"
+                       autocomplete="off" th:field="*{accountId}"/>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <input type="password" class="form-control required" id="token" size="25" tabindex="1"
+                               th:field="*{token}"
+                               th:placeholder="#{screen.mfa.token.label}"
+                               th:accesskey="#{screen.welcome.label.password.accesskey}" autocomplete="off"
+                               th:title="#{screen.mfa.verify.password.help}"
+                               data-toggle="tooltip" data-placement="right" required/>
+                    </div>
+                    <script type="text/javascript" th:inline="javascript">
+                        /*<![CDATA[*/
+                        let accountId = /*[[${registeredDevice.id}]]*/;
+                        document.getElementById("accountId").value = accountId;
+                        /*]]>*/
+                    </script>
+                </div>
+                <br/>
+                <input class="submit" accesskey="l"
+                       th:value="#{screen.mfa.button.verify}" tabindex="4" type="submit" value="Login"/>
+                <input type="button" name="cancel" accesskey="c" class="back-to-login-btn"
+                       th:value="#{screen.password.resetpassword.backToLogin}" value="Back to login screen"
+                       onclick="location.href = location.href;"
+                />
+                <input id="fm1CsrfToken" type="hidden" name="csrfToken" th:value="${@csrfProtectionService.getCsrfToken()}"/>
+                <input type="hidden" name="_eventId_submit" value="Login" />
+                <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                <input type="hidden" name="geolocation"/>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

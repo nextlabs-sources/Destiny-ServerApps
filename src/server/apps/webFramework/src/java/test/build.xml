@@ -1,0 +1,65 @@
+<project name="Web Framework Test" default="build">
+
+    <property name="src.dir"    value="${basedir}"/>
+	<property name="build.dest" value="${build.root.dir}/server/container/apps/webframework/testClasses"/>
+    <property name="build.main.dest" value="${build.root.dir}/server/container/apps/webframework/classes"/>	
+    <property name="doc.dest"   value="${build.root.dir}/server/container/apps/webframework/testClasses/doc"/>
+	
+	<path id="compile.webFmwkTest.classpath">
+		<path refid="compile.classpath"/>
+        <pathelement path="${build.main.dest}"/>
+        <pathelement path="${build.root.dir}/app-framework.jar"/>      
+        <pathelement path="${build.root.dir}/common-framework.jar"/>
+        <pathelement path="${build.root.dir}/common-framework-test.jar"/>
+        <pathelement path="${build.root.dir}/web-framework.jar"/>
+        <pathelement path="${build.root.dir}/web-framework-test.jar"/>
+        <pathelement path="${build.root.dir}/server-framework.jar"/>      
+        <pathelement path="${build.root.dir}/server-shared-types.jar"/>      
+        <pathelement path="${build.root.dir}/server-shared-services.jar"/>            
+		<pathelement path="${xlib_jar_dir}/jsf-api.jar"/>
+		<pathelement path="${xlib_jar_dir}/jsp-api.jar"/>
+        <pathelement path="${xlib_jar_dir}/myfaces-extensions.jar"/>
+        <pathelement path="${xlib_jar_dir}/mockobjects-jdk1.4-j2ee1.3-0.09.jar"/>
+        <pathelement path="${xlib_jar_dir}/mockobjects-jdk1.4-0.09.jar"/>      
+        <pathelement path="${xlib_jar_dir}/mockobjects-core-0.09.jar"/>            
+	</path>
+		
+	<target name="pre-build">
+		<mkdir dir="${build.dest}"/>
+	</target>
+	
+    <target name="doc">
+		<mkdir dir="${doc.dest}"/>
+    	<javadoc sourcepath="${src.dir}" destdir="${doc.dest}" linksource="yes" classpathref="compile.webFmwkTest.classpath" source="${compile.source}" >
+    		<packageset dir="${src.dir}"/>
+    	</javadoc>
+    </target>
+		
+	<target name="compile" depends="pre-build">
+		<javac srcdir="${src.dir}" destdir="${build.dest}" debug="${compile.debug}" verbose="${compile.verbose}">
+			<classpath refid="compile.webFmwkTest.classpath"/>
+        </javac>
+	</target>
+	
+	<target name="jar">
+		<jar destfile="${build.root.dir}/web-framework-test.jar">
+			<fileset dir="${build.dest}">
+				<include name="**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
+	
+	<target name="tests">
+		<junit printsummary="withOutAndErr" showoutput="yes" haltonfailure="${junit.haltonfailure}" failureproperty="junit.fail" fork="true">
+			<formatter type="xml"/>
+			<test name="com.bluejungle.destiny.webui.test.WebFrameworkTestSuite" todir="${log.dir}/tests"/>
+            <classpath>
+                <path refid="compile.webFmwkTest.classpath"/>
+                <pathelement path="${build.root.dir}/common-res.jar"/>   
+            </classpath>			
+		</junit>
+	</target>
+		
+	<target name="build" depends="compile, jar">
+	</target>
+</project>

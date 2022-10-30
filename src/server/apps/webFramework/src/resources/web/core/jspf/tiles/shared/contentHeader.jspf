@@ -1,0 +1,6 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+
+<%-- Insert page title --%>
+<h3 id="pgTtleHdr" class="contentTitle"><tiles:getAsString name="pageTitle"/></h3>

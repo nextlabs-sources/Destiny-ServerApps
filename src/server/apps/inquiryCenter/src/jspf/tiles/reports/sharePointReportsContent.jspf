@@ -1,0 +1,73 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
+
+<style type="text/css">
+.dr-pnl-h {
+	background-color: #f5f5f5;
+	border-color: white;
+	font-size: 16px;
+	color: black;
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	background-image: none;
+	height:40px;
+}
+.panelTitle {
+	font-family: Arial,Helvetica,Sans-Serif;
+	padding: 10px;
+}
+</style>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<d:includeJS location="/core/javascript/disable.js" />
+<a4j:log level="ALL" popup="true" width="600" height="600" name="_blank"
+	hotkey="y" />
+
+<f:verbatim>
+	<div class="container-fluid" id="share_point_content" style="background-color: white; min-height:100%; overflow: hidden; display:none;">
+        <div class="col-xs-2" id="share_point_saved_table" style="width:16%;margin-top: 5px; padding: 0px;">
+ </f:verbatim>       
+           <rich:panel id="svdRptsLstTblPnl" styleClass="panelBar green_border" headerClass="panelTitle" bodyClass="panelContent">
+	           <f:facet name="header">
+					<h:outputText value="#{message.panel_sharepoint_reports_label}" />
+				</f:facet>
+				<%@ include file="sharePointReportsListTable.jspf"%>  
+			</rich:panel>       
+ <f:verbatim>       
+        </div>
+        <div class="col-xs-10" id="share_point_main_content_id" style="width:84%;margin-top: 5px; overflow: hidden; min-height:88%; display:none;">
+ </f:verbatim>   
+             <h:panelGroup id="rptCntDsplyMsgGrp">
+					<d:displayMessages />
+			 </h:panelGroup> 
+			 
+			 <rich:panel id="rptCntPnl" styleClass="green_border" headerClass="panelTitle green_background" bodyClass="reportPanelContent" >
+			   <f:facet name="header">
+			       <h:outputText value="#{message.panel_sharepoint_reports_label}" />
+			   </f:facet>    
+<f:verbatim>   
+               <br>
+</f:verbatim>
+			   <h:panelGroup id="wizardEx1">
+			       <rich:panel id="rptDfnInnrPnl" bodyClass="reportPanelContent">
+<f:verbatim>   
+                     <div id="rptExctCntCmmnEdtSctnDv">
+</f:verbatim>
+			         <%@ include file="sharePointReportCriteria.jspf"%>
+<f:verbatim>
+                     </div>
+</f:verbatim>
+                   </rich:panel> 
+              </h:panelGroup>
+            </rich:panel>       
+<f:verbatim>			        
+		</div>  
+    </div>
+</f:verbatim>    

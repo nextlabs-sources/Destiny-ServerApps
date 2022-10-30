@@ -1,0 +1,157 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<d:includeJS location="core/javascript/modaldialog.js" />
+<d:includeJS location="/core/javascript/stripe.js"/>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<div id="prfLstTblDv" class=contentnav>
+
+  <h2 id="prfTtleTypHdr">
+    <h:outputFormat id="caPrfTtle" value="#{bundle.agent_config_profile_list_nav_title}">
+        <f:param value="#{agentConfigurationBean.agentType.agentTypeTitle}" />
+    </h:outputFormat>
+  </h2>
+
+  <%@ include file="agentConfigProfileListTable.jspf" %>
+
+  <div id="prfAddDelDv" class=listbuttons>
+  <d:form id="prfAddDelFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <h:commandLink id="prfAddLink" action="#{agentConfigurationBean.addNewProfile}">
+      <h:commandButton id="prfAddBtn" value="#{bundle.agent_config_profile_list_nav_add_button_label}" />
+      <f:param id="prfAddBtnParam" name="agentConfigurationViewBeanName" value="agentConfigurationBean" />      
+    </h:commandLink>
+    <h:commandButton id="prfDelBtn" type="button" value="#{bundle.agent_config_profile_list_nav_delete_button_label}" onclick="showModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" disabled="#{agentConfigurationBean.selectedProfile.defaultProfile}"/>
+  </d:form>
+  </div>
+</div>
+
+<d:form id="agentConfigForm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+<div id="agntCnfFrmDv" class=contentmain>
+
+  <h3 id="prfTtlHdr"><h:outputText id="profileTitle" value="#{agentConfigurationBean.selectedProfile.profileTitle}" /></h3>
+
+  <d:displayMessages />
+  
+  <d:tabbedPane id="cfgTbdPn">
+    <d:selectedTabChangeListener type="com.bluejungle.destiny.mgmtconsole.agentconfig.HostTabSelectedEventListener" />
+    <d:tab id="cfgTb" name="#{agentConfigurationBean.settingsTabName}">      
+      <f:param id="selectedTabChangeListenerParamSettingsTab" name="agentConfigurationViewBeanName" value="agentConfigurationBean" />
+      <f:facet name="tab content">
+        <h:outputText id="stngsLbl" value="#{bundle.agent_config_settings_tab_label}" />
+      </f:facet>
+      <f:facet name="body">
+        <f:subview id="agentConfigSettingTabBody">
+          <jsp:include page="agentConfigContentSettingTab.jspf" />
+        </f:subview>
+      </f:facet>
+      <f:facet name="footer">            
+        <h:panelGroup id="cfgSavRstPnl">
+          <h:commandButton id="cfgSavBtn" value="#{bundle.agent_config_save_button_label}" action="#{agentConfigurationBean.saveSelectedProfile}" />
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:commandButton id="cfgCnclBtn" disabled="#{not agentConfigurationBean.selectedProfile.new}" action="#{agentConfigurationBean.cancelAddNewProfile}" value="#{bundle.agent_config_create_new_cancel_button_label}" immediate="true"/>
+          <f:verbatim>&nbsp;</f:verbatim>
+          <h:commandButton id="cfgRstBtn" type="reset" value="#{bundle.agent_config_reset_button_label}" />
+        </h:panelGroup>
+      </f:facet>
+    </d:tab>
+    <d:tab id="hstsTb" name="#{agentConfigurationBean.hostsTabName}" disabled="#{agentConfigurationBean.selectedProfile.new}">
+      <f:param id="selectedTabChangeListenerParamHostTab" name="agentConfigurationViewBeanName" value="agentConfigurationBean" />
+      <f:facet name="tab content">
+        <h:outputText id="hstsTbLbl" value="#{bundle.agent_config_hosts_tab_label}" />
+      </f:facet>
+      <f:facet name="body">
+        <f:subview id="agentConfigHostsTabBody">
+          <jsp:include page="agentConfigContentHostsTab.jspf" />
+        </f:subview>
+      </f:facet>
+    </d:tab>
+  </d:tabbedPane>
+
+</div>
+
+
+<div id="curtainDiv" class="curtain" style="display: none;"></div>
+  <div id="deleteConfirmDialogDiv" class="modalDialog" style="display: none;">
+    <div id="delConfDlgTxtDv" class="title">
+      <h:outputFormat id="delConfDlgTxtFmt" value="#{bundle.agent_config_delete_confirmation_question_text}">
+        <f:param id="delConfDlgTxtPrm" value="#{agentConfigurationBean.selectedProfile.profileTitle}" />
+      </h:outputFormat>
+    </div>
+    <div id="delConfWrnDv" class="reason"><h:outputText id="delConfWrnTxt" value="#{bundle.agent_config_delete_confirmation_warning_text}" /></div>
+    <div id="delConfBtnDv" class="buttons"><h:commandButton id="delConfDelBtn" value="#{bundle.agent_config_delete_confirmation_button_label}" action="#{agentConfigurationBean.deleteSelectedProfile}" /><h:commandButton id="delConfCnclBtn" type="button" value="#{bundle.agent_config_cancel_delete_button_label}" onclick="hideModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" /></div>
+  </div>
+
+  <%-- Theoretically, this should be in the settings tab jsp fragment.  However, placing it there puts it before the curtain, which causes some layering problems.  Solving would involve adding z-indexes to the stylesheets and UE recommends against this --%>
+  <div id="dlg3" class="modalDialog" style="display: none;">
+    <div id="cstmOptDlgDv" class="title">
+      <h:outputText id="cstmOptDlgTxt" value="#{bundle.agent_config_custom_journaling_dialog_title}" />
+    </div>
+    <div id="cstmOptDv" class="reason">
+
+  <c:forEach items="${agentConfigurationBean.agentType.predefinedJournalingSettings.predefinedJournalingSettingsLevels}" var="nextJournalingAuditLevel" varStatus="jounralingAuditLevelLoopStatus">
+    <div id="cstmOptTtleDv-${nextJournalingAuditLevel.levelTitle}" class="sectiontitle">
+      <c:out value="${nextJournalingAuditLevel.levelTitle}" />
+    </div>
+    <c:forEach items="${nextJournalingAuditLevel.levelActions}" var="nextAction">
+      <div id="optDv-${nextJournalingAuditLevel.levelTitle}-${nextAction.actionId}">
+        <%-- The following solution is not ideal.  Ultimately, whether or not an journaling level is required need to be added to the metadata for agent types --%>
+        <c:choose>
+          <c:when test="${not jounralingAuditLevelLoopStatus.last}">
+            <d:selectBooleanCheckbox id="optCheckbox-${nextJournalingAuditLevel.levelTitle}-${nextAction.actionId}" value="#{agentConfigurationBean.selectedProfile.customJournalingSettings.loggedAction[\"${nextAction.actionId}\"]}" onchange="journalingSettingChanged(this);" />
+          </c:when>
+          <c:otherwise>
+            <input type="checkbox" id="optCheckbox-${nextJournalingAuditLevel.levelTitle}-${nextAction.actionId}" checked="true" disabled="true"/>          
+          </c:otherwise>
+        </c:choose>
+        <label><c:out value="${nextAction.actionTitle}" /></label>
+      </div>      
+    </c:forEach>
+  </c:forEach>     
+    
+  <div id="cstmOptBtnDv" class="buttons"><h:commandButton id="cstmOptOkBtn" type="button" value="#{bundle.agent_config_custom_journaling_dialog_ok_button_label}" onclick="closeJournalingSettingsDialog();" />&nbsp;<h:commandButton id="cstmOptCnclBtn" type="button" value="#{bundle.agent_config_custom_journaling_dialog_cancel_button_label}" onclick="cancelJournalingSettingsDialog(this.form);" /></div>
+  </div>
+
+</d:form>
+
+<script language="javascript">
+  var changedJournalingSettings;
+  
+  function showJournalingSettingsDialog() {
+      changedJournalingSettings = new Object();
+      
+      showModalDialog('curtainDiv', 'dlg3');
+  }
+  
+  function cancelJournalingSettingsDialog(agentConfigForm) {
+      undoJournalingSettingsChanges(agentConfigForm);
+      closeJournalingSettingsDialog();
+  }
+  
+  function undoJournalingSettingsChanges(agentConfigForm) {
+      for (changedOption in changedJournalingSettings) {
+          agentConfigForm.elements[changedOption].checked = !agentConfigForm.elements[changedOption].checked;
+      }
+  }
+  
+  function closeJournalingSettingsDialog() {
+      hideModalDialog('curtainDiv', 'dlg3');
+  }
+  
+  function journalingSettingChanged(journalingSettingInput) {
+      var journalingSettingInputId = journalingSettingInput.id;
+      if (changedJournalingSettings[journalingSettingInputId]) {
+          delete changedJournalingSettings[journalingSettingInputId];
+      } else {
+          changedJournalingSettings[journalingSettingInputId] = true;
+      }
+  }
+</script>

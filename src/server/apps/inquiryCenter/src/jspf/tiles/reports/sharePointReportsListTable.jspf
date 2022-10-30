@@ -1,0 +1,31 @@
+<%@ page buffer="none" errorPage="/error"%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+
+<f:verbatim>
+<div>
+	<div id="sharePointReportsTableDiv">
+	   <!-- Refer share point report criteria for async data loading -->
+		<table class="display" id="sharePointReportsTable" cellpadding="0" cellspacing="0" border="0" >
+			<thead>
+				<tr>
+					<th>Report Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- data goes here -->
+			</tbody>
+		</table>
+
+	</div>
+</script>	
+</div>
+</f:verbatim>
+
+
+
+

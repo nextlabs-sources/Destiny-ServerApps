@@ -1,0 +1,231 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}"
+    }
+}
+
+configurations {
+    download
+    tomcatLib
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion "${versions.springWeb}"
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation "com.mchange:c3p0:${versions.c3p0}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "com.nextlabs.common:log-manager:${version}"
+    implementation "commons-beanutils:commons-beanutils:${versions.commonsBeanutils}"
+    implementation "commons-io:commons-io:${versions.commonsIo}"
+    implementation "io.swagger.core.v3:swagger-annotations:${versions.swaggerAnnotations}"
+    implementation "org.apache.activemq:activemq-broker:${versions.activemq}"
+    implementation "org.apache.activemq:activemq-jaas:${versions.activemq}"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "org.apache.logging.log4j:log4j-web:${versions.log4j}"
+    implementation "org.bitbucket.b_c:jose4j:${versions.jose4j}"
+    implementation "org.bouncycastle:bcpkix-jdk15on:${versions.bcpkixJdk15on}"
+    implementation "org.bouncycastle:bcprov-jdk15on:${versions.bcprovJdk15on}"
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    if (project.hasProperty('includeApiDocs') && includeApiDocs.toBoolean()) {
+        implementation 'com.nextlabs.common:spring-boot-starter-swagger-docs:1.0'
+    }
+    download "com.nextlabs.cc.java.openjdk:jre-linux:${versions.java}@zip"
+    download "com.nextlabs.cc:apache-tomcat:${versions.tomcat}@zip"
+    tomcatLib "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    tomcatLib "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    tomcatLib "com.nextlabs.cc.base:crypt:${version}"
+    tomcatLib "com.nextlabs.cc.base:server-security:${version}"
+    tomcatLib "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    tomcatLib "commons-logging:commons-logging:${versions.commonsLogging}"
+    tomcatLib "org.postgresql:postgresql:${versions.postgresql}"
+
+    // to support running as a spring boot application in development
+    developmentOnly "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    developmentOnly "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    developmentOnly "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    developmentOnly "org.postgresql:postgresql:${versions.postgresql}"
+}
+
+springBoot {
+    mainClassName = 'com.nextlabs.destiny.configservice.ConfigServiceApplication'
+}
+
+bootWar {
+    archiveFileName = packageName
+    doLast {
+        println('Building ' + archiveFileName.get() + ' completed at ' + new Date())
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+task deploy {
+    doLast {
+        if (project.hasProperty('deploymentDeleteDir')) {
+            delete deploymentDeleteDir
+            println('Deleted: ' + deploymentDeleteDir)
+        }
+        copy {
+            from bootWar.archiveFile
+            into deploymentLocation
+        }
+        println('Copied ' + bootWar.archiveFileName.get() + ' from: ' + bootWar.archiveFile.get() + ' into: ' + deploymentLocation)
+    }
+    onlyIf {
+        project.hasProperty('deploymentLocation')
+    }
+}
+
+def ccPackageDir = "${buildDir}/distributions/control-center"
+
+task buildPackage {
+    doLast {
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        ant.replaceregexp(match: 'keystore.type=pkcs12', replace: 'keystore.type=jks', flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/java/jre/conf/security", includes: 'java.security')
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "apache-tomcat-${versions.tomcat}.zip" })
+            into "${ccPackageDir}/server"
+            exclude "*/webapps/"
+        }
+        file("${ccPackageDir}/server/apache-tomcat-${versions.tomcat}").renameTo(file("${ccPackageDir}/server/tomcat"))
+        copy {
+            from './src/main/resources/server'
+            into "${ccPackageDir}/server"
+        }
+        copy {
+            from './src/main/resources/server/tomcat/bin/setenv.sh'
+            into "${ccPackageDir}/server/tomcat/bin"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from configurations.tomcatLib
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        mkdir "${ccPackageDir}/server/tomcat/shared/lib"
+        ant.replaceregexp(match: 'shared\\.loader=',
+                replace: 'shared.loader="${catalina.home}/shared/lib", "${catalina.home}/shared/lib/*.jar"',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        ant.replaceregexp(match: 'tomcat\\.util\\.scan\\.StandardJarScanFilter\\.jarsToSkip=',
+                replace: 'tomcat.util.scan.StandardJarScanFilter.jarsToSkip=common-*.jar, crypt.jar, osdt_*.jar, policy-*.jar, secure-session.jar, server-*.jar, pdq.jar, ',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        mkdir "${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util"
+        new File("${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util/ServerInfo.properties").text = 'server.info=Apache Tomcat'
+        mkdir "${ccPackageDir}/server/certificates/cacerts"
+        copy {
+            from "${buildDir}/libs/config-service.war"
+            into "${ccPackageDir}/server/apps"
+        }
+    }
+}
+
+def containerImageTag = String.format("%s${appName}:${appVersion}",
+        project.hasProperty('containerRegistryURL') ? "${containerRegistryURL}/" : "")
+
+task buildContainer(type: Exec) {
+    doFirst {
+        copy {
+            from './src/main/resources/scripts/start.sh'
+            into "${ccPackageDir}"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        copy {
+            from './src/main/resources/scripts/passwd.template'
+            into "${buildDir}/distributions"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        if(System.getProperty('os.name').startsWith('Linux')) {
+            exec {
+                commandLine 'sudo', 'chgrp', '-R', '0', "${ccPackageDir}"
+            }
+            exec {
+                commandLine 'sudo', 'chmod', '-R', 'g+rwX', "${ccPackageDir}"
+            }
+        }
+    }
+    workingDir "${buildDir}/distributions"
+    commandLine 'docker', 'build',
+            '--build-arg', "APP_DISPLAY_NAME=${appDisplayName}",
+            '--build-arg', "VERSION=${appVersion}",
+            '--build-arg', "BUILD_NUMBER=${buildNumber}",
+            '-f', "${projectDir}/Dockerfile",
+            '-t', "${containerImageTag}",
+            '.'
+}
+
+task publishContainer(type: Exec) {
+    commandLine 'docker', 'push', "${containerImageTag}"
+}
+
+def helmChartDir = "${buildDir}/helm-chart/"
+task packageHelmChart(type: Exec) {
+    doFirst {
+        mkdir helmChartDir
+        copy {
+            from "./helm-chart"
+            into "${helmChartDir}/helm-chart"
+        }
+        ant.replaceregexp(match: '\\$\\{appVersion\\}', replace: appVersion, flags: 'g', byline: true) {
+            fileset(dir: "${helmChartDir}/helm-chart", includes: 'Chart.yaml')
+        }
+    }
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'package', './helm-chart'
+}
+
+task publishHelmChart(type: Exec) {
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'push', "--username=${helmChartRepositoryUsername}",
+            "--password=${helmChartRepositoryPassword}", "${appName}-${appVersion}.tgz", "${helmChartRepositoryName}"
+}
+
+build.finalizedBy(deploy)
+

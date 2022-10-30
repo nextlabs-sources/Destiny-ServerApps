@@ -1,0 +1,89 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<d:includeJS location="/core/javascript/disable.js" />
+<d:includeJS location="/core/javascript/jquery-1.10.2.js" />
+
+<a4j:log level="ALL" popup="true" width="600" height="600" name="_blank"
+	hotkey="y" />
+
+<%--
+<a4j:region id="reportAppRegion">
+--%>
+
+
+<h:panelGrid id="panel" columns="2" border="0" styleClass="formtable">
+	<h:panelGroup id="rptQryFltrFrmPnl">
+	
+	<f:verbatim>
+	
+	<script type="text/javascript" src=""></script>
+	
+	<div>
+		<a href="myMonitors.jsf">View Monitors</a>
+	<div>
+	
+	<div id="status_div"> </div>
+	
+	<form>
+	
+	<label for="">Name:</label> <input type="text" name="name" id="name"/>
+	<label for="">Description:</label> <input type="text" name="description" id="description"/>
+	
+	<input type="button" value="submit" onclick="addMonitor()"> <input type="reset" value="reset"/>
+	
+	</form>
+	
+	<script type="text/javascript">
+	
+	var contextPath = "${pageContext.request.contextPath}";
+	
+	var monitorURL = "${pageContext.request.contextPath}/monitorServlet";
+	
+	$(document).ready(function()
+	{
+
+	});
+	
+	function addMonitor()
+	{
+		var nameVal = $.trim($("#name").val());
+		var descriptionVal = $.trim($("#description").val());
+		
+		if (nameVal === "" || descriptionVal === "")
+		{
+			alert(" name and description needed!!");
+			return;
+		}
+		
+		$("#status_div").html("");
+		
+		$.post(monitorURL, 
+				{"name":nameVal, "description":descriptionVal}).done(
+				function(data)
+				{
+					$("#status_div").html("SUCCESS!!");
+					//console.log(data);
+				}).fail(
+				function(data)
+				{
+					$("#status_div").html("FAILURE!!");
+					//console.log(data);
+				}
+				);
+	}
+	
+	</script>
+	
+	
+	</f:verbatim>
+	</h:panelGroup>
+</h:panelGrid>

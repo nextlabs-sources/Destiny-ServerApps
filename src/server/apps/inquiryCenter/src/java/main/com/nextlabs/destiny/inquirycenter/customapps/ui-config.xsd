@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+		targetNamespace="http://nextlabs.com/customapps/v1"
+		attributeFormDefault="unqualified" 
+		elementFormDefault="qualified" 
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		xmlns:ca="http://nextlabs.com/customapps/v1"
+>
+  <xs:element name="name" type="xs:string"/>
+  <xs:element name="label" type="xs:string"/>
+  <xs:element name="parameter-header-suffix" type="xs:string"/>
+  <xs:element name="text-box">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ca:name"/>
+        <xs:element ref="ca:label"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="report-parameters">
+    <xs:complexType>
+      <xs:sequence>  
+        <xs:element ref="ca:parameter-header-suffix" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Appended to the parameter panel header label</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="ca:text-box" maxOccurs="unbounded" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Text box widget. The name is supplied to reporter library
+                     during report generation</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>MUST match corresponding entry in the data-config.xml</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="list-header" type="xs:string"/>
+  <xs:element name="description-header" type="xs:string"/>
+  <xs:element name="parameter-header" type="xs:string"/>
+  <xs:element name="report-list">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ca:report-parameters" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="custom-reports-ui">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ca:list-header">
+          <xs:annotation>
+            <xs:documentation>Header label of the report list panel</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="ca:description-header">
+          <xs:annotation>
+            <xs:documentation>Header label of the report description panel</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="ca:parameter-header">
+          <xs:annotation>
+            <xs:documentation>Header label prefix of the report parameter panel</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="ca:report-list"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

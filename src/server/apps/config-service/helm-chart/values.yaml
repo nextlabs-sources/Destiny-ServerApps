@@ -1,0 +1,31 @@
+service:
+  type: ClusterIP
+image:
+  repository:
+  pullPolicy:
+  imagePullSecret:
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Gi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+securityContext:
+  runAsUser:
+  fsGroup:
+statusCheck:
+  initialDelay: 180
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+nextlabs:
+  cc:
+    db:
+      url:
+      username:
+      password:
+    logsVolumeClaimName:

@@ -1,0 +1,353 @@
+
+{
+	"id": null,
+	"name": "Policy",
+	"description": "Policy",
+	"tags": [],
+	"type": "RESOURCE",
+	"conditions": [{
+		"attribute": "name",
+		"operator": "=",
+		"value": "POLICY"
+	}],
+	"actions": [],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4652,
+		"name": "Policy Studio"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Reporter",
+	"description": "Reporter",
+	"tags": [],
+	"type": "RESOURCE",
+	"conditions": [{
+		"attribute": "name",
+		"operator": "=",
+		"value": "Reporter"
+	}],
+	"actions": [],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4661,
+		"name": "Reporter"
+	},
+	"status": "DRAFT"
+}
+
+{
+	"id": null,
+	"name": "Administrator",
+	"description": "Administrator",
+	"tags": [],
+	"type": "RESOURCE",
+	"conditions": [{
+		"attribute": "name",
+		"operator": "=",
+		"value": "administrator"
+	}],
+	"actions": [],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4657,
+		"name": "Administrator"
+	},
+	"status": "DRAFT"
+}
+
+{
+	"id": null,
+	"name": "Monitors",
+	"description": "Monitors",
+	"tags": [],
+	"type": "RESOURCE",
+	"conditions": [{
+		"attribute": "name",
+		"operator": "=",
+		"value": "monitors"
+	}],
+	"actions": [],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4669,
+		"name": "Monitor"
+	},
+	"status": "DRAFT"
+}
+
+{
+	"id": null,
+	"name": "Alerts",
+	"description": "Alerts",
+	"tags": [],
+	"type": "RESOURCE",
+	"conditions": [{
+		"attribute": "name",
+		"operator": "=",
+		"value": "alerts"
+	}],
+	"actions": [],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4665,
+		"name": "Alert"
+	},
+	"status": "DRAFT"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+  ACTION COMPONENTS
+------------------------------------------------------------------------------------------------------------------------
+
+
+{
+	"id": null,
+	"name": "View Action",
+	"description": "View Action",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions": [
+        "VIEW"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4652,
+		"name": "Policy Studio"
+	},
+	"status": "DRAFT"
+}
+
+{
+	"id": null,
+	"name": "Edit Policy",
+	"description": "Edit Policy",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "EDIT"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4652,
+		"name": "Policy Studio"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Deploy Policy",
+	"description": "Deploy Policy",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "DEPLOY"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4652,
+		"name": "Policy Studio"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Delete Policy",
+	"description": "Delete Policy",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions": [
+        "DELETE"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4652,
+		"name": "Policy Studio"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "View Reporter",
+	"description": "View Reporter",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "VIEW"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4661,
+		"name": "Reporter"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Edit Reporter",
+	"description": "Edit Reporter",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "EDIT"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4661,
+		"name": "Reporter"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Delete Reporter",
+	"description": "Delete Reporter",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "DELETE"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4661,
+		"name": "Reporter"
+	},
+	"status": "DRAFT"
+}
+
+
+
+{
+	"id": null,
+	"name": "View Monitors",
+	"description": "View Monitors",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "VIEW"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4669,
+		"name": "Monitor"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Edit Monitors",
+	"description": "Edit Monitors",
+	"tags": [],
+	"type": "ACTION",
+	"conditions":[],
+	"actions":  [
+        "EDIT"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4669,
+		"name": "Monitor"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Delete Monitors",
+	"description": "Delete Monitors",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "DELETE"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4669,
+		"name": "Monitor"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "View Alerts",
+	"description": "View Alerts",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "VIEW"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4665,
+		"name": "Alert"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Edit Alerts",
+	"description": "Edit Alerts",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "EDIT"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4665,
+		"name": "Alert"
+	},
+	"status": "DRAFT"
+}
+
+
+{
+	"id": null,
+	"name": "Delete Alerts",
+	"description": "Delete Alerts",
+	"tags": [],
+	"type": "ACTION",
+	"conditions": [],
+	"actions":  [
+        "DELETE"
+    ],
+	"subComponents": [],
+	"policyModel": {
+		"id": 4665,
+		"name": "Alert"
+	},
+	"status": "DRAFT"
+}
+

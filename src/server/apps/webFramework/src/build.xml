@@ -1,0 +1,57 @@
+<project name="Web Framework Project" default="build" >
+	
+    <property name="etc.src.dir"    value="${basedir}/etc"/>
+    <property name="etc.dest.dir"   value="${web.framework.dir}/etc"/>
+    <property name="classes.dir"   value="${build.root.dir}/server/container/apps/webframework/classes"/>
+    <property name="build.temp"   value="${build.root.dir}/server/container/apps/webframework/temp"/>   
+    <property name="build.temp.metainf"   value="${build.root.dir}/server/container/apps/webframework/temp/META-INF"/>
+
+	<!-- This is the master build file for the web framework project -->
+	<target name="build" depends="build-components, jar"> 
+        <copy todir="${etc.dest.dir}">
+            <fileset dir="${etc.src.dir}"/>
+        </copy>      
+  
+        <copy todir="${web.framework.dir}/tld">
+            <fileset dir="${etc.src.dir}">
+                <include name="**/*.tld"/>
+            </fileset>
+        </copy>     
+	</target>
+	
+    <target name="build-components">
+        <ant dir="java/main" target="build" inheritrefs="true"/>
+        <ant dir="java/test" target="build" inheritrefs="true"/>
+        <ant dir="resources" target="build" inheritrefs="true"/>   
+    </target>
+        
+    <target name="jar">
+        <uptodate property="coreJarFileBuildNotRequired" targetfile="${build.root.dir}/web-framework.jar" srcfile="etc/com.bluejungle.destiny.appsecurity.axis.SecureSessionVault"/>
+        <antcall target="buildCoreJar"/>
+    	
+    	<!--
+    	<uptodate property="AxisConfigBuildNotRequired" targetfile="${build.root.dir}/axis-config.jar" srcfile="etc/org.apache.axis.EngineConfigurationFactory"/>
+        <antcall target="buildAxisConfigJar"/>
+        -->
+    </target>   
+
+    <target name="buildCoreJar" unless="coreJarFileBuildNotRequired">
+        <copy file="etc/com.bluejungle.destiny.appsecurity.axis.SecureSessionVault" todir="${build.temp.metainf}/services"/>
+        <copy file="${etc.src.dir}/faces-config.xml" todir="${build.temp.metainf}"/>   
+        <jar destfile="${build.root.dir}/web-framework.jar">
+            <fileset dir="${classes.dir}">
+                <include name="**/*.class"/>
+            </fileset>
+            <metainf dir="${build.temp.metainf}" />
+        </jar>
+        <delete dir="${build.temp}"/>
+    </target>
+    
+	<!--
+	<target name="buildAxisConfigJar" unless="AxisConfigBuildNotRequired">
+		<copy file="etc/org.apache.axis.EngineConfigurationFactory" todir="${build.temp.metainf}/services"/>
+		<jar destfile="${build.root.dir}/axis-config.jar" basedir="${build.temp}"/>
+		<delete dir="${build.temp}"/>
+	</target>
+	-->
+</project>

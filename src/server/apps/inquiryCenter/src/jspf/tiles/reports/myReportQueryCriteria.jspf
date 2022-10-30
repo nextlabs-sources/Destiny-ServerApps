@@ -1,0 +1,3881 @@
+<%@ page import="com.nextlabs.destiny.inquirycenter.dashboard.NewDashboardService, com.nextlabs.destiny.inquirycenter.monitor.service.MonitoringService"%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<d:includeJS location="/core/javascript/jquery-1.10.2.js" />
+<d:includeJS location="/core/javascript/jquery.dataTables.js" />
+<d:includeJS location="/core/javascript/bootstrap/js/bootstrap.js" />
+<d:includeJS location="/core/javascript/jquery-ui-1.10.3.custom.js" />
+<d:includeJS location="/core/javascript/jquery.layout-latest.js" />
+<d:includeJS location="/core/javascript/jquery.multiselect2side.js" />
+<d:includeJS location="/core/javascript/d3/d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nv.d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nextLabsCharts.js" />
+<d:includeJS location="/core/javascript/c3/c3.min.js" />
+<d:includeJS location="/core/javascript/common.js" />
+<d:includeJS location="/core/javascript/lookup.js" />
+<d:includeJS location="/core/javascript/jquery-ui-timepicker-addon.js" />
+<d:includeJS location="/core/javascript/tag-it.js" />
+<d:includeJS location="/core/javascript/jquery.fileDownloads.js" />
+<d:includeJS location="/core/javascript/jquery.twbsPagination.min.js" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<d:includeCSS location="/core/css/jquery.dataTables.css"/>
+<d:includeCSS location="/core/css/jquery-ui-1.10.3.custom.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables_themeroller.css"/>
+<d:includeCSS location="/core/css/layout-default-latest.css"/>
+<d:includeCSS location="/core/javascript/bootstrap/css/bootstrap.css"/>
+<d:includeCSS location="/core/javascript/d3/nv.d3.css"/>
+<d:includeCSS location="/core/css/jquery.multiselect2side.css"/>
+<d:includeCSS location="/core/javascript/d3/override-nvd3-tooltip.css"/>
+<d:includeCSS location="/core/javascript/c3/c3.css"/>
+<d:includeCSS location="/core/css/jquery-ui-timepicker-addon.css" />
+<d:includeCSS location="/core/css/jquery.tagit.css" />
+<d:includeCSS location="/core/css/tagit.ui-zendesk.css" />
+
+<%@ include file="../shared/lookupDivs.jspf"%>
+
+<%
+	String installMode = System.getProperty("console.install.mode", "OPL");
+	pageContext.setAttribute("installMode", installMode);
+%>
+<f:verbatim>
+<div class="container-fluid" id="main_page_content">
+    <div class="row">
+        <div class="col-xs-12">
+         <span onclick="toggleForm()" id="reportQuery_name" style="cursor: pointer;" class="report_title h4">Report Query</span>
+        </div> 
+    </div>
+	<div class="row" id="set-criteria">
+          <div class="col-xs-12">
+            <div id="formErrorAlert" class="alert alert-danger" style='display:none;' >
+				<a href="#" class="close" onclick="$('#formErrorAlert').hide();">&times;</a> <strong>Error!</strong>
+				<span id="errorMsg"></span> 
+			</div>
+			 <div id="formSucessAlert" class="alert alert-success" style='display:none;' >
+				<a href="#" class="close" onclick="$('#formSucessAlert').hide();">&times;</a> <strong>Success!</strong>
+				<span id="successMsg"></span> 
+			</div>
+			<form role="form" id="criteria-form" >
+				<div class="form-group row">
+				      <div class="col-xs-3">
+				      	<label for="beginDate" class="control-label">From: </label>
+				       	<input type="text" id="beginDate" name="beginDate" class="form-control input-xs"  style="background:white;cursor:default" onchange="validateFromDate()" placeholder="From Date" tabindex="1">
+	     			  </div>
+	     			  <div class="col-xs-3">
+				      	<label for="endDate" class="control-label">To: </label>
+				      	<input type="text" id="endDate" name="endDate" class="form-control input-xs" style="background:white;cursor:default" onchange="validateToDate()" placeholder="To Date" tabindex="2">
+	     			  </div> 
+				</div>
+				<div class="form-group row">
+				      <div class="col-xs-3">
+				      	<label for="eventlevel" class="control-label" >Event Level: </label> 
+				      	<select name="eventlevel" id="eventlevel" class="form-control input-xs" tabindex="3">
+								<option value="3">User Events (Level 3)</option>
+								<option value="2">Application Events (Levels 2-3)</option>
+								<option value="1">All System Events (Levels 1-3)</option>
+						</select>
+						</div>
+	     			  <div class="col-xs-3">
+	     			    <label for="decision" >Policy Decision: </label> 
+				        <select name="decision" id="decision" class="form-control input-xs" tabindex="4">
+								<option value="B">Both</option>
+								<option value="A">Allow</option>
+								<option value="D">Deny</option>
+							</select>
+						</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-xs-3">
+						<label for="resourceTypeTblInPlcySelLstBx" class="control-label" >Resource Type: </label> 
+						<select id="resourceTypeTblInPlcySelLstBx" size="5" name="resourceTypeTblInPlcySelLstBx" class="form-control input-xs" tabindex="5"></select>
+					</div> 
+				   <div class="col-xs-3">
+				       <label for="actTblInPlcySelLstBx" class="control-label" >Action: </label> 
+				      	<select id="actTblInPlcySelLstBx" size="5" multiple="multiple"
+								name="actTblInPlcySelLstBx" class="form-control input-xs" tabindex="5">
+							</select>
+						</div> 
+				</div>
+				
+				<!--User input section-->
+				<div class="row">
+				 	<div class="col-xs-12"  style="margin-left:-13px;">
+				 	  <c:if test="${installMode ne 'SAAS'}">
+					   <div class="form-group row">
+				 	     <div class="col-xs-12 form-inline">
+				 	     	<div class="col-xs-1">
+				 	        	<label for="rptDefCntInUsrTxt">User: </label>
+				 	        </div>
+				 	        <div class="col-xs-11" style="padding-right:50%;">
+     							  <button type="button" class="btn btn-xs"  id="lookupUsrBtn" name="lookupUsrBtn" style="float:right;" tabindex="6">
+     							  		<img src='../core/images/glyphicon_search.png' width="50%" height="50%" />
+					                    <!--<span class="glyphicon glyphicon-search"></span> -->
+        						  </button>
+
+					              <span style="display:block;overflow:hidden;min-height:28px;"><input id="rptDefCntInUsrTxt" type="text" value="" name="rptDefCntInUsrTxt" class="form-control input-xs"  
+					                  style="width:99%;" tabindex="-1" readOnly />
+					              </span>    
+        					</div>	  
+   						  </div>
+				 	   </div>
+					  </c:if>
+				 	 	 <!--User criteria input section-->
+				     <div class="form-group row">           
+				         <div class="col-xs-12 form-inline">
+				         	<div class="col-xs-1">
+					         <label for="usr_criteria">User Criteria: </label>
+					        </div>
+					        <div class="col-xs-11" style="padding-right:50%;" > 
+						    	 <button type="button" class="btn btn-sm"  id="addUsrCriteria" name="addUsrCriteria" style="float:right;" tabindex="10">
+										<img src='../core/images/glyphicon_plus.png' width="50%" height="50%"/>
+										<!-- <span class="glyphicon glyphicon-plus"></span> -->
+	      					  	 </button>
+	      					  	 <span style="display:block;overflow:hidden;min-height:28px;" >
+							         <select name="usr_criteria" id="usr_criteria" class="form-control input-xs" style="width:30%;" tabindex="7"></select>
+						             <select name="usr_criteria_operator" id="usr_criteria_operator" class="form-control input-xs" style="width:20%;" tabindex="8">
+										<option value="==">Equals</option>
+										<option value="!=">Not Equals</option>
+										<option value="like">Like</option>
+										<option value="in">In</option>
+								     </select>
+								     <input type="text" name="usr_criteria_value" id="usr_criteria_value" class="form-control input-xs" maxlength="255" placeholder="Max 255 characters" style="width:47%;" tabindex="9"/>
+							     </span>
+      					  	</div> 
+				          </div>
+				     </div>
+				    </div>  
+				</div>
+				
+				<div class="row">
+				   <div class="col-xs-8" style="padding-left:10%;">
+						<span id="userCriteriaTable" class="formtable"></span>
+					</div>
+				</div>
+				<div class="row">
+				   <div class="col-xs-11">
+				      <span id="userCritEnd"></span>
+				   </div>
+				</div>
+				
+				<!--Resource input section-->
+				<div class="row">
+				 	<div class="col-xs-12" style="margin-left:-13px;">
+				 	  <div class="form-group row">
+					   <c:if test="${installMode ne 'SAAS'}">
+				 	    <div class="col-xs-12 form-inline">
+				 	    	<div class="col-xs-1">
+						 	    <label for="rptDefCntInResTxt">Resource Name:</label>
+						 	</div>    
+						 	<div class="col-xs-11" style="padding-right:50%;">
+				 	        	<input id="rptDefCntInResTxt" class="form-control input-xs" type="text" onchange="selectedResources = [];"
+									value="" name="rptDefCntInResTxt" style="width:100%;"  tabindex="11"/>
+							</div>		
+   						 </div>
+						</c:if>
+				 	   </div>
+ 
+				 	   <!--Resource criteria input section-->
+					     <div class="form-group row">           
+					         <div class="col-xs-12 form-inline">
+					            <div class="col-xs-1">
+						         	<label for="res_criteria">Resource Criteria: </label>
+						        </div>
+						        <div class="col-xs-11" style="padding-right:50%;">  	
+							    	 <button type="button" class="btn btn-sm"  id="addResCriteria" name="addResCriteria" style="float:right;" tabindex="15">
+											<img src='../core/images/glyphicon_plus.png' width="50%" height="50%"/>
+		     			            	   <!-- <span class="glyphicon glyphicon-plus"></span>  -->
+		      					  	 </button>
+		      					  	 <span style="display:block;overflow:hidden;min-height:28px;">
+							         <select name="res_criteria" id="res_criteria" class="form-control input-xs" style="width:30%;" tabindex="12">
+							         </select>
+							             <select name="res_criteria_operator" id="res_criteria_operator" class="form-control input-xs" style="width:20%;" tabindex="13">
+											<option value="==">Equals</option>
+											<option value="!=">Not Equals</option>
+											<option value="like">Like</option>
+											<option value="in">In</option>
+										 </select>
+										 <input type="text" name="res_criteria_value" id="res_criteria_value" class="form-control input-xs" maxlength="255" placeholder="Max 255 characters" style="width:47%;" tabindex="14"/>
+									 </span>
+		      					</div>  	 
+					          </div>
+					     </div>
+				  	 </div> 
+				  </div>
+				
+				<div class="row">
+				    <div class="col-xs-8" style="padding-left:10%;">
+						<span id="resourceCriteriaTable" class="formtable"></span>
+					</div>
+				</div>
+				<div class="row">
+				   <div class="col-xs-11">
+				      <span id="resourceCritEnd"></span>
+				   </div>
+				</div>
+
+				<!--Policy input section-->
+				<div class="row">
+				   <div class="col-xs-12" style="margin-left:-13px;">
+				 	 <div class="form-group row">
+				 	    <div class="col-xs-12 form-inline">
+				 	    	<div class="col-xs-1">
+				 	      		<label for="rptDefCntInPlcTxt">Policy Full Name:</label>
+				 	      	</div>	
+				 	      	<div class="col-xs-11" style="padding-right:50%;">
+							   <button type="button" class="btn btn-xs"  id="lookupPlcBtn" name="lookupPlcBtn" style="float:right;" tabindex="16">
+										<img src='../core/images/glyphicon_search.png' width="50%" height="50%"/>
+					                   <!-- <span class="glyphicon glyphicon-search"></span> -->
+        				   		</button>		
+					 	      	<span style="display:block;overflow:hidden;min-height:28px;">
+				 	      			<input id="rptDefCntInPlcTxt" class="form-control input-xs" type="text"
+										value="" name="rptDefCntInPlcTxt" style="width:99%;" tabindex="-1" readOnly >
+								</span>			  
+        				   	</div>	
+   						</div>
+				 	 </div> 
+				 	  <!--Resource criteria input section-->
+					     <div class="form-group row">           
+					         <div class="col-xs-12 form-inline">
+								<div class="col-xs-1">				         
+							         <label for="plc_criteria">Policy Criteria:</label>
+							    </div>
+							    <div class="col-xs-11" style="padding-right:50%;">				              
+							    	<button type="button" class="btn btn-sm"  id="addPlcCriteria" name="addPlcCriteria" style="float:right;" tabindex="20">
+										 <img src='../core/images/glyphicon_plus.png' width="50%" height="50%"/>
+		     			            	 <!-- <span class="glyphicon glyphicon-plus"></span>  -->
+		      					  	</button>
+		      					  	<span style="display:block;overflow:hidden;min-height:28px;">
+								         <select name="plc_criteria" id="plc_criteria" class="form-control input-xs" style="width:30%;" tabindex="17"></select>
+							             <select name="plc_criteria_operator" id="plc_criteria_operator" class="form-control input-xs" style="width:20%;" tabindex="18">
+												<option value="==">Equals</option>
+												<option value="!=">Not Equals</option>
+												<option value="like">Like</option>
+												<option value="in">In</option>
+										</select>
+										<input type="text" name="plc_criteria_value" id="plc_criteria_value" class="form-control input-xs" maxlength="255" placeholder="Max 255 characters" style="width:47%;" tabindex="19">
+									</span>
+		      					</div>  	 
+					          </div>
+					     </div>
+				   </div>
+	
+	            <div class="row">
+	                <div class="col-xs-8" style="padding-left:10%;">
+						<span id="policyCriteriaTable" class="formtable"></span>
+					</div>
+				</div>  
+				<div class="row">
+				   <div class="col-xs-11">
+				      <span id="policyCritEnd"></span>
+				   </div>
+				</div>
+
+				<!--Others input section-->
+				   		<div class="form-group row">
+				   			<div class="col-xs-12 form-inline">
+						        <div class="col-xs-1"> 
+							   		<label for="plc_criteria">Other Criteria:</label>
+							   	</div>	
+							   	<div class="col-xs-11" style="padding-right:50.7%;"> 
+							    	<button type="button" class="btn btn-sm"  id="addOthCriteria" name="addOthCriteria" style="float:right;" tabindex="24">
+										 <img src='../core/images/glyphicon_plus.png' width="50%" height="50%"/>
+		     			            	<!--  <span class="glyphicon glyphicon-plus"></span>  -->
+		      					 	</button>
+		      					 	<span style="display:block;overflow:hidden;min-height:28px;">
+								         <select name="oth_criteria" id="oth_criteria" class="form-control input-xs" style="width:30%;" tabindex="21"></select>
+							             <select name="oth_criteria_operator" id="oth_criteria_operator" class="form-control input-xs" style="width:20%;" tabindex="22">
+												<option value="==">Equals</option>
+												<option value="!=">Not Equals</option>
+												<option value="like">Like</option>
+												<option value="in">In</option>
+										</select>
+										<input type="text" name="oth_criteria_value" id="oth_criteria_value" class="form-control input-xs" maxlength="255" placeholder="Max 255 characters" style="width:47%;" tabindex="23">
+									</span>
+		      					</div> 	
+		      				</div>	
+      					</div>
+		
+		        <div class="row">
+		            <div class="col-xs-8" style="padding-left:10%;">
+						<span id="othersCriteriaTable" class="formtable"></span>
+					</div>
+                 </div>
+                 <div class="row">
+				   <div class="col-xs-11">
+				      <span id="othersCritEnd"></span>
+				   </div>
+				</div>
+
+				<!--Data show, sorting section-->
+				<div class="row" style="margin-left:3px;">
+					<div id="showDataDiv" class="col-xs-12">
+					    <div class="row"> 
+					      <div class="col-xs-3">
+					         <label for="reportType">Report Type :</label>
+					         <select name="reportType" id="reportType" class="form-control input-xs" tabindex="25">
+								<option value="TABULAR">Table</option>
+								<option value="BAR_CHART">Bar Chart</option>
+								<option value="HORZ_BAR_CHART">Horizontal Bar Chart</option>
+								<option value="PIE_CHART">Pie Chart</option>
+							 </select>
+					      </div> 
+					      <div class="col-xs-3">
+					         <label for="reportGroupingMode">Show :</label>
+					          <select name="groupingMode" id="groupingMode" class="form-control input-xs" tabindex="26">
+								 <option value="">-- Group by options --</option>
+								 <option value="GROUP_BY_USER">Group by User</option>
+								 <option value="GROUP_BY_RESOURCE">Group by Resource</option>
+								 <option value="GROUP_BY_POLICY">Group by Policy</option>
+								 <option value="GROUP_BY_MONTH">Group by Month</option>
+								 <option value="GROUP_BY_DAY">Group by Day</option>
+							  </select>
+					      </div>
+					    </div>
+					    <div class="row"> 
+					      <div class="col-xs-3" style="margin-top:10px;">
+					          <label for="sortColumn">Sort By:</label>
+					           <select name="sort" id="sort" class="form-control input-xs" tabindex="27">
+									<optgroup label="User" id="sort_grp_user">
+									</optgroup>
+									<optgroup label="Resource" id="sort_grp_resource">
+									</optgroup>
+									<optgroup label="Policy" id="sort_grp_policy">
+									</optgroup>
+									<optgroup label="Others" id="sort_grp_others">
+									</optgroup>
+								</select>
+								<select name="sort" id="sortCharts" class="form-control input-xs">
+										<option></option>
+								</select>
+					      </div>
+					       <div class="col-xs-3 form-inline" style="margin-top:30px;" tabindex="28">
+					            <span class="radio">
+					            	<label><input id="sortOderChkBox_asc"
+										type="radio" value="asc" name="sortOderChkBox" >Asc
+									</label>
+								</span> &nbsp; &nbsp;
+								<span class="radio">
+									<label><input id="sortOderChkBox_desc"
+										type="radio" value="desc" name="sortOderChkBox" checked="true" >Desc
+									</label>
+								</span>
+					       </div>
+					     </div>
+
+					<div class="row">
+						<div class="col-xs-2" style="margin-top: 10px;">
+							<label for="maxRowFetchId">Max Results :</label>
+							<div class="input-group">
+								<input name="maxRowsFetchId" id="maxRowsFetchId" type="text" value="100"
+									class="form-control" tabindex="29">
+								<div class="input-group-btn">
+									<button type="button" id="maxRowsFetchIdButton" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="padding:3px 6px" tabindex="30"><span class="caret"></span></button>
+									<ul id="maxRowsFetchIdOptions"
+										class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 100px;">
+										<li><a>20</a></li>
+										<li><a>50</a></li>
+										<li><a>100</a></li>
+										<li><a>200</a></li>
+										<li><a>500</a></li>
+										<li><a>1000</a></li>
+										<li><a>ALL</a></li>
+									</ul>
+								</div>
+								<!-- /btn-group -->
+							</div>
+						</div>
+					</div>
+					<div class="row">
+					         <div class="col-xs-12"></div>
+					     </div> 
+					     <div class="row"> 
+					       <div class="col-xs-12" style="margin-top:10px;">
+                               <label for="selectDisplay">Display Columns :</label>
+                               <span id="displayColumnTable" class="formtable"></span>
+					           <button id="selectDisplay" name="selectDisplay" type="button" class="btn btn-xs btn-default" tabindex="31">
+							      <img src='../core/images/glyphicon-align-justify.png' width="60%" height="60%"/>
+					            <!--  <i class="glyphicon glyphicon-align-justify"></i> -->
+								</button>
+						   </div>
+					     </div>
+					</div>
+				</div>
+				<div  class="row" style="margin-top:20px;margin-left:3px; margin-bottom: 100px;">
+				     <div class="col-xs-5">
+						<button type="button" class="btn btn-primary btn-sm" onclick="runReport();" tabindex="32" id="run_button">Run
+							<!-- <img src='../core/images/glyphicon_play.png' width="30%" height="30%"/> -->
+							<i class="glyphicon glyphicon-play"></i>
+						</button>
+					    <!-- xsall button group -->
+						<div class="btn-group">
+  							<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" tabindex="33" id="option_button">
+    								Options<span class="caret"></span>
+  						    </button>
+  							<ul class="dropdown-menu btn-xs" role="menu">
+   								 <li class="btn-xs"><a  id="save_button" onclick="saveAsReportPopup(true);">Save</a></li>
+   								 <li class="btn-xs"><a  id="save_as_button" onclick="saveAsReportPopup(false);">Save As</a></li>
+   								 <li class="btn-xs"><a  id="delete_button" onclick="deleteReportPopup();">Delete</a></li>
+ 							</ul>
+    					</div>
+					</div>
+				</div>
+				<div class="row">
+				    <div class="col-xs-8">
+				      <span id="fetchRowNote">
+				      </span>     
+				    </div>
+				</div>
+				<input type="hidden" id="id" name="id" />
+		     </form>
+		  </div>
+	</div>	  
+	</div>		
+	<div class="row">
+	   <div class="row">
+		   <div class="col-xs-10">
+		    	<div id='loadingmessage' style='display:none; text-align:center;'>
+            	    <img src='/reporter/core/images/loader.gif'/>
+		    	</div>
+		   </div>	
+	   </div>
+			
+	   <div class="row">
+		   <div class="col-xs-12">
+				<div id="reportContentViewer" style="text-align: center; margin-top: -50px;">
+		   </div>
+	   </div>
+
+			<div id="sel-column" style="display: none">
+				<form id="column-form">
+					<label for="colToDisplay">Columns to display :</label><br>
+					<div>
+						<select name="columnDispSelect[]" id='columnDispSelect'
+							multiple='multiple' size='15'>
+
+						</select>
+					</div>
+					<div align="center">
+					    <button id="ok" type="button" class="btn btn-primary btn-sm" >Ok</button>
+                     	<button type="button" class="btn btn-primary btn-sm" onclick="closeModal()">Cancel</button>
+						<input type="hidden" id="id" name="id" />
+				    </div>		
+				</form>
+			</div>
+		</div>
+	
+		<div id="save-reports"></div>
+		<div id="delete-reports" style="display: none;"></div>
+
+		<div id="save-as-report" style="display: none;">
+		    <form id="save-report-form">
+		    <div class ="row">
+		       <div class="col-xs-12">
+		            <div id="saveReportFormErrorAlert" class="alert alert-danger" style='display:none; margin-bottom:10px;' >
+						<a href="#" style="position:relative;bottom:4px;" class="close" onclick="$('#saveReportFormErrorAlert').hide();">&times;</a> <strong>Error!</strong>
+						<span id="saveReportFormError"></span> 
+					 </div> 
+		       </div>
+		    </div>
+		    <div class="row">
+               <div class="col-xs-12">
+                     <label for="report_name">Name :</label>
+                     <input type="text" name="report_name" id="report_name" class="form-control input-xs" style="width: 380px;"  maxlength="255" placeholder="Max 255 characters" >
+               </div>
+            </div>   
+            <div class="row" style="margin-top: 10px;">
+               <div class="col-xs-12">
+                     <label for="report_description">Description :</label>
+                     <textarea rows="3" cols="60" name="report_description" id="report_description" class="form-control input-xs" style="width: 380px;" maxlength="2000" placeholder="Max 2000 characters" ></textarea>
+               </div>
+            </div>   
+            <div class="row" style="margin-top: 10px;">
+               <div class="col-xs-8">
+                     <label for="saveAsDateType">Date mode :</label>
+                     <select name="saveAsDateType" id="saveAsDateType" class="form-control input-xs">
+						<option value="Fixed">Fixed Dates</option>
+						<option value="Relative">Relative Dates</option>
+					 </select>
+               </div>
+            </div> 
+            <div class="row" style="margin-top: 10px;">
+               <div class="col-xs-8">
+                     <label for="dateSelectionType">Date Selection :</label>
+                     <select name="dateSelectionType" id="dateSelectionType" class="form-control input-xs">
+                        <option value="today">Today</option>
+					    <option value="current_week">Current Week</option>
+					    <option value="current_month">Current Month</option>
+					    <option value="current_quarter">Current Quarter</option>
+					    <option value="yesterday">Yesterday</option>
+				        <option value="last_week">Last Calendar Week</option>
+					    <option value="last_month">Last Calendar Month</option>
+					    <option value="last_quarter">Last Calendar Quarter</option>
+					    <option value="last_7_days">Last 7 days</option>
+					    <option value="last_30_days">Last 30 days</option>
+					</select>
+               </div>
+            </div> 
+             
+            <div class="row" style="margin-top: 10px;">
+               	<div class="col-xs-8 form-group">
+               		<div class="control-group">
+               			<input id="is_save_only_mode" type="hidden" value="true" />
+                    	<label for="report_shared_mode" class="control-label">Share with :</label>
+                    	  <div class="controls" style="margin-left: 15px; margin-top:-10px;">
+						    <label class="radio">
+						      <input type="radio" name="report_shared" id="report_shared_only_me" value="only_me" checked="checked">
+						      	Only me
+						    </label>
+						    <label class="radio">
+						      <input type="radio" name="report_shared" id="report_shared_public" value="public">
+						      	Public
+						    </label>
+						    <label class="radio">
+						      <input type="radio" name="report_shared" id="report_shared_users" value="users">
+						      	Users/Groups
+						    </label>
+						  </div>
+                    </div>
+                    
+               	</div>
+               	<div  class="col-xs-12 form-group" style="margin-top: -10px;">
+               		<ul id='shared_mode_users_list' class="form-control input-xs"></ul>
+               		<input id="selected_users_to_share" type="hidden" value="">
+               	</div>
+
+            </div>    
+
+             <div class="row" style="margin-bottom: 20px;">
+               <div class="col-xs-12" align="center">
+                     <button id="report_save" type="button" class="btn btn-primary btn-sm" ><i class="glyphicon glyphicon-save"></i> Save</button>
+                     <button id="report_save_close" type="button" class="btn btn-primary btn-sm">Cancel</button>
+               </div>
+            </div>     
+		 </form>
+	</div> 
+
+	<div id="report_detail" title="Report Detail" style="display:none;">
+		<input type="hidden" id="log_detail_id"/>
+			<!-- EXPORT BUTTONS  -->
+			<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+				<div class="col-xs-4 col-xs-offset-8">
+					<div id="export_report_detail_buttons" style="display: inline-block; float: right;">
+						<label>Export report to: </label>
+						<img src="../core/images/excel_download_icon.png" class="download_icon" title="Export to EXCEL" onclick="exportExcelDetailReport()" >
+						<%--<img src="../core/images/pdf_download_icon.png" class="download_icon" title="Export as PDF" onclick="exportPdfDetailReport()">--%>
+					</div>
+				</div>
+			</div>
+			<hr/>
+		<fieldset>
+		<!-- Even Detail-->
+		<div class="container-fluid" id="general_content">
+
+			<!-- EVENT DETAIL SECTION -->
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="detail_report_title_section">
+						<p>Event Detail</p>
+					</div>
+				</div>
+				<div class="col-xs-12">
+					<table id="event_detail_content">
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Date: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_date" >
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Policy: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_policy" >
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">User: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_user"  >
+								</p>
+							</td>	
+						</tr>
+  					    <tr>
+						    <td class="col-xs-3 name">
+						    	<label class="control-label">Application: </label> 
+						    </td>
+						    <td class="col-xs-9">	
+						    	<p id="detail_application" >
+						    	</p>
+						    </td>	
+					    </tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">From Resource: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_from_resource"  >
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">To Resource: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_to_resource"  >
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Decision: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_enforcement" >
+									
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Action: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_action" >
+									
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Host: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_host" >
+								
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Host IP: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_host_ip" >
+									
+								</p>
+							</td>	
+						</tr>
+						<tr>
+							<td class="col-xs-3 name">
+								<label class="control-label">Event Level: </label> 
+							</td>
+							<td class="col-xs-9">	
+								<p id="detail_event_level" >
+								</p>
+							</td>	
+						</tr>
+					</table>
+				</div>	
+			</div>	
+			<!-- END OF EVENT DETAIL SECTION -->
+
+			<!-- CUSTOM ATTRIBUTE SECTION -->
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="detail_report_title_section">
+						<p>Custom Attribute</p>
+					</div>
+				</div>
+				<div class="col-xs-12">
+					<table id="cus_attr_section">
+					</table>	
+				</div>
+
+			</div>
+			<!-- END OF CUSTOM ATTRIBUTE SECTION -->
+
+			<!-- OBLIGATION DETAIL SECTION -->
+			<div class="row" style="margin-top:10px;">
+				<div class="col-xs-12">
+					<div class="detail_report_title_section">
+						<p>Obligation Detail</p>
+					</div>
+				</div>
+				<div class="col-xs-12" id="oblig_detail_section">
+				</div>	
+
+			</div>
+			<!-- END OF OBLIGATION DETAIL -->
+
+		</div>
+		</fieldset>
+		</div>
+	</div>
+	<div id="export_limit_warn" title="Warning" style="display:none;">
+		<p>Maximum of 10000 report logs will be exported</p>
+	</div>
+</div>	
+
+<style type="text/css">
+html, body {
+	background-color: white;
+	padding: 0;
+	margin:	0;
+	overflow-y: auto;
+}
+.pane {
+	display: none; /* will appear when layout inits */
+}
+table.dataTable tbody tr {
+	line-height: 1;
+}
+#myReportsTableDiv table.dataTable tbody tr {
+    cursor: pointer;
+}
+#dataTableReport tbody tr {
+    height: 45px;
+}
+
+#dataTableReport tbody tr .evaluation-date {
+	color: #1583B5;
+}
+
+#dataTableReport tbody tr .evaluation-date:hover {
+	text-decoration: underline;
+}
+
+#dataTableReport_wrapper {
+	cursor: pointer;
+}
+
+.dataTables_info {
+	float: right !important;
+    clear: right !important;
+}
+
+button:focus {
+    outline: 1px #808080 dotted !important; 
+}
+
+#shared_mode_users_list {
+	border: 1px solid;
+	height: auto;
+	max-height: 80px;
+}
+
+.ui-autocomplete {
+	z-index : 1000;
+}
+
+#ui-id-1 {
+	z-index : 1000;	
+}
+
+.download_icon {
+	margin-left: 10px;
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
+}
+
+#export_report_buttons {
+	display: inline-block;
+    float: left;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+#report_detail {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+#report_detail p {
+	word-wrap: break-word;
+}
+
+.detail_report_title_section {
+	/*background-color: #9FA9A9;*/
+	padding: 0px;
+}
+
+.detail_report_title_section p{
+	font-size: 15px;
+  	font-weight: bold;
+ 	/*color: white;*/
+  	margin-top: 10px;
+  	padding-left: 3px;
+}
+
+#event_detail_content tr, #cus_attr_section tr {
+	border-bottom: 1px solid #DDD;
+}
+
+#event_detail_content, #cus_attr_section {
+	margin-bottom: 20px;
+}
+
+#event_detail_content td, #cus_attr_section td {
+	height: 40px;
+    font-size: 15px;
+	padding-top: 5px;
+}
+
+.name {
+	background-color: #F7F7F7;
+}
+
+#event_detail_content .row {
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+/*Align Close Report_Detail button to center*/
+.ui-dialog .ui-dialog-buttonpane { 
+    text-align: center !important;
+}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { 
+    float: none !important;
+}
+#dataTableReport_info + .dataTables_scroll .dataTables_scrollBody {
+	overflow: auto;
+}
+
+</style>
+
+
+<script type="text/javascript">
+function setScrollHeight() {
+	var scrollBody = $('#dataTableReport_info + .dataTables_scroll .dataTables_scrollBody');
+	scrollBody.height(window.innerHeight * .6)
+}
+$(document).ready(function() {
+	setScrollHeight();
+	$(window).resize(setScrollHeight)
+});
+
+var contextPath = "${pageContext.request.contextPath}";
+var saveReportURL = "${pageContext.request.contextPath}/reportServlet";
+
+var reportId = <%= request.getParameter("reportId") %>;
+var alertJsonCriteria = <%= request.getParameter("jsonCriteria") %>;
+var showSharePointEnabled = <%= NewDashboardService.showSharePointReports() %>;
+
+var savedReportName = "";
+var savedReportDesc = "";
+var isOwnedReport = "";
+var savedReportDateType = "";
+var savedReportDateSelType = "";
+
+var tempSelectColumns= [];
+
+var resourceTypeColumnMap = new Object(); 
+
+var isIEBrowser = false;
+var myReportsTable = null;
+var selectedData = {};
+var shared_mode = "only_me";
+var user_ids = [];
+
+var appUsersData = null;
+var appUsersMap = {};
+var appUsersDisplay = [];
+var isAdminUser;
+
+var groupUsersData = null;
+var groupUsersMap = {};
+var groupUsersDisplay = [];
+var group_ids = [];
+
+var listOfUserAndGroup = [];
+
+var hasAppUsers = false;
+
+//Disable the right to edit saved reports for Report User
+function disableFormForReportUser(isAdminUser) {
+		var permissionToEdit = !isAdminUser;
+		$('#beginDate').attr('disabled',permissionToEdit);
+		$('#endDate').attr('disabled',permissionToEdit);
+//		$("#beginDate").attr("style", "background:#EEEEEE;");
+//		$("#endDate").attr("style", "background:#EEEEEE;");
+
+		$('#eventlevel').attr('disabled',permissionToEdit);
+		$('#decision').attr('disabled',permissionToEdit);
+		$('#actTblInPlcySelLstBx').attr('disabled',permissionToEdit);
+
+		//disable user criteria
+		$('#lookupUsrBtn').attr('disabled',permissionToEdit);
+		$('#usr_criteria').attr('disabled',permissionToEdit);
+		$('#usr_criteria_operator').attr('disabled',permissionToEdit);
+		$('#usr_criteria_value').attr('disabled',permissionToEdit);
+		$('#addUsrCriteria').attr('disabled',permissionToEdit);
+
+		//disable resource criteria
+		$('#rptDefCntInResTxt').attr('disabled',permissionToEdit);
+		$('#addResCriteria').attr('disabled',permissionToEdit);
+		$('#res_criteria').attr('disabled',permissionToEdit);
+		$('#res_criteria_operator').attr('disabled',permissionToEdit);
+		$('#res_criteria_value').attr('disabled',permissionToEdit);
+
+		//disable policy criteria
+		$('#lookupPlcBtn').attr('disabled',permissionToEdit);
+		$('#rptDefCntInPlcTxt').attr('disabled',permissionToEdit);
+		$('#plc_criteria').attr('disabled',permissionToEdit);
+		$('#plc_criteria_operator').attr('disabled',permissionToEdit);
+		$('#plc_criteria_value').attr('disabled',permissionToEdit);
+		$('#addPlcCriteria').attr('disabled',permissionToEdit);
+		
+		//disable other criteria
+		$('#oth_criteria').attr('disabled',permissionToEdit);
+		$('#oth_criteria_operator').attr('disabled',permissionToEdit);
+		$('#oth_criteria_value').attr('disabled',permissionToEdit);
+		$('#addOthCriteria').attr('disabled',permissionToEdit);
+		
+		//disable column to display
+		$('#selectDisplay').attr('disabled',permissionToEdit);
+		
+		$('#option_button').attr('disabled',permissionToEdit);
+		$('#run_button').attr('disabled',permissionToEdit);
+		
+		if (!isAdminUser) {
+			$('#cntNvLstBtnDv').hide();
+		}				
+}
+
+
+function handleReportTypeChange() {
+	
+	var reportType = $("#reportType").val();
+	$('#maxRowsFetchIdOptions').empty();
+	
+	if(reportType == "TABULAR") {
+		 $("#groupingMode").val("");
+		 $('#maxRowsFetchIdOptions').append(
+				 '<li><a>20</a></li>'+
+				 '<li><a>50</a></li>'+
+				 '<li><a>100</a></li>'+
+				 '<li><a>200</a></li>'+
+				 '<li><a>500</a></li>'+
+				 '<li><a>1000</a></li>'+
+				 '<li><a>ALL</a></li>');
+		 
+		 $("#maxRowsFetchId").val("100");
+		 $("#groupingMode").attr("disabled", true);
+		 if (!isAdminUser)
+		 	$("#selectDisplay").attr("disabled", true);
+		 else 
+			 $("#selectDisplay").attr("disabled", false); 
+		 
+		 $("#sort").show();
+		 $("#sortCharts").hide();
+		 $("#fetchRowNote").show();
+			//set DATE as the default sort field
+		$("#sort").val("DATE");
+	} else {
+		 $('#maxRowsFetchIdOptions').append(
+				 '<li><a>5</a></li>'+
+				 '<li><a>10</a></li>'+
+				 '<li><a>20</a></li>'+
+				 '<li><a>50</a></li>'+
+				 '<li><a>100</a></li>');
+		 
+		 $("#groupingMode").attr("disabled", false);
+		 /*
+		 set the first element as selected
+		 */
+		 if ($.trim($("#groupingMode").val()) == "")
+		 {
+			$("#groupingMode")[0].selectedIndex = 1;
+			var groupingMode = $("#groupingMode").val();
+			populateSortChart(groupingMode);
+		 }
+		 $("#selectDisplay").attr("disabled", true);
+		 $("#maxRowsFetchId").val("50");
+		 $("#sortCharts").show();
+		 $("#sort").hide();
+		 $("#fetchRowNote").hide();
+	}
+	$('input[name=sortOderChkBox][value=desc]').prop('checked', true);
+}
+
+$(document).ready(function() {
+	function loadActionsWResourceType(actionsProviderURL) {
+		var post_data = {};
+		var action = "LOAD_ACTIONS_WITH_PM_DATA";
+
+		$.ajax({
+			type : 'POST',
+			url : actionsProviderURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				populateActions(response.actionMap);
+			},
+			error : function(xhr, status) {
+				handleError(xhr, 'Error encoutered in loading actions ');  
+			},
+			async : false
+		});
+	}
+	function populateActions(data) {
+		$('#resourceTypeTblInPlcySelLstBx').html('');
+		data["Legacy actions"] = data["DEFAULT_ACTION"]
+		delete data["DEFAULT_ACTION"]
+		for (var rt in data) {
+			var rtOption = $('<option/>').text(rt).val(rt)
+			$('#resourceTypeTblInPlcySelLstBx').append(rtOption)
+		}
+
+		$('#resourceTypeTblInPlcySelLstBx').unbind('change').change(function() {
+			var rt = $(this).val();
+			$("#actTblInPlcySelLstBx").html('');
+			var actionList = data[rt];
+			actionList.sort(function(a,b) {return a.label > b.label});
+			for ( var i in actionList) {
+				var name = actionList[i].shortName;
+				var label = actionList[i].label;
+				var option = "<option value='" + name + "' >" + label  + "</option>";
+				$("#actTblInPlcySelLstBx").append(option);
+			}
+		})
+	}
+
+	isIEBrowser = detectIEBrowser();
+	
+    myReportsTable = reloadReportTable();
+	
+	var dt = new Date();
+	
+	var month = (dt.getMonth() + 1) < 10? "0" + (dt.getMonth() + 1) : dt.getMonth() + 1;
+	
+	var day = (dt.getDate()) < 10? "0" + dt.getDate() : dt.getDate();
+	
+	var today = dt.getFullYear() + "-" + month+ "-" + day;
+	
+	$('#beginDate').datetimepicker({dateFormat: 'yy-mm-dd', timeFormat:'HH:mm:ss', showMinute:true, showSecond:true,
+		defaultDate:"-0d", hour:0, minute:0, second:0, showButtonPanel: false});
+	$('#beginDate').val(today + " 00:00:00");
+	
+	$('#endDate').datetimepicker({dateFormat: 'yy-mm-dd', timeFormat:'HH:mm:ss', showMinute:true, showSecond:true,
+		defaultDate:"-0d", hour:23, minute:59, second:59, showButtonPanel: false});
+	$('#endDate').val(today + " 23:59:59");
+	
+	$("#groupingMode").attr("disabled", true);
+	$("#sortCharts").hide();
+	$("#save_as_button").hide(); // disable save button
+	$("#delete_button").hide(); // disable delete button
+	$('#formSucessAlert').hide();
+	$('#formErrorAlert').hide();
+	$("#saveReportFormErrorAlert").hide();
+	$("#dateSelectionType").attr("disabled", true);
+	
+	checkPermissionToEdit();
+	
+	loadActionsWResourceType(saveReportURL);
+	
+	//show dialog on button click
+	$("#selectDisplay").click(function() {
+		
+	    var popup = $( "#sel-column" ).dialog({
+		      height: 'auto',
+		      width:'auto',
+		      modal: true,
+		      close : function(){
+		    	  selectColumnPopupCanceled();
+		      }
+		    });
+	    
+	    popup.dialog('option', 'title', 'Select Display Column');
+		  });
+	
+   $("#saveAsDateType").change(function() {
+		
+		var dateType = $("#saveAsDateType").val();
+		
+		if(dateType == "Fixed") {
+			  $("#dateSelectionType").attr("disabled", true);
+		} else if (dateType == "Relative") {
+			 $("#dateSelectionType").attr("disabled", false);
+		}
+
+	});
+   
+   	$("#reportType").change(handleReportTypeChange);
+   
+   
+    $('#maxRowsFetchId').on('change, blur', function(e){
+	   validateMaxResultsInput();
+	});
+   
+    $("#groupingMode").change(function() {
+		
+		var groupingMode = $("#groupingMode").val();
+		 populateSortChart(groupingMode);
+		
+		 $("#sortCharts").show();
+		 $("#sort").hide();
+	});
+   
+	function updateMaxResults() {
+		   $("#maxRowsFetchId").val($(this).text());
+		   validateMaxResultsInput();
+	}
+   
+	$("body").on("click","#addUsrCriteria", addUserCriteria);
+	$("body").on("click","#addResCriteria", addResourceCriteria);
+	$("body").on("click","#addPlcCriteria", addPolicyCriteria);
+	$("body").on("click","#addOthCriteria", addOthersCriteria);
+    $("body").on("click", "ul#maxRowsFetchIdOptions li a", updateMaxResults);
+	
+	//in lookup.js
+	initializeLookupComponents(saveReportURL, errorHandlerWithReload);
+
+	$("body").on("click","#lookupUsrBtn", lookupUsersPopup);
+	$("body").on("click","#lookupPlcBtn", lookupPoliciesPopup);
+	
+	$("body").on("click", ".removeCriteria", removeCriteria);
+	// when clicked on close
+	$("body").on("click", "#cancel", closeModal);
+	//When click on Ok button on select column dialog
+	$("body").on("click", "#ok", showDisplayColumn);
+	$("body").on("click", "#resetColumnToDisplay", clearColumnsToDisplay);
+	// when clicked on cancel
+	
+	//When click on save button on save report dialog
+	$("body").on("click", "#report_save", saveReportCriteria);
+	$("body").on("click", "#report_save_close", reportSaveClose);
+	
+	getFilterLists("RESOURCE","res_criteria", 'resource_col', 'sort_grp_resource', 'res');
+    getFilterLists("USER","usr_criteria", 'user_col', 'sort_grp_user', 'usr');
+	getFilterLists("POLICY","plc_criteria", 'policy_col', 'sort_grp_policy', 'plc');
+	getFilterLists("OTHERS","oth_criteria", 'others_col', 'sort_grp_others', 'oth');
+	
+	//set DATE as the default sort field
+	
+	$("#sort").val("DATE");
+	
+	// default selected columns
+	var defaultSelectedColumns = ["usr_USER_NAME", "oth_HOST_NAME", "oth_APPLICATION_NAME", "plc_POLICY_FULLNAME", "plc_POLICY_DECISION"];
+	tempSelectColumns = defaultSelectedColumns.slice();
+	
+	populateColumnDispSelect(defaultSelectedColumns);
+	showDisplayColumn(false);
+	
+	// show all content to avoid flashing content
+	$("#report_saved_tbl_id").show();
+	$("#report_main_content_id").show();
+	$("#report_content").show();
+	
+	//adjust the width of Max Result  dropbox
+	$("#maxRowsFetchIdOptions").outerWidth($("#maxRowsFetchId").width() + $("#maxRowsFetchIdButton").outerWidth());
+	
+	//increase padding-left for #main_content
+	var leftWidth = $('#report_content').width() * 0.16;	//set width for #saved_report
+	var rightWidth = $('#report_content').width() * 0.98;	//set width for #main_content (included padding)
+	var paddingValue = ($('#report_content').innerWidth() - $('#report_content').width()) / 2;
+	
+	setMainContentPadding(leftWidth, rightWidth, paddingValue);
+
+	$(window).bind("resize", function resizeWindow( e ) {
+		var leftWidth = $('#report_content').width() * 0.16;	
+		var rightWidth = $('#report_content').width() * 0.98;	
+		var paddingValue = ($('#report_content').innerWidth() - $('#report_content').width()) / 2;
+		setMainContentPadding(leftWidth, rightWidth, paddingValue);
+
+		$(".DataTables_sort_wrapper").css('min-width', leftWidth * 0.9);	//display the sort icon on header
+    });
+
+
+	if(reportId != null) {
+		populateReportCriteria(reportId, "");
+		runReport();
+	}
+	
+	if (alertJsonCriteria != null)
+	{
+		populateReportCriteria(-1, alertJsonCriteria);
+		runReport();
+	}
+
+	appUsersData = populateAppUsers();
+	groupUsersData = populateGroupUsers();
+	
+	prepareDataForSavePopup();
+	
+	$( document ).tooltip({
+		items: '*:not(.ui-dialog-titlebar-close)'	//Not display tooltip for close button of .dialog
+	});
+	
+});
+
+	function exportExcelReport() {
+		 var action = "TABLE_REPORT_DATA_EXPORT";
+		 post_data = {};
+		 post_data["export_type"] = "EXCEL";
+		 var maxRowLimit = $('#maxRowsFetchId').val() == "ALL" ? "-1": $('#maxRowsFetchId').val();
+		 if(maxRowLimit == '-1' || parseInt(maxRowLimit) > 10000) {
+			 maxRowLimit = 10000;
+			 $("#export_limit_warn").dialog({
+				width: 400,
+				height: 200,
+				minHeight: 200,
+				modal: true,
+				resizable: false,
+				draggable: false,
+				buttons: [{ 
+					text: "OK", 
+					class: "btn btn-primary btn-sm",
+					click: function() { 
+						post_data["report_criteria"] = getCriteriaAsJson(0, maxRowLimit);
+						exportReport(action, post_data);
+						$( this ).dialog( "close" ); 
+					}
+				}, { 
+					text: "Close", 
+					class: "btn btn-warning btn-sm",
+					click: function() { 
+						$( this ).dialog( "close" ); 
+					}
+				}]
+			});
+		 } else {
+			post_data["report_criteria"] = getCriteriaAsJson(0, maxRowLimit);
+			exportReport(action, post_data);
+		 }
+	}
+	
+	function exportPdfReport() {
+		 var action = "TABLE_REPORT_DATA_EXPORT";
+		 post_data = {};
+		 post_data["export_type"] = "PDF";
+		 var maxRowLimit = $('#maxRowsFetchId').val() == "ALL" ? "-1": $('#maxRowsFetchId').val();
+		 if(maxRowLimit == '-1' || parseInt(maxRowLimit) > 10000) {
+			 maxRowLimit = 10000;
+			 $("#export_limit_warn").dialog({
+				width: 400,
+				height: 200,
+				minHeight: 200,
+				modal: true,
+				resizable: false,
+				draggable: false,
+				buttons: [{ 
+					text: "OK", 
+					class: "btn btn-primary btn-sm",
+					click: function() { 
+						post_data["report_criteria"] = getCriteriaAsJson(0, maxRowLimit);
+						exportReport(action, post_data);
+						$( this ).dialog( "close" ); 
+					}
+				}, { 
+					text: "Close", 
+					class: "btn btn-warning btn-sm",
+					click: function() { 
+						$( this ).dialog( "close" ); 
+					}
+				}]
+			});
+		 } else {
+			post_data["report_criteria"] = getCriteriaAsJson(0, maxRowLimit);
+			exportReport(action, post_data);
+		 }
+	}
+
+	function exportExcelDetailReport() {
+		 var action = "DETAIL_REPORT_DATA_EXPORT";
+		 post_data = {};
+		 post_data["export_type"] = "EXCEL";
+		 post_data["log_id"] = $('#log_detail_id').val();
+	     exportReport(action, post_data);
+	}
+	
+	function exportPdfDetailReport() {
+		 var action = "DETAIL_REPORT_DATA_EXPORT";
+		 post_data = {};
+		 post_data["export_type"] = "PDF";
+		 post_data["log_id"] = $('#log_detail_id').val();
+	     exportReport(action, post_data);
+	}
+	
+	function exportReport(action, postData) {
+        var csrfToken = $('meta[name="csrfToken"]').attr('content');
+		 $.fileDownload(saveReportURL, {
+	        preparingMessageHtml: "We are preparing your report, please wait...",
+	        failMessageHtml: "There was a problem generating your report, please try again.",
+	        httpMethod: "POST",
+	        data:  {
+		 		"data" : JSON.stringify(postData),
+		 		"action" : action,
+		 		"csrfToken" : csrfToken
+		 	}
+	     });
+		 //$('body').children('.ui-front').hide();
+		 //$("[tabindex=-1]").dialog("close");
+		 return ;
+	}
+
+	function creatNPopulateShareUsersField() {
+		var parentElement = $('#shared_mode_users_list').parent();
+	    $('#shared_mode_users_list').remove();
+	    parentElement.prepend('<ul id="shared_mode_users_list"></ul>');
+	
+	 	$('#shared_mode_users_list').tagit({
+	        	availableTags: listOfUserAndGroup,
+	        	singleField: true,
+	        	singleFieldNode: $('#selected_users_to_share')
+	    });
+	    $('#shared_mode_users_list').show();
+	}
+
+	String.prototype.trim = function() {
+		return this.replace(/^\s+|\s+$/g, '');
+	};
+
+  function prepareDataForSavePopup() {
+		appUsersDisplay = [];
+		if (appUsersData != null) {
+			$.each(appUsersData, function(index, value) {
+				var fullName = value.first_name + " " + value.last_name;
+                // If we don't have a first or last name then there will be excess spaces. Get rid of them
+                fullName = fullName.trim();
+				appUsersDisplay.push(fullName);
+				appUsersMap[value.username] = fullName;
+				listOfUserAndGroup.push(fullName);
+			});
+		}
+		
+		groupUsersDisplay = [];
+		if (groupUsersData != null) {
+			$.each(groupUsersData, function(index, value) {
+				var groupName = value.grp_title;
+				groupUsersDisplay.push(groupName);
+				groupUsersMap[value.grp_Id] = groupName;
+				listOfUserAndGroup.push(groupName);
+			});
+		}
+		
+		$('#shared_mode_users_list').hide();
+		$('input[type=radio][name="report_shared"]').change(function() {
+	        if (this.value == 'only_me') {
+	            $('#shared_mode_users_list').hide();
+	            $('#saveReportFormErrorAlert').hide();
+	        }
+	        else if (this.value == 'public') {
+	            $('#shared_mode_users_list').hide();
+	            $('#saveReportFormErrorAlert').hide();
+	        } else {
+	        	$('#selected_users_to_share').val('');
+	        	if (!hasAppUsers) {
+					$('#saveReportFormError').html('No application users exist in system.');
+					$('#saveReportFormErrorAlert').show();
+					return;
+	        	}
+	        	creatNPopulateShareUsersField();
+	        }
+	    });
+  }
+
+
+  function setMainContentPadding(leftWidth, rightWidth, paddingValue) {
+  	//this function is to handle the bar chart tooltip issue	
+
+	$('#report_saved_tbl_id').css('z-index', '1');
+	$('#report_saved_tbl_id').css('width', leftWidth); //set width for #saved_report
+	$('#report_main_content_id').css('width', rightWidth);  //set width for #main_content
+
+	$('#report_main_content_id').css('padding-left', leftWidth + paddingValue);
+	$('#report_main_content_id').css('margin-left', -leftWidth);
+  }
+
+	
+  function selectColumnPopupCanceled() {
+	  populateColumnDispSelect(tempSelectColumns);
+  }
+  
+
+
+ function selectTableRow(myReportsTable) {
+	 
+	 myReportsTable.on('click', 'tr', function () {
+		 if ($(this).hasClass('row_selected')) {
+			$(this).removeClass('row_selected');
+		 } else {
+			myReportsTable.$('tr.row_selected').removeClass('row_selected');
+			$(this).addClass('row_selected');
+		 }
+		     
+		 selectedData =  myReportsTable.row( this ).data();
+		 var idCellData = selectedData.id;
+		 populateReportCriteria(idCellData);
+		//runReport();
+		 
+	});
+ }
+
+ function fetchSavedReports(action, postData) {
+		var responseData;
+		
+		$.ajax({
+			type : 'POST',
+			dataType : 'json',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(postData),
+				"action" : action
+			},
+			success : function(data) {
+				responseData = data;
+			},
+			error : function(xhr, status) {
+				if (xhr.status == 403 && xhr.responseText.indexOf("CSRF") !== -1) {
+                  $.alert("Please Logout and Try again.", "ERROR!", function () { });
+                } else {
+                  window.location = contextPath + "/login/login.jsf";
+                }
+			},
+			async:false
+		});
+		
+		return responseData;
+  }
+ 
+  function reloadReportTable() {
+	var action = "LIST_USER_REPORTS";
+	var post_data = {};
+	
+	var userId = 0;
+	post_data["user_Id"] = userId;
+	post_data["show_shared_reports"] = 'true';
+	
+	var result = fetchSavedReports(action, post_data);
+	
+	myReportsTable = $('#myReportsTable').DataTable({
+		"pagingType" : "simple",
+		//"sScrollY" : "380px",
+		"bScrollInfinite": true,
+		"scrollX": true,
+		"aaSorting" : [ [ 1, 'asc' ] ],
+		"aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+		"bLengthChange": false,
+		"bAutoWidth" : true,
+		"bJQueryUI" : true,
+		"bProcessing" : true,
+		"bDestroy" : true,
+		"iDisplayLength" : 25,
+		"aaData": result.saved_reports,
+		"fnCreatedRow": function( nRow, aData, iDataIndex ) {			
+		  	$(nRow).attr("id",$.trim(aData.id));
+		},
+		"aoColumns" : [ {
+			"mData" : "id",
+			"bVisible": false
+		}, {
+			"mData" : "report_name"
+		}],
+		"columnDefs": [{
+		    "targets": 1,
+		    "data":"report_name",
+		    "render": function ( data, type, full, meta ) {
+		          return escapeHTML(data);
+		     }
+		  }],
+	});
+	
+	$('#myReportsTable').css("width","100%");
+
+	$(".DataTables_sort_wrapper").css('min-width', $(window).width()*0.142);	//display the sort icon on header
+	selectTableRow(myReportsTable);
+	
+	return myReportsTable;
+ }
+
+
+   function detectIEBrowser()
+	{
+	    var val = navigator.userAgent.toLowerCase();
+	    var isIE = false;   
+	    if(val.indexOf("msie") > -1) {
+			  isIE = true;
+		} else isIE = false;
+	        
+	    return isIE;
+	}
+
+   function populateSortChart(groupingMode) {
+	    $("#sortCharts option").remove();
+		
+		if(groupingMode == "GROUP_BY_USER") {
+			 $("#sortCharts").append("<option value='user_name'>User</option>");
+			 $("#sortCharts").append("<option value='ResultCount' selected >Result Count</option>");
+			 
+		} else if(groupingMode == "GROUP_BY_RESOURCE") {
+			 $("#sortCharts").append("<option value='from_resource_name' >Resource</option>");
+			 $("#sortCharts").append("<option value='ResultCount' selected >Result Count</option>");
+			 
+		}  else if(groupingMode == "GROUP_BY_POLICY") {
+			 $("#sortCharts").append("<option value='policy_fullname' selected >Policy</option>");
+			 $("#sortCharts").append("<option value='ResultCount' selected >Result Count</option>");
+			
+		} else if(groupingMode == "GROUP_BY_DAY") {
+			 $("#sortCharts").append("<option value='day_nb' >Day</option>");
+			 $("#sortCharts").append("<option value='ResultCount' selected >Result Count</option>");
+			 
+		}else if(groupingMode == "GROUP_BY_MONTH") {
+			 $("#sortCharts").append("<option value='month_nb' >Month</option>");
+			 $("#sortCharts").append("<option value='ResultCount' selected >Result Count</option>");
+		}
+   }
+
+	function populateColumnDispSelect(selectedColumns) {
+		tempSelectColumns = [];
+        // keep in temp list for reset in cancel or close.
+		tempSelectColumns = selectedColumns.slice();
+		
+		var userTypes = resourceTypeColumnMap['USER'];
+		var resourceTypes = resourceTypeColumnMap['RESOURCE'];
+		var policyTypes = resourceTypeColumnMap['POLICY'];
+		var otherTypes = resourceTypeColumnMap['OTHERS'];
+
+		var allTypes = [];
+		  
+		getOptionTypes(allTypes, userTypes);
+		getOptionTypes(allTypes, resourceTypes);
+		getOptionTypes(allTypes, policyTypes);
+		getOptionTypes(allTypes, otherTypes);
+		
+		$('#columnDispSelect optgroup').remove();
+		$('#columnDispSelect option').remove();
+
+		if (selectedColumns != null) {
+    	  $('#columnDispSelect').empty().multiselect2side('destroy');
+		}
+
+		var selectList = "";
+		var selectedOptions = "";
+
+		selectList += createOptionListWithSelectedData(allTypes, selectedColumns);
+		selectedOptions +=createOptionsforSelectedList(allTypes, selectedColumns);
+
+		$('#columnDispSelect').append(selectList);
+		if (selectedColumns != null) {
+			$('#columnDispSelect').multiselect2side({
+				//optGroupSearch : "Group: "
+			});
+			
+			$(".ms2side__header ").css({ "background-color": "whitesmoke", "margin-left": "0px" });
+		}
+		
+		$("#columnDispSelectms2side__dx option").remove();
+		$("#columnDispSelectms2side__dx").append(selectedOptions);
+		
+		if (!isAdminUser)
+			$("#selectDisplay").attr("disabled", true);
+		else
+			$("#selectDisplay").attr("disabled", false);
+	}
+	
+	
+	$(function() {
+		$("#columnDispSelectms2side__dx").selectable({
+		    selected: function(event, ui) { 
+		        $(ui.selected).addClass("ui-selected").siblings().removeClass("ui-selected");           
+		    }                   
+		});
+	});
+	
+	function getOptionTypes(allTypes, optionTypes) {
+		  for ( var i in optionTypes) {
+			  allTypes.push(optionTypes[i]); 
+		  }
+		  return allTypes;
+	}
+	
+	function createOptionsforSelectedList(optionTypes, selectedColumns) {
+		var selectedOptions = "";	
+		  for ( var i in selectedColumns) {
+				  var colValue = selectedColumns[i];
+				  
+			  $.each(optionTypes, function(index, item) {
+			      var optVal = optionTypes[index].split("|");
+				  
+				  if (colValue != null && colValue == optVal[0] ) {
+						selectedOptions += "<option value='" + optVal[0] + "' selected='selected' >" + optVal[1] + "</option>";
+					}
+			  });
+		  }
+	   return selectedOptions;
+	}
+
+	function createOptionListWithSelectedData(optionTypes, selectedColumns) {
+		var selectOptions = "";
+		var isSelected = false;
+		
+		for ( var i in optionTypes) {
+            
+			var optVal = optionTypes[i].split("|");
+			isSelected = false;
+
+			if (selectedColumns != null && selectedColumns.length > 0) {
+				$.each(selectedColumns, function(index, item) {
+					if (selectedColumns[index] == optVal[0]) {
+						isSelected = true;
+					}
+				});
+			}
+
+			if('DATE' == optVal[1]) {
+				
+			} else {
+			   selectOptions += "<option value='" + optVal[0] + "' "
+					+ (isSelected ? "selected='selected'" : "") 
+					+ ">"
+					+ optVal[1] + "</option>";
+			}		
+
+		}
+		return selectOptions;
+	}
+
+	function clearColumnsToDisplay() {
+		$("form#column-form")[0].reset();
+	}
+	
+	function validateMaxResultsInput() {
+	  $('#formErrorAlert').hide();
+	  $("#maxRowsFetchId").attr("style", "");
+	  if(!$("#maxRowsFetchId").val() || $("#maxRowsFetchId").val() == '') {
+		  $("#maxRowsFetchId").attr("style", "background:#ffb2b2;");
+		  $("#errorMsg").html("Max Results should have a value");
+		  $('#formErrorAlert').show();
+		  return false;
+	  }	   
+	  if($("#maxRowsFetchId").val() == 'ALL') return true;
+		      
+	  if (isNaN( $("#maxRowsFetchId").val() )) {
+			$("#maxRowsFetchId").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("Invalid Max Results count.");
+		    $('#formErrorAlert').show();
+	    	return false;
+	   	} else {
+	   	    // It is a number
+	  		return true;
+	   	}
+	}
+	
+	function deleteReportPopup() {
+		$("#formSucessAlert").hide();
+		$("#formErrorAlert").hide();
+		
+		validateSession();
+		
+		 $('#delete-reports').html('<div><h6>Are you sure, you want to delete ' + escapeHTML(savedReportName) +' ?</h6></div>')
+         .dialog({
+             modal: true, title: 'Delete Saved Report', zIndex: 10000, autoOpen: true,
+             width: 'auto', resizable: false,
+             buttons: {
+                 Yes: function () {
+                    
+                	var post_data = {};
+             		var action = "DELETE_REPORT";
+             		post_data["report_name"] = savedReportName;
+             		
+             		var posting = $.post(saveReportURL, {
+             			"data" : JSON.stringify(post_data),
+             			"action" : action
+             		});
+
+             		posting.done(function(data) {
+             			var status = data.status
+             			if (status === 'SUCCESS') {
+             				$("#successMsg").html("Report criteria deleted successfully")
+             				$("#formSucessAlert").show();
+             				// alert("Report criteria deleted successfully");
+             				
+             				//  Reload the left panel
+             				//reloadReportTable();
+             				clearReportCriteria();
+             				myReportsTable.row("#" + selectedData.id).remove().draw(false);
+             				
+             				//var refresh = (showSharePointEnabled) ? contextPath + "/reports/multiReports.jsf" : contextPath + "/reports/myReports.jsf";
+             				//window.location = refresh;
+             				
+             			} else {
+             				$("#errorMsg").html("Report criteria delete failed")
+                			$("#formErrorAlert").show();
+             				//alert("Report criteria delete failed");
+             			}
+             		});
+
+             		posting.fail(function(data) {
+             			$("#errorMsg").html("Report criteria delete failed")
+            			$("#formErrorAlert").show();
+             			//alert("Report criteria delete failed");
+             			validationStatus = false;
+             		});
+                     $(this).dialog("close");
+                 },
+                 No: function () {
+                     $(this).dialog("close");
+                 }
+             },
+             open: function(event, ui) { $(".ui-dialog-titlebar-close", ui.dialog || ui).hide(); },
+             close: function (event, ui) {
+                
+             }
+         });
+	}
+
+
+	function saveAsReportPopup(saveOnly) {
+		$("#groupingMode").attr("style", "");
+		$("#report_name").css("background","white");
+		$("#formErrorAlert").hide();
+		
+		if(!validateMaxResultsInput()) return;
+		
+		validateSession();
+		if(!validateToDate()) {
+			return;
+		}
+		resetSaveReportForm();
+		
+	    var reportType = $("#reportType").val();
+	    var groupingMode = $("#groupingMode").val();
+	    
+		if (reportType == "TABULAR") {
+	 		var selDisplayValue = $('#selectedDispColumns').text();
+			if (selDisplayValue == null || selDisplayValue == undefined || selDisplayValue.length < 1) {
+				$("#errorMsg").html("Display columns required to select before proceed")
+				$("#formErrorAlert").show();
+				return;
+			}
+		} else {
+			if( groupingMode == "") {
+				$("#groupingMode").attr("style", "background:#ffb2b2;");
+				$("#errorMsg").html("Please select grouping mode for Chart");
+				$("#formErrorAlert").show();
+			    return;	
+			}
+		}	
+
+		var popupTitle;
+		if (saveOnly === true) {
+			popupTitle = "Save";
+						
+			loadTextFieldData("#report_name", savedReportName);
+			loadTextFieldData("#report_description", savedReportDesc);
+
+			selectValInSelectItem("#saveAsDateType", savedReportDateType);
+			selectValInSelectItem("#dateSelectionType", savedReportDateSelType);
+
+			if (savedReportDateType == "Fixed") {
+				$("#dateSelectionType").attr("disabled", true);
+			} else if (savedReportDateType == "Relative") {
+				$("#dateSelectionType").attr("disabled", false);
+			}
+			
+			if(isEmpty(savedReportName)) {
+				$("#report_name").attr("disabled", false);
+				$("#is_save_only_mode").attr("value", "no");
+			} else {
+				$("#report_name").attr("disabled", true);
+				$("#report_name").css("background","#EEEEEE");
+				$("#is_save_only_mode").attr("value", "yes");
+			}
+
+			if (shared_mode == "only_me") {
+			 	radioButtonSelectedValueSet("report_shared", "only_me");
+	            $('#shared_mode_users_list').hide();
+
+			} else if (shared_mode == "public") {
+			 	radioButtonSelectedValueSet("report_shared", "public");
+	            $('#shared_mode_users_list').hide();
+			} else {
+			 	radioButtonSelectedValueSet("report_shared", "users");
+                creatNPopulateShareUsersField(); 
+            } 
+
+		} else {
+			popupTitle = "Save As";
+			$("#report_name").attr("disabled", false);
+			$("#is_save_only_mode").attr("value", "no");
+			$("#dateSelectionType").attr("disabled", true);
+			radioButtonSelectedValueSet("report_shared", "only_me");
+			$('#shared_mode_users_list').hide();
+		}
+
+		//show save as dialog button click
+		var popup = $("#save-as-report").dialog({
+			height : 'auto',
+			width : '400',
+			resizable : false,
+			draggable: false,
+			modal : true,
+			close : function() {
+			}
+		});
+		$("#save-as-report").css('overflow','hidden');
+		popup.dialog('option', 'title', popupTitle);
+	}
+
+	function radioButtonSelectedValueSet(name, SelectdValue) {
+    	$('input[name="' + name+ '"][value="' + SelectdValue + '"]').prop('checked', true);
+	}
+	
+	function isEmpty(val){
+	    return (val === undefined || val == null || val.length <= 0) ? true : false;
+	}
+
+	function reportSaveClose() {
+		$('#saveReportFormErrorAlert').hide();
+		$("#save-as-report").dialog("close");
+	}
+
+	function resetSaveReportForm() {
+		$("form#save-report-form")[0].reset();
+	}
+	
+	function clearReportCriteria() {
+		
+		$('#formSucessAlert').hide();
+		$('#formErrorAlert').hide();
+		$("#saveReportFormErrorAlert").hide();
+		
+		$("#reportQuery_name").html("Report Query");
+		
+		// $('#beginDate').datepicker('setDate', 'today');
+		// $("#endDate").datepicker('setDate', 'today');
+		
+		var dt = new Date();
+		var month = (dt.getMonth() + 1) < 10? "0" + (dt.getMonth() + 1) : dt.getMonth() + 1;
+		var day = (dt.getDate()) < 10? "0" + dt.getDate() : dt.getDate();
+		var today = dt.getFullYear() + "-" + month+ "-" + day;
+		
+		$('#beginDate').val(today + " 00:00:00");
+		$('#endDate').val(today + " 23:59:59");
+		
+		$("#eventlevel").val("3");
+		$("#decision").val("B");
+		$("#actTblInPlcySelLstBx").val("");
+		$("#rptDefCntInUsrTxt").val("");
+		$("#rptDefCntInResTxt").val("");
+		$("#rptDefCntInPlcTxt").val("");
+		
+		// clear existing data;
+		clearCriteriaTable("user");
+		clearCriteriaTable("resource");
+		clearCriteriaTable("policy");
+		clearCriteriaTable("others");
+		clearLookupSelectedValues();
+		
+		clearColumnsToDisplay();
+		$('#selectedDispColumns').remove();
+		// default selected columns
+		var defaultSelectedColumns = ["usr_USER_NAME", "oth_HOST_NAME", "oth_APPLICATION_NAME", "plc_POLICY_FULLNAME", "plc_POLICY_DECISION"];
+		populateColumnDispSelect(defaultSelectedColumns);
+		showDisplayColumn(false);
+		
+		$("#reportType").val("TABULAR");
+		$("#sortCharts").hide();
+		$("#sort").show();
+		$("#sort").val("DATE");
+		$("#groupingMode").attr("style", "");
+		$("#groupingMode").val("");
+		$("#maxRowsFetchId").attr("style", "");
+		$("#maxRowsFetchId").val("100");
+		
+		savedReportName= "";
+		savedReportDesc = "";
+		savedReportDateType = "Fixed";
+		savedReportDateSelType = "today";
+		
+		$("#report_name").val("");
+		$("#report_description").val("");
+		$("#saveAsDateType").val("Fixed");
+		$("#dateSelectionType").val("today");
+		$("#dateSelectionType").attr("disabled", true);
+		
+		$("#save_button").show();
+		$("#save_as_button").hide();
+		$("#delete_button").hide();
+		
+		$('#reportContentViewer').empty();
+		
+	}
+	
+	function validateDateMode() {
+		$("#saveReportFormErrorAlert").hide();
+		$("#saveAsDateType").attr("style", "");
+		
+		var dateType = $("#saveAsDateType").val();
+		
+		if(dateType == '-') {
+			$("#saveAsDateType").attr("style", "background:#ffb2b2;");
+			$("#saveReportFormError").html("Please select proper Date mode")
+			$("#saveReportFormErrorAlert").show();
+			//alert("Please select proper Date mode");
+			
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	function saveReportCriteria() {
+		$('#formSucessAlert').hide();
+		$('#formErrorAlert').hide();
+		$('#saveReportFormErrorAlert').hide();
+		$("#report_name").attr("style", "");
+		$("#report_description").attr("style", "");
+		var isSaveOnlyMode;
+		
+		if ($("#is_save_only_mode").val() === 'yes') {
+			isSaveOnlyMode = true
+		} else {
+			isSaveOnlyMode = false;
+			
+		}
+		
+		var reportName = $("#report_name").val();
+		var description = $("#report_description").val();
+		
+		var validationStatus = validateReportName(isSaveOnlyMode);
+		if (!validationStatus) {
+			$("#report_name").attr("style", "background:#ffb2b2;");
+			return;
+	    } 
+		
+		if (!validateDateMode()) {
+			return;
+		}
+		
+		if(validateSpecialChars(description, "Description", "saveReportFormErrorAlert", "saveReportFormError")) {
+			$("#report_description").attr("style", "background:#ffb2b2;");
+		     return;	
+		}
+	
+
+		var beginDate = null;
+		var endDate = null;
+		var dateType = $("#saveAsDateType").val();
+
+		if (dateType == "Fixed") {
+			beginDate = $('#beginDate').val();
+
+			endDate = $('#endDate').val();
+
+		} else if (dateType == "Relative") {
+			$("#dateSelectionType").attr("disabled", false);
+		}
+
+		shared_mode = $("input[name='report_shared']:checked").val();
+
+		//get selected users
+		users_fullName = $('#selected_users_to_share').val().split(',');
+
+		user_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+           	$.each(appUsersMap, function(key, val) {
+  				if (val.localeCompare(users_fullName[i]) == 0) {
+  					user_ids.push(key);
+  				}
+			});
+        }
+		
+		group_ids = [];
+		for (i = 0; i < users_fullName.length; i++) {
+           	$.each(groupUsersMap, function(key, val) {
+  				if (val.localeCompare(users_fullName[i]) == 0) {
+  					group_ids.push(parseInt(key));
+  				}
+			});
+        }
+		
+
+        //validate shared mode 
+        if (shared_mode.localeCompare("only_me") == 0 || shared_mode.localeCompare("public") == 0) {
+        	user_ids = [];
+        	group_ids = [];
+        } else
+        	if (shared_mode.localeCompare("users") == 0) {
+        		if (user_ids.length == 0 && group_ids.length == 0) {
+					$('#saveReportFormError').html('You must choose at least one user or group');
+					$('#saveReportFormErrorAlert').show();
+					return;
+        		}
+        	}
+
+		// save report
+		var jsonStr = composeJSONRequest(beginDate, endDate, dateType);
+
+		var post_data = {};
+		var action = "SAVE_REPORT";
+		post_data["report_name"] = reportName;
+		post_data["report_description"] = description;
+		post_data["save_only_mode"] = isSaveOnlyMode;
+		post_data["shared_mode"] = shared_mode;
+		post_data["user_ids"] = user_ids;
+		post_data["group_ids"] = group_ids;
+		post_data["save_report_data"] = jsonStr;
+
+		
+		var posting = $.post(saveReportURL, {
+			"data" : JSON.stringify(post_data),
+			"action" : action
+		});
+
+		posting.done(function(data) {
+			var status = data.status
+			if (status === 'SUCCESS') {
+				$('#successMsg').html('Report criteria saved successfully');
+				$('#formSucessAlert').show();
+				
+				// Reload the left panel
+				//reloadReportTable();
+				reportSaveClose();
+				
+				var tableRow = {};
+				tableRow['id'] = data.reportId;
+				tableRow['report_name'] = (shared_mode == "only_me") ? reportName : reportName + " (S)";
+				
+				if(isSaveOnlyMode) {
+					myReportsTable.row("#"+selectedData.id).data(tableRow).draw(false);	
+				} else {
+					selectedData = tableRow;
+					myReportsTable.$('tr.row_selected').removeClass('row_selected');
+					myReportsTable.row.add(tableRow).draw(false);
+					//myReportsTable.row("#" + selectedData.id).addClass('row_selected');
+				}
+				
+				if(data.reportId){
+					populateReportCriteria(data.reportId, "");
+				}
+				
+			} else {
+				$('#saveReportFormError').html('Report criteria saving failed');
+				$('#saveReportFormErrorAlert').show();
+				//alert("Report criteria Saving failed");
+			}
+		});
+
+		posting.fail(function(data) {
+			$('#saveReportFormError').html('Report criteria saving failed');
+			$('#saveReportFormErrorAlert').show();
+			validationStatus = false;
+		});
+	}
+
+	function isEmpty(val) {
+		return (val === undefined || val == null || val.length <= 0) ? true
+				: false;
+	}
+
+	function validateReportName(isSaveOnlyMode) {
+		$("#saveReportFormErrorAlert").hide();
+
+		var post_data = {};
+		var validationStatus = false;
+		
+		//check for special chars
+		var reportName = $("#report_name").val();
+		if(validateSpecialChars(reportName, "Report Name", "saveReportFormErrorAlert", "saveReportFormError")) {
+			$("#saveReportFormError").html("Special characters  [^ & * { }] are not allowed for Report name")
+			$("#saveReportFormErrorAlert").show();
+		     return false;	
+		}
+
+		if (isEmpty(reportName)) {
+			$("#saveReportFormError").html("Please enter a valid report name")
+			$("#saveReportFormErrorAlert").show();
+			return false;
+		}
+		
+		if(isSaveOnlyMode) {
+			return true;
+		}
+
+		var action = "VALIDATE_REPORT_NAME";
+		post_data["report_name"] = reportName;
+
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				var status = response.status
+				if (status === 'EXISTS') {
+					validationStatus = false;
+					$("#saveReportFormError").html("Report name already exists!")
+					$("#saveReportFormErrorAlert").show();
+					//alert("Report name already exists!");
+				} else {
+					validationStatus = true;
+				}
+			},
+			error : function(xhr, status) {
+				validationStatus = false;
+			},
+			async : false
+		});
+
+		return validationStatus;
+	}
+
+	function checkPermissionToEdit() {
+		 var action = "CHECK_USER_ACCESS";
+		 post_data = {};
+		 
+		 $.ajax({
+		 	type : 'POST',
+		 	url : saveReportURL,
+		 	data : {
+		 		"data" : JSON.stringify(post_data),
+		 		"action" : action
+		 	},
+		 	dataType : 'json',
+		 	success : function(response) {
+		 		//alert("app permission:" + response.is_reproter_admin);
+		 		isAdminUser = response.is_reproter_admin[0];
+		 		disableFormForReportUser(isAdminUser);
+		 	},
+		 	error : function(xhr, status) {
+		 		handleError(xhr, 'Error encountered in loading the saved report');
+		 	},
+		 	async : false
+		 });
+	}
+	
+	function getReportDetail(id) {
+		 var action = "DETAIL_REPORT_DATA";
+		 post_data = {};
+		 post_data["log_id"] = id;
+		 var reportDetail;
+		 $.ajax({
+		 	type : 'POST',
+		 	url : saveReportURL,
+		 	data : {
+		 		"data" : JSON.stringify(post_data),
+		 		"action" : action
+		 	},
+		 	dataType : 'json',
+		 	success : function(response) {
+		 		reportDetail = response;
+		 		return reportDetail;
+		 	},
+		 	error : function(xhr, status) {
+		 		errorHandlerWithReload();
+		 	},
+		 	async : false
+		 });
+		 return reportDetail;
+	}
+
+	function populateAppUsers() {
+		 var action = "LIST_APPLICATION_USERS";
+		 post_data = {};
+		 var appUsers;
+		 $.ajax({
+		 	type : 'POST',
+		 	url : saveReportURL,
+		 	data : {
+		 		"data" : JSON.stringify(post_data),
+		 		"action" : action
+		 	},
+		 	dataType : 'json',
+		 	success : function(response) {
+		 		hasAppUsers = true;
+		 		appUsers = response.app_users;
+		 		return appUsers;
+		 	},
+		 	error : function(xhr, status) {
+		 		hasAppUsers = false;
+		 		errorHandlerWithReload();
+		 	},
+		 	async : false
+		 });
+		 return appUsers;
+	}
+	
+	function populateGroupUsers() {
+		 var action = "LIST_USER_GROUPS";
+		 post_data = {};
+		 var appUsers;
+		 $.ajax({
+		 	type : 'POST',
+		 	url : saveReportURL,
+		 	data : {
+		 		"data" : JSON.stringify(post_data),
+		 		"action" : action
+		 	},
+		 	dataType : 'json',
+		 	success : function(response) {
+		 		groupUser = response.user_groups;
+		 	},
+		 	error : function(xhr, status) {
+		 		errorHandlerWithReload();
+		 	},
+		 	async : false
+		 });
+		 return groupUser;
+	}
+
+	function populateReportCriteria(savedReportId, jsonCriteria) {
+		$('#formSucessAlert').hide();
+		$('#formErrorAlert').hide();
+		$("#saveReportFormErrorAlert").hide();
+		$("#save_as_button").show();
+		$("#delete_button").show();
+		
+		$("#usr_criteria_value").attr("style", "background:white;width:47%;");
+		$("#res_criteria_value").attr("style", "background:white;width:47%;");
+		$("#plc_criteria_value").attr("style", "background:white;width:47%;");
+		$("#oth_criteria_value").attr("style", "background:white;width:47%;");
+		$("#maxRowsFetchId").attr("style", "background:white;");
+
+		$("#chartViewer_div").remove();
+		$("#birtViewer").remove();
+		
+		$("#run_button").attr("disabled", false);
+
+		var action = "LOAD_SAVED_REPORT";
+		post_data = {};
+		post_data["report_id"] = savedReportId;
+		
+		var criteriaObj  = null;
+		
+		if (jsonCriteria != null)
+		{
+			//criteriaObj = JSON.parse(jsonCriteria);
+			post_data["jsonCriteria"] = jsonCriteria;
+		}
+
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(response) {
+				populate(response);
+			},
+			error : function(xhr, status) {
+				handleError(xhr, 'Error encountered in loading the saved report');
+			},
+			async : false
+		});
+	}
+
+	function populate(jsonData) {
+		var savedReport = jQuery.parseJSON(jsonData.saved_report);
+		var filters = savedReport.filters;
+		var general = filters.general;
+
+		var beginDate = jsonData.start_date;
+		var endDate = jsonData.end_date;
+		
+		loadTextFieldData("#beginDate", beginDate);
+		loadTextFieldData("#endDate", endDate);
+
+		savedReportDateType = general.date_mode;
+		savedReportDateSelType = general.window_mode;
+		savedReportName = savedReport.save_info.report_name;
+		savedReportDesc = savedReport.save_info.report_desc;
+		isOwnedReport = jsonData.is_owner;
+		reportType = savedReport.save_info.report_type;
+		shared_mode = savedReport.save_info.shared_mode;
+		if(shared_mode == null){
+			shared_mode = (jsonData.is_shared) ? "public" : "only_me";
+		}
+		
+		user_ids = savedReport.save_info.user_ids;
+		group_ids = savedReport.save_info.group_ids;
+
+		populateGeneralFields(general.fields);
+
+		// clear existing data;
+		clearCriteriaTable("user");
+		clearCriteriaTable("resource");
+		clearCriteriaTable("policy");
+		clearCriteriaTable("others");
+
+		
+		// User Criteria section
+		loadTextFieldDataArr("#rptDefCntInUsrTxt",
+				filters.user_criteria.look_up_field.value);
+		setSelectedUsers(filters.user_criteria.look_up_field.value); // populate user lookup
+		populateCriteria(filters.user_criteria.fields);
+
+		// Resource Criteria section
+		loadTextFieldDataArr("#rptDefCntInResTxt",
+				filters.resource_criteria.look_up_field.value);
+		populateCriteria(filters.resource_criteria.fields);
+
+		// Policy Criteria section
+		loadTextFieldDataArr("#rptDefCntInPlcTxt",
+				filters.policy_criteria.look_up_field.value);
+		setSelectedPolicies(filters.policy_criteria.look_up_field.value); // populate policy lookup
+		populateCriteria(filters.policy_criteria.fields);
+
+		// Other Criteria section
+		populateCriteria(filters.other_criteria.fields);
+
+		selectValInSelectItem("#groupingMode", savedReport.grouping_mode);
+		selectValInSelectItem("#reportType", reportType);
+		
+        $('#maxRowsFetchId').empty();
+        $('#maxRowsFetchIdOptions').empty();
+		if(reportType == "TABULAR") {
+			 $('#maxRowsFetchIdOptions').append(
+					 '<li><a >20</a></li>'+
+					 '<li><a >50</a></li>'+
+					 '<li><a >100</a></li>'+
+					 '<li><a >200</a></li>'+
+					 '<li><a >500</a></li>'+
+					 '<li><a >1000</a></li>'+
+					 '<li><a >ALL</a></li>');
+		} else {
+			 $('#maxRowsFetchIdOptions').append(
+					 '<li><a >5</a></li>'+
+					 '<li><a >10</a></li>'+
+					 '<li><a >20</a></li>'+
+					 '<li><a >50</a></li>'+
+					 '<li><a >100</a></li>');
+		}
+		
+		selectValInSelectItem("#saveAsDateType", savedReportDateType);
+		selectValInSelectItem("#dateSelectionType", savedReportDateSelType);
+		
+		var dateType = $("#saveAsDateType").val();
+
+		if (savedReportDateType == "Fixed") {
+			$("#dateSelectionType").attr("disabled", true);
+		} else if (dateType == "Relative") {
+			$("#dateSelectionType").attr("disabled", false);
+		}
+		
+
+		loadOrderByFieldData(savedReport.order_by, reportType,
+				savedReport.grouping_mode);
+
+		// max records selection
+		$("#maxRowsFetchId").val(savedReport.max_rows == "-1"? "ALL" : savedReport.max_rows);
+
+		populateDisplayColumns(savedReport.header);
+
+		if (jsonData.isDashboardReport) {
+			$("#reportQuery_name").html("Report Query");
+			$("#save_as_button").attr("disabled", "disabled");
+		} else {
+			if (savedReportName != null && typeof savedReportName !== 'undefined')
+			{
+				$("#reportQuery_name").html("Report Query: " + escapeHTML(savedReportName));
+				$("#save_as_button").removeAttr("disabled");	
+			}
+		}
+		
+	 	$('#selected_users_to_share').val("");
+	 	var selectedUsersString = "";
+	 	if(user_ids != null) {
+		 	for (i = 0; i < user_ids.length; i++) 
+		 		selectedUsersString += appUsersMap[user_ids[i]] + ",";
+	 	}
+	 	
+		if(group_ids != null) {
+	 	for (i = 0; i < group_ids.length; i++) 
+	 		selectedUsersString += groupUsersMap[group_ids[i]] + ",";
+		}
+	 	
+	 	$('#selected_users_to_share').val(selectedUsersString);
+
+		if(isOwnedReport) {
+			$("#save_button").show();
+			$("#save_as_button").show();
+			$("#delete_button").show();
+		} else {
+			$("#save_button").hide();
+			$("#delete_button").hide();
+			$("#save_as_button").show();
+		}
+	}
+
+	function populateGeneralFields(generalFields) {
+		for ( var prop in generalFields) {
+			val = generalFields[prop];
+
+			if (val.name == 'log_level') {
+				loadSelectMenu("#eventlevel", val.value);
+
+			} else if (val.name == 'decision') {
+				loadSelectMenu("#decision", val.value);
+
+			} else if (val.name == 'action') {
+				loadSelectMultiMenus("#actTblInPlcySelLstBx", val.value);
+			}
+		}
+	}
+
+	function populateDisplayColumns(headerColumns) {
+		
+		if (headerColumns == null ||  headerColumns.length == 0)
+		{
+			return;
+		}
+
+		var propVal = (headerColumns + ",").toString().split(",", -1);
+
+		populateColumnDispSelect(propVal);
+		showDisplayColumn(false);
+	}
+
+	function loadOrderByFieldData(jsonData, reportType, groupingMode) {
+		/*for ( var prop in jsonData) { // enumerate its property names
+			propVal = jsonData[prop];
+		}*/
+		
+		if (jsonData.length == 0)
+		{
+			return;
+		}
+		
+		//for now we support only one element in order by
+		
+		var propVal = jsonData[0];
+		
+		var orderByCol = propVal.col_name;
+		var sortOrder = propVal.sort_order;
+
+		if (reportType == "TABULAR") {
+			$("#sort").show();
+			$("#sortCharts").hide();
+			$("#groupingMode").attr("disabled", true);
+			$("#fetchRowNote").show();
+
+			orderByCol = orderByCol.substring(4);
+			selectValInSelectItem("#sort", orderByCol);
+		} else {
+			$("#sort").hide();
+			$("#sortCharts").show();
+			$("#fetchRowNote").hide();
+			$("#groupingMode").attr("disabled", false);
+
+			populateSortChart(groupingMode);
+			selectValInSelectItem("#sortCharts", orderByCol);
+		}
+
+		$('input:radio[name=sortOderChkBox]').prop('checked', false);
+
+		if (sortOrder.toLowerCase() === 'asc'.toLowerCase()) {
+			$('#sortOderChkBox_asc').prop('checked', true);
+		} else {
+			$('#sortOderChkBox_desc').prop('checked', true);
+		}
+	}
+
+	function populateCriteria(criteriaFields) {
+
+		var l = '';
+		for ( var prop in criteriaFields) { // enumerate its property names
+			field = criteriaFields[prop];
+			var criteria = field.name.substring(4);
+			var operator = getOperator(field.operator);
+			var value = field.value;
+
+			//var keyVals = getInnerValuesForCriteria(propVal);
+
+			if (field.name.startsWith("usr_")) {
+				addCriteriaHTML(criteria, operator, value, "user");
+				$("#userCritEnd hr").remove();
+				$("#userCritEnd").append("<hr/>");
+
+			} else if (field.name.startsWith("res_")) {
+				addCriteriaHTML(criteria, operator, value, "resource");
+				$("#resourceCritEnd hr").remove();
+				$("#resourceCritEnd").append("<hr/>");
+
+			} else if (field.name.startsWith("plc_")) {
+				addCriteriaHTML(criteria, operator, value, "policy");
+				$("#policyCritEnd hr").remove();
+				$("#policyCritEnd").append("<hr/>");
+
+			} else if (field.name.startsWith("oth_")) {
+				addCriteriaHTML(criteria, operator, value, "others");
+				$("#othersCritEnd hr").remove();
+				$("#othersCritEnd").append("<hr/>");
+			}
+		}
+	}
+
+	String.prototype.startsWith = function(str) {
+		return (str === this.substr(0, str.length));
+	}
+
+	
+	 function validateSpecialChars(value, fieldName, alertDiv, alertMsgDiv) {
+		$("#" + alertDiv).hide();
+		var flag = checkForiChars(value);
+		if (flag) {
+			 $("#" + alertMsgDiv).html(fieldName + " has special characters [^ & * { }], Please remove them and try again");
+			 $("#" + alertDiv).show();
+			//alert(fieldName + " has special characters. \nThese are not allowed.\n Please remove them and try again.");
+		}
+		return flag;
+	}
+	 
+	function getOperator(operator) {
+		operator = operator.toLowerCase();
+		if (operator == 'eq') {
+			return '==';
+		} else if (operator == 'in') {
+			return 'in';
+		} else if (operator == 'ne') {
+			return '!=';
+		} else if (operator == 'like') {
+			return 'like';
+		} else
+			return '==';
+	}
+
+	function getInnerValuesForCriteria(jsonValue) {
+		var keyVals = {};
+
+		for ( var prop in jsonValue) {
+			keyVals[0] = prop;
+			keyVals[1] = jsonValue[prop];
+		}
+		return keyVals;
+	}
+
+	function loadTextFieldData(itemId, value) {
+		$(itemId).val(value);
+	}
+
+	function loadTextFieldDataArr(itemId, valueArr) {
+
+		var propVal = [];
+		for ( var prop in valueArr) { // enumerate its property names
+			var fieldValue = unescapeChar(valueArr[prop]);
+			if(itemId == "#rptDefCntInPlcTxt"){
+				fieldValue = getPolicyDisplayText(fieldValue);
+			} 
+				propVal.push(fieldValue);
+		}
+		$(itemId).val(propVal);
+	}
+
+	function loadSelectMultiMenus(itemId, jsonValues) {
+
+		var propVal = [];
+		for ( var prop in jsonValues) { // enumerate its property names
+			propVal.push(jsonValues[prop]);
+		}
+
+		$(itemId).find('option').each(function(i, opt) {
+			$(opt).prop("selected", false);
+
+			$.each(propVal, function(i, item) {
+
+				if (opt.value === propVal[i]) {
+					$(opt).val(propVal[i]);
+					$(opt).prop("selected", true);
+				}
+			});
+		});
+	}
+
+	function loadSelectMenu(itemId, jsonValue) {
+		selectValInSelectItem(itemId, jsonValue);
+	}
+
+	function selectValInSelectItem(itemId, propVal) {
+		$(itemId + " option:selected").prop("selected", false);
+
+		$(itemId).find('option').each(function(i, opt) {
+
+			if (opt.value === propVal) {
+				$(opt).val(propVal);
+				$(opt).prop("selected", true);
+			}
+		});
+	}
+
+	function chartClickHandler(elementClickEvent) {
+		var label = elementClickEvent.point.label;
+
+		$("#reportType").val("TABULAR");
+		
+		handleReportTypeChange();
+
+		$('.nvtooltip').remove();
+		
+		var defaultSelectedColumns = ["usr_USER_NAME", "res_FROM_RESOURCE_name", "oth_ACTION", "plc_POLICY_FULLNAME", "plc_POLICY_DECISION"];
+		
+		populateColumnDispSelect(defaultSelectedColumns);
+		showDisplayColumn(false);
+		
+		if (groupingMode == "GROUP_BY_USER") {
+			var userField = $("#rptDefCntInUsrTxt");
+			selectedUsers = [];
+			selectedUsers.push(label);
+			userField.val(label);
+		} else if (groupingMode == "GROUP_BY_RESOURCE") {
+			var resourceField = $("#rptDefCntInResTxt");
+			resourceField.val(label);
+			selectedResources = [];
+			selectedResources.push(label);
+		} else if (groupingMode == "GROUP_BY_POLICY") {
+			var polField = $("#rptDefCntInPlcTxt");
+			selectedPolicies = [];
+			selectedPolicies.push(label);
+			polField.val(getPolicyDisplayText(label));
+		} else if (groupingMode == "GROUP_BY_MONTH") {
+			var begin = formDate("01-" + label);
+			// here label contains only MON-YYYY
+			$("#beginDate").val(begin + " 00:00:00");
+			var endDt = begin.split("-");
+			var lastDayOfMonth = daysInMonth(endDt[0], endDt[1]);
+			
+			var endDate = endDt[0] + "-"+ endDt[1] + "-" + lastDayOfMonth;
+			$("#endDate").val(endDate + " 23:59:59");
+		} else if (groupingMode == "GROUP_BY_DAY") {
+			var value = formDate(label);
+			$("#beginDate").val(value + " 00:00:00");
+			$("#endDate").val(value + " 23:59:59");
+		}
+		runReport();
+	}
+	
+	function daysInMonth(year, month) {
+		var m = [31,28,31,30,31,30,31,31,30,31,30,31];
+		if (month != 2) return m[month - 1];
+		if (year%4 != 0) return m[1];
+		if (year%100 == 0 && year%400 != 0) return m[1];
+		return m[1] + 1;
+	}
+
+	function getBeginDate()
+	{
+		var beginDate = $.trim($("#beginDate").val());
+		
+		if (beginDate.indexOf(' ') == -1 && beginDate.length <= 10)
+		{
+			beginDate = beginDate.concat(" 00:00:00");
+		}
+		
+		return beginDate;
+	}
+	
+	function getEndDate()
+	{
+		var endDate = $.trim($("#endDate").val());
+		
+		if (endDate.indexOf(' ') == -1 && endDate.length <= 10)
+		{
+			endDate = endDate.concat(" 23:59:59");
+		}
+		return endDate;
+	}
+	
+	function showReportDetail(id) {
+		$('#log_detail_id').val(id);
+		//Get data from ajax call
+		var reportDetail = getReportDetail(id);
+		
+		$("#report_detail");
+		$("#report_detail").show();
+		var myReportDetailPopup = $("#report_detail").dialog({
+			width: 1000,
+			height: 700,
+			minHeight: 400,
+			modal: true,
+		    resizable: false,
+		    draggable: false,
+		    buttons: [{ 
+      			text: "Close", 
+      			class: "btn btn-primary btn-sm",
+      			click: function() { 
+         			$( this ).dialog( "close" ); 
+      			}
+   			}]
+
+		});
+		
+		
+		myReportDetailPopup.dialog('option', 'title', 'Report Detail');
+		myReportDetailPopup.dialog('option', 'position', 'center');
+		
+		
+		//Populate the form for Report Detail
+		var date = reportDetail.event_data.date;
+		$('#detail_date').text(date.substr(0, date.lastIndexOf('.')));
+		$('#detail_policy').text(reportDetail.event_data.policy);
+		$('#detail_user').text(reportDetail.event_data.user);
+		$('#detail_from_resource').text(reportDetail.event_data.from_resource_name);
+		$('#detail_to_resource').text(reportDetail.event_data.to_resource_name);
+		$('#detail_host').text(reportDetail.event_data.host_name);
+		$('#detail_application').text(reportDetail.event_data.application_name);
+		$('#detail_enforcement').text(reportDetail.event_data.enforcement);
+		$('#detail_host_ip').text(reportDetail.event_data.host_ip);
+		$('#detail_action').text(reportDetail.event_data.action);
+		$('#detail_event_level').text("Event Level " + reportDetail.event_data.log_level);
+		
+		$('#cus_attr_section').empty();
+		if (reportDetail.cus_attr_data[0].length == 0) {
+			$('#cus_attr_section').append('<tr><td><p>This report has no custom attributes. </p></td></tr>');
+		} else {
+			var custAttrsList = reportDetail.cus_attr_data[0];
+			var index = -1; 
+			var i = 0;
+			for (var i = 0; i < custAttrsList.length; i++){
+				custAttr = custAttrsList[i];
+				if (custAttr.attribute_name === 'ce::destinytype'){
+					index = i;
+				}
+			}
+			if (index != -1){
+				custAttrsList.splice(index, 1);
+			}
+			$.each(reportDetail.cus_attr_data[0], function(index, value) {
+				if (typeof value.attribute_value != "undefined") {
+					$('#cus_attr_section').append(
+							'<tr>'
+							+	'<td class="col-xs-3 name">'
+							+		'<label class="control-label">' + value.attribute_name + '</label>'
+							+ 	'</td>'
+							+	'<td class="col-xs-9">'
+							+		'<p>' + value.attribute_value + '</p>'
+							+ 	'</td>'
+							+'</tr>');
+				}
+			});
+		}
+		
+		$('#oblig_detail_section').empty();
+		if (reportDetail.oblig_data[0].length == 0) {
+			$('#oblig_detail_section').append('<p>This report has no obligation detail. </p>');
+		} else {
+			$.each(reportDetail.oblig_data[0], function(index, value){
+				$('#oblig_detail_section').append(
+						'<div class="col-xs-12">'
+						+	'<div class="col-xs-3 name">'
+						+		'<label class="control-label">Obligation name: </label>'
+						+ 	'</div>'
+						+	'<div class="col-xs-6">'
+						+		'<p>' + value.name + '</p>'
+						+ 	'</div>'
+						+'</div>'
+						+'<div class="col-xs-12" style="min-height: 25px;">'
+						+	'<div class="col-xs-3 name">'
+						+		'<label class="control-label">Description 1: </label>'
+						+ 	'</div>'
+						+	'<div class="col-xs-6">'
+						+		'<p>' + value.attr_one + '</p>'
+						+ 	'</div>'
+						+'</div>'
+						+'<div class="col-xs-12" style="min-height: 25px;">'
+						+	'<div class="col-xs-3 name">'
+						+		'<label class="control-label">Description 2: </label>'
+						+ 	'</div>'
+						+	'<div class="col-xs-6">'
+						+		'<p>' + value.attr_two + '</p>'
+						+ 	'</div>'
+						+'</div>'
+						+'<div class="col-xs-12" style="min-height: 25px;">'
+						+	'<div class="col-xs-3 name">'
+						+		'<label class="control-label">Description 3: </label>'
+						+ 	'</div>'
+						+	'<div class="col-xs-6">'
+						+		'<p>' + value.attr_three + '</p>'
+						+ 	'</div>'
+						+'</div>'
+						+'<hr style="width:95%; float:left; margin-left: 30px;">'
+						);
+			});
+		}
+	}
+
+
+	function getTableHeader() {
+		var columnDispSelectVals = [];
+
+		$("#columnDispSelectms2side__dx option").each(function(i) {
+			columnDispSelectVals.push($(this).text());
+		});
+
+		return columnDispSelectVals;
+	}
+	
+	/*
+	we will store grouping mode details in this variable
+	 */
+	var groupingMode;
+	var oTable;
+	
+	function runReport(page, recordsTotal) {
+		$("#formErrorAlert").hide();
+		$("#groupingMode").attr("style", "");
+		
+		var reportType = $("#reportType").val();
+		groupingMode = $("#groupingMode").val();
+
+		$("#chartViewer_div").remove();
+		$("#birtViewer").remove();
+		
+		if(!validateMaxResultsInput()) return;
+		
+		validateSession();
+		
+		var sortOrder = $("input[name='sortOderChkBox']:checked").val();
+		var sortChartMode = $("#sortCharts").val();
+		var fromDate = getBeginDate();
+		var toDate = getEndDate();
+		var maxRowLimit = $('#maxRowsFetchId').val();
+			
+		
+		if(!validateToDate()) {
+			return;
+		}
+
+		if (reportType == "TABULAR") {
+
+			var pagesize = 50;
+			var offset = page ? (page - 1) * pagesize : 0
+
+			if (recordsTotal === undefined) {
+				var res = getChartDataAsJson("TABLE_REPORT_DATA_COUNT", reportType, null, 1);
+				recordsTotal = res.recordsTotal;
+				$("#reportContentViewer").empty();
+				oTable = null;
+			}
+			var tableData = getChartDataAsJson("TABLE_REPORT_DATA", reportType, offset, pagesize);
+			var tableHeader = getTableHeader();
+
+			if (tableData == undefined || tableData.report_data[0].length == 0) {
+				noDataMessage();
+				return;
+			}
+
+			var reportHeader = tableData.header[0];
+			// format policy full name
+			var reportData = tableData.report_data[0];
+			for (var i = 0; i < reportData.length; i++){
+				var rowData = reportData[i];
+				for (var j = 0; j < rowData.length; j++){
+					var rowDataValue = rowData[j];
+					if (typeof rowDataValue === 'string' && rowDataValue.startsWith("/")){
+						var beginIndex = rowDataValue.lastIndexOf("/");
+						rowDataValue = rowDataValue.substring(beginIndex+1);
+						rowData[j] = rowDataValue;
+					}
+				}
+			}
+
+			start = new Date().getTime();
+			if (oTable){
+				oTable.clear();
+				oTable.rows.add(tableData.report_data[0]);
+				oTable.draw();
+				$("#dataTableReport_info").text("Showing " + (offset + 1) + " - " + (offset + tableData.report_data[0].length) + " of " + recordsTotal);
+			} else {
+				var dataTableViewer = $("<div></div>")
+						.attr("id", "dataTableViewer")
+						.css("width", "100%");
+				var tableHdr = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="dataTableReport" style="text-align:left;">'
+						+ '<thead><tr>'
+						+ '<th>id</th>'
+						+ '<th>DATE</th>';
+				$.each(tableHeader, function(index, value) {
+					tableHdr += '<th>' + value + '</th>';
+				});
+
+				tableHdr += '</tr></thead></table>';
+				dataTableViewer.html(tableHdr);
+
+				$("#reportContentViewer").append(dataTableViewer);
+				$("#dataTableViewer").after('<ul class="pagination" id="pagination"></ul>');
+				oTable = $('#dataTableReport').DataTable( {
+					"paging": false,
+					"aaData": tableData.report_data[0],
+					"bAutoWidth": true,
+					"scrollX": true,
+					"lengthMenu": [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]],
+					"bFilter": false,			//disable the search feature to avoid refetching data
+					"bSort": false,
+					"bJQueryUI" : false,
+					"iDisplayLength" : 50,
+					"bInfo": true,
+					"bLengthChange":true,
+					"bProcessing": true,
+					"fnCreatedRow": function( nRow, aData, iDataIndex ) {
+						$(nRow).attr("id",$.trim(aData[0]));
+						$(nRow).attr('style','cursor: pointer;');
+					},
+					"columnDefs": [ {
+						//Hide the id columns
+						"targets": 0,
+						"bVisible": false,
+					}, {
+						"targets": 1,
+						"className": "evaluation-date"
+					}
+					],
+					"fnInitComplete": function(oSettings, json) {
+						setScrollHeight();
+					},
+					"fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+						return "Showing " + (offset + 1) + " - " + (offset + tableData.report_data[0].length) + " of " + recordsTotal;
+					},
+					"sDom": '<<"#export_report_buttons">it>'
+				});
+
+				oTable.on('click', 'tr', function(event) {
+					if(!$(event.target).hasClass("evaluation-date")) $(this).toggleClass('row_selected');
+				});
+
+				oTable.on('click', 'td.evaluation-date', function(event) {
+					var id = oTable.row(this.parentNode).data()[0];
+					showReportDetail(id);
+				});
+
+
+				$('#reportContentViewer table thead tr th:first-child').attr('style','width:120px; min-width: 120px; max-width: 120px;');
+				$('#reportContentViewer table tbody tr td:first-child').attr('style','width:120px; min-width: 120px; max-width: 120px;');
+				$('#dataTableReport thead').hide();
+				oTable.draw(true);
+
+				$("#reportContentViewer").on("click", "span.show_report_detail", showReportDetail);
+
+				$('#export_report_buttons').html('<img src="../core/images/download.svg" class="download_icon" title="Export to EXCEL">&nbsp;Download&nbsp;'
+				).click(exportExcelReport)
+
+				$('#pagination').twbsPagination({
+					totalPages: Math.ceil(recordsTotal / pagesize),
+					hideOnlyOnePage: true,
+					startPage: page || 1,
+					visiblePages: 10
+				}).on('page', function (evt, page) {
+					setTimeout(function() {
+						runReport(page, res.recordsTotal);
+					}, 0)
+				});
+				$('#dataTables_length').css('display: inline-block;');
+				$('#dataTableReport_filter').css('display: inline-block;');
+			}
+			return;
+		} else {
+			// validate group by mode is selected
+			if( groupingMode == "" ) {
+				$("#groupingMode").attr("style", "background:#ffb2b2;");
+				$("#errorMsg").html("Please select grouping mode for generate Chart");
+				$("#formErrorAlert").show();
+				$('#loadingmessage').hide();
+			    return;	
+			}
+		} 
+		if (reportType == "BAR_CHART") {
+			
+			// get data and passed to chart
+			var barChartData = getChartDataAsJson("FETCH_BAR_CHART_DATA",
+					reportType);
+			var chartDataFromServer = barChartData[0].values;
+
+			if((groupingMode == "GROUP_BY_MONTH" || groupingMode == "GROUP_BY_DAY") && (sortChartMode == "day_nb" || sortChartMode == "month_nb")) {
+				barChartData[0].values = getDatesInBetweenWithData( fromDate, toDate, barChartData[0].values, sortOrder, groupingMode, maxRowLimit);
+			}
+
+			var width = getChartWidth(barChartData[0].values.length);
+			var maxLabelLength = getMaxLabelLenght(barChartData[0].values);
+			var height = getBarChartHeighWithLabel(maxLabelLength);
+			
+			$('#loadingmessage').show();
+			$("#reportContentViewer").empty();
+			$("#reportContentViewer")
+					.append('<div id="chartViewer_div" style="overflow:auto;" align="left"><svg id="chartViewer" style="width: 95%;" ></svg></div>');
+
+			$('#chartViewer_div').css("width:", $('#reportContentViewer').width() + "px;"); 			
+			$('#chartViewer').attr("style", "height:"+ (height * 1.1) + "px;width:"+width + "px;");
+
+			if (barChartData[0].values.length > 0) {
+				discreteBarChart("chartViewer", barChartData, '', '', 650,
+						chartClickHandler);
+			} else {
+				noDataMessage();
+			}
+
+		} else if (reportType == "HORZ_BAR_CHART") {
+			var barChartData = getChartDataAsJson("FETCH_BAR_CHART_DATA",reportType);
+			var chartDataFromServer = barChartData[0].values;
+
+			if((groupingMode == "GROUP_BY_MONTH" || groupingMode == "GROUP_BY_DAY")  && (sortChartMode == "day_nb" || sortChartMode == "month_nb")) {
+				barChartData[0].values = getDatesInBetweenWithData( fromDate, toDate, barChartData[0].values, sortOrder, groupingMode, maxRowLimit);
+			}
+
+			var showXAxisLabel = true;
+			var height = getChartHeight(barChartData[0].values.length);
+			var max_label_length = getMaxLabelLenght(barChartData[0].values);
+			var margin_left = getLeftMarginForChart(max_label_length);
+			var width = getHorizontalChartWidth(max_label_length);
+			
+			if(max_label_length >  1100) {
+				margin_left = 100;
+				width = 1000;
+				showXAxisLabel = false;
+			}
+			
+			$('#loadingmessage').show();
+			$("#reportContentViewer").empty();
+			$("#reportContentViewer")
+					.append('<div id="chartViewer_div" style="overflow-x:auto;overflow-y:auto;"><svg id="chartViewer" ></svg></div>');
+			$('#chartViewer_div').css("width:", $('#reportContentViewer').width() + "px;"); 			
+			$('#chartViewer_div').css("height:", (height * 1.2) + "px;"); 			
+			$('#chartViewer').attr("style", "height:"+ height + "px;width:" + width + "px;");
+
+
+			barChartData[0].color = "#A4C639";
+			if (barChartData[0].values.length > 0) {
+				horizontalBarChart("chartViewer", barChartData, margin_left, height, false, true, '', '', showXAxisLabel, chartClickHandler);
+			} else {
+				noDataMessage();
+			}
+			
+
+		} else if (reportType == "PIE_CHART") {
+			$('#loadingmessage').show();
+
+			var pieChartData = getChartDataAsJson("FETCH_PIE_CHART_DATA",
+					reportType);
+			var chartDataFromServer = pieChartData.length && pieChartData[0].values;
+			if(!chartDataFromServer){
+				chartDataFromServer = pieChartData;
+			}
+
+			$("#reportContentViewer").empty();
+			if (pieChartData.length > 0) {
+				var height = getPieChartHeight(pieChartData.length);
+				$("#reportContentViewer")
+						.append('<div id="chartViewer_div" style="height:' + height + 'px; width: 100%" align="center"></div>');
+				
+				var showLegend = (pieChartData.length <= 20) ? true : false;
+				pieChart("chartViewer_div", pieChartData, showLegend, chartClickHandler);
+				
+			} else {
+				noDataMessage();
+			}
+		}
+			
+		$('#loadingmessage').hide();
+	}
+
+	function noDataMessage() {
+		$("#chartViewer_div").remove();
+		
+		$("#reportContentViewer")
+		.append(
+				'<div id="chartViewer_div" style="height:250px; width:600px" >'
+				+ '<div id="chartViewer" class="nvd3 nv-noData">No Data Available.</div></div>');
+	}
+	
+	
+	function getCriteriaAsJson(offset, pagesize) {
+		var dateType = "Fixed";
+
+		var beginDate = getBeginDate();
+
+		var endDate = getEndDate();
+
+		var jsonStr = composeJSONRequest(beginDate, endDate, dateType, offset, pagesize);
+
+		return jsonStr;
+	}
+
+	function getChartDataAsJson(action, reportType, offset, pagesize) {
+		var reportData = null;
+
+		var post_data = {};
+		post_data["report_criteria"] = getCriteriaAsJson(offset, pagesize);
+		post_data["report_type"] = reportType;
+		
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(post_data),
+				"action" : action
+			},
+			dataType : 'json',
+			success : function(data) {
+				reportData = data
+			},
+			error : function(xhr, status) {
+				handleError(xhr, 'Error fetching report details');
+			},
+			async : false
+		});
+
+		return reportData;
+	}
+
+	function proceed(reportUrl, reportName) {
+
+		var form = $('<form></form>');
+		form.attr("method", "post");
+		form.attr("action", reportUrl);
+		form.attr('target', 'birtViewer');
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "__showtitle");
+		field.attr("value", "false");
+		form.append(field);
+
+		if (isIEBrowser) {
+			var field = $('<input></input>');
+			field.attr("type", "hidden");
+			field.attr("name", "__targetWindow");
+			field.attr("value", "_blank");
+			form.append(field);
+		}
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "__parameterpage");
+		field.attr("value", "false");
+		form.append(field);
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "__format");
+		field.attr("value", "HTML");
+		form.append(field);
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "__masterpage");
+		field.attr("value", "false");
+		form.append(field);
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "__report");
+		field.attr("value", reportName);
+		form.append(field);
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "Title");
+		field.attr("value", "New Reporting");
+		form.append(field);
+
+		var beginDate = getBeginDate();
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "BeginDate");
+		field.attr("value", beginDate);
+		form.append(field);
+
+		var endDate = getEndDate();
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "EndDate");
+		field.attr("value", endDate);
+		form.append(field);
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "action");
+		field.attr("value", "QUERY_REPORT");
+		form.append(field);
+
+		//toggleForm();
+
+		var jsonStr = composeJSONRequest(beginDate, endDate, "Fixed");
+
+		var field = $('<input></input>');
+		field.attr("type", "hidden");
+		field.attr("name", "data");
+		field.attr("value", jsonStr);
+		form.append(field);
+
+		// The form needs to be a part of the document in
+		// order for us to be able to submit it.
+		$(document.body).append(form);
+
+		form.submit();
+	}
+
+	function composeJSONRequest(beginDate, endDate, dateMode, offset, pagesize) {
+
+		var jsonPrefix = '{';
+		var jsonSuffix = '}';
+
+		var actionArr = new Array();
+		$("#actTblInPlcySelLstBx option:selected").each(function() {
+			actionArr.push($(this).val());
+		});
+
+		var general = { 
+			"type" : "report",
+			"date_mode" : dateMode,
+			"window_mode" : $('#dateSelectionType').val(),
+			"start_date" : beginDate,
+			"end_date" : endDate,
+			"fields" : [{ 
+				"name": "log_level", 
+				"operator": "eq", 
+				"value": $("#eventlevel option:selected").val(),
+				"has_multi_value" : false, 
+				"function" : ""
+			}, { 
+				"name": "decision", 
+				"operator": "eq", 
+				"value" : $("#decision option:selected").val(),
+				"has_multi_value" : false, 
+				"function" : ""
+			}, { 
+				"name": "action", 
+				"operator": "in", 
+				"value" : actionArr,
+				"has_multi_value" : true, 
+				"function" : ""
+			}] 
+		};
+
+		var userCriteria = {
+			"look_up_field" : {
+				"name" : "user_id", 
+				"operator" : "in", 
+				"value": getSelectedUsers(),
+				"has_multi_value" : true, 
+				"function" : "" 
+				}
+		};
+
+		//User data 
+		var userCriteriaFields = criteriaTableValues("user", "usr_");
+		userCriteriaFields = JSON.parse(userCriteriaFields);
+		userCriteria['fields'] = userCriteriaFields
+
+		//Resource path data
+		 var resourceCriteria = {
+			"look_up_field" : {
+				"name" : "resource_path", 
+				"operator" : "in", 
+				//"value" : $("#rptDefCntInResTxt").val() == undefined ? [] :  $("#rptDefCntInResTxt").val().trim().split(","),
+				"value" : getSelectedResources(),
+				"has_multi_value" : true, 
+				"function" : "" 
+			}
+		}
+
+		var resourceCriteriaFields = criteriaTableValues("resource", "res_");
+		resourceCriteriaFields = JSON.parse(resourceCriteriaFields);
+		resourceCriteria['fields'] = resourceCriteriaFields
+
+		//Policy data
+		var plcCriteria = {
+				"look_up_field" : { 
+					"name" : "policy_name", 
+					"operator" : "in", 
+					"value": getSelectedPolicies(),
+					"has_multi_value" : true, 
+					"function" : "" 
+				}
+		}
+				
+		var plcCriteriaFields = criteriaTableValues("policy", "plc_");
+		plcCriteriaFields = JSON.parse(plcCriteriaFields);
+		plcCriteria['fields'] = plcCriteriaFields
+
+		// Other criteria
+		var othCriteria = {
+				"look_up_field" : { 
+					"name" : "", 
+					"operator" : "", 
+					"value": "", 
+					"has_multi_value" : false, 
+					"function" : "" 
+				}
+		}
+
+		var othCriteriaFields = criteriaTableValues("others", "oth_");
+		othCriteriaFields = JSON.parse(othCriteriaFields);
+		othCriteria['fields'] = othCriteriaFields
+
+		var filters = { 
+			general: general,
+			user_criteria: userCriteria,
+			resource_criteria: resourceCriteria,
+			policy_criteria: plcCriteria,
+			other_criteria: othCriteria
+		}
+
+		// -----------
+		var columnDispSelectVals = [];
+
+		$("#columnDispSelectms2side__dx option").each(function(i) {
+			columnDispSelectVals.push($(this).val());
+		});
+		
+		var header = columnDispSelectVals;
+		//------------
+		
+		var maxRowLimit = $('#maxRowsFetchId').val() == "ALL" ? "-1": $('#maxRowsFetchId').val();
+
+		var groupingMode = $('#groupingMode option:selected').val();
+
+		var aggregators = [];
+		var group_by = [];
+
+		var reportType = $('#reportType option:selected').val();
+
+		var sSortCol = '';
+
+		if (reportType == 'TABULAR') {
+
+			var optGrp = $('#sort option:selected').parent().attr('label');
+
+			if (optGrp == 'User') {
+
+				sSortCol = 'usr_' + $('#sort option:selected').val();
+
+			} else if (optGrp == 'Resource') {
+
+				sSortCol = 'res_' + $('#sort option:selected').val();
+
+			} else if (optGrp == 'Policy') {
+
+				sSortCol = 'plc_' + $('#sort option:selected').val();
+
+			} else if (optGrp == 'Others') {
+
+				sSortCol = 'oth_' + $('#sort option:selected').val();
+
+			}
+		} else {
+			sSortCol = $('#sortCharts option:selected').val()
+		}
+
+		var sortOrder = $("input[name='sortOderChkBox']:checked").val();
+
+		var orderBy = [ { "col_name" : sSortCol,
+				"sort_order" : sortOrder.toLowerCase()
+				} ];
+
+		var saveReportInfo ={"report_name" : $('#report_name').val(),
+			"report_desc" : $('#report_description').val(),
+			"report_type" : reportType,
+			"shared_mode" : shared_mode,
+			"user_ids" : user_ids,
+			"group_ids" : group_ids
+			};
+
+
+		var jsonQueryStr = jsonPrefix + filters + header + ',' + orderBy + ','
+				+ maxRowLimit + ',' + groupingMode + ',' + aggregators + ','
+				+ group_by + ',' + saveReportInfo + '}';
+		var jsonQuery = {
+			filters: filters,
+			header: header,
+			order_by: orderBy,
+			max_rows: maxRowLimit,
+			pagesize: pagesize,
+			grouping_mode: groupingMode,
+			aggregators :aggregators,
+			group_by: group_by,
+			save_info: saveReportInfo
+		}
+		if(offset) jsonQuery.offset = offset
+		return JSON.stringify(jsonQuery);
+	}
+
+	function getValidJSONArrFromComma(commaSepValue) {
+		var arr = new Array();
+		$.each(commaSepValue.trim().split(","), function(index, chunk) {
+			arr.push(chunk);
+		});
+
+		var validStr = "";
+
+		for (var i = 0; i < arr.length; i++) {
+
+			validStr = validStr + arr[i];
+			if (i < arr.length) {
+				validStr = validStr + ", ";
+			}
+		}
+
+		return "[" + validStr + "]";
+	}
+
+	function criteriaTableValues(type, prefix) {
+		var criteriaFields = '';
+		var rows = $("#" + type + "CriteriaTable span > span");
+
+		var criteriaName = 'span.' + type + '_criteria_name';
+		var criteriaOpr = 'span.' + type + '_criteria_operator';
+		var criteriaVal = 'span.' + type + '_criteria_value';
+
+		$(rows).each(
+				function(index) {
+
+					var sData = '';
+					var name = $(criteriaName, this).html();
+					var operator = $(criteriaOpr, this).html();
+					var value = $(criteriaVal, this).html();
+					var oprInStr = "";
+					var hasMultiValue = 'false';
+
+					if (operator == '==') {
+						oprInStr = "eq";
+						value =  JSON.stringify(value.trim());
+					} else if (operator == '!=') {
+						oprInStr = "ne";
+						value =  JSON.stringify(value.trim());
+					} else if (operator == 'in') {
+						oprInStr = "in";
+						value = JSON.stringify(value.trim().split(","));
+						hasMultiValue = 'true';
+					} else if (operator == 'like') {
+						oprInStr = "like";
+						value = JSON.stringify('%' + value.trim() + '%');
+					}
+
+					if (value != null && value != 'undefined') {
+						var fieldName = JSON.stringify(prefix + name);
+						criteriaFields = criteriaFields + ' { "name" : '
+								+ fieldName + ', "operator" : "'
+								+ oprInStr + '", ' + ' "value": ' + value
+								+ ', "has_multi_value" : "' + hasMultiValue
+								+ '", "function" : "" },';
+					}
+				});
+
+		if (criteriaFields.substr(-1) === ",") {
+			criteriaFields = criteriaFields
+					.substr(0, criteriaFields.length - 1);
+		}
+
+		return "[" + criteriaFields + "]";
+	}
+
+	function addUserCriteria() {
+		$("#formErrorAlert").hide();
+		$("#usr_criteria_value").attr("style", "width:47%;");
+		var fValue = $("#usr_criteria_value").val();
+
+		$("#usr_criteria_value").val("");
+
+		if (isEmpty(fValue)) {
+			$("#usr_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+			$("#errorMsg").html("Value Required for User criteria")
+			$("#formErrorAlert").show();
+			//alert("Please enter valid value for criteria");
+			return;
+		}
+		
+		if(validateSpecialChars(fValue, "Criteria", "formErrorAlert", "errorMsg")) {
+			$("#usr_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+		     return false;	
+		}
+
+		var criteria = $("#usr_criteria").val();
+		var criteria_operator = $("#usr_criteria_operator").val();
+
+		addCriteriaHTML(criteria, criteria_operator, fValue, "user");
+
+		$("#userCritEnd hr").remove();
+		$("#userCritEnd").append("<hr/>");
+	}
+
+	function addResourceCriteria() {
+		$("#formErrorAlert").hide();
+		$("#res_criteria_value").attr("style", "width:47%;");
+		var fValue = $("#res_criteria_value").val();
+
+		$("#res_criteria_value").val("");
+
+		if (isEmpty(fValue)) {
+			$("#res_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+			$("#errorMsg").html("Value Required for Resource criteria")
+			$("#formErrorAlert").show();
+			//alert("Please enter valid value for criteria");
+			return;
+		}
+		
+		if(validateSpecialChars(fValue, "Criteria", "formErrorAlert", "errorMsg")) {
+			$("#res_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+		     return false;	
+		}
+		
+		//To read the inner text instead of value
+		var criteria = $("#res_criteria option:selected").val();
+
+		var criteria_operator = $("#res_criteria_operator").val();
+
+		addCriteriaHTML(criteria, criteria_operator, fValue, "resource");
+
+		$("#resourceCritEnd hr").remove();
+		$("#resourceCritEnd").append("<hr/>");
+	}
+
+	function addPolicyCriteria() {
+		$("#formErrorAlert").hide();
+		$("#plc_criteria_value").attr("style", "width:47%;");
+		var fValue = $("#plc_criteria_value").val();
+
+		$("#plc_criteria_value").val("");
+
+		if (isEmpty(fValue)) {
+			$("#plc_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+			$("#errorMsg").html("Value Required for Policy criteria")
+			$("#formErrorAlert").show();
+			//alert("Please enter valid value for criteria");
+			return;
+		}
+		
+		if(validateSpecialChars(fValue, "Criteria", "formErrorAlert", "errorMsg")) {
+			$("#plc_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+		     return false;	
+		}
+
+		var criteria = $("#plc_criteria").val();
+
+		var criteria_operator = $("#plc_criteria_operator").val();
+
+		addCriteriaHTML(criteria, criteria_operator, fValue, "policy");
+
+		$("#policyCritEnd hr").remove();
+		$("#policyCritEnd").append("<hr/>");
+	}
+
+	function addOthersCriteria() {
+		$("#formErrorAlert").hide();
+		$("#oth_criteria_value").attr("style", "width:47%;");
+		var fValue = $("#oth_criteria_value").val();
+
+		$("#oth_criteria_value").val("");
+
+		if (isEmpty(fValue)) {
+			$("#oth_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+			$("#errorMsg").html("Value Required for Other criteria")
+			$("#formErrorAlert").show();
+			//alert("Please enter valid value for criteria");
+			return;
+		}
+		
+		if(validateSpecialChars(fValue, "Criteria", "formErrorAlert", "errorMsg")) {
+			$("#oth_criteria_value").attr("style", "background:#ffb2b2;width:47%;");
+		     return false;	
+		}
+
+		var criteria = $("#oth_criteria").val();
+
+		var criteria_operator = $("#oth_criteria_operator").val();
+
+		addCriteriaHTML(criteria, criteria_operator, fValue, "others");
+
+		$("#othersCritEnd hr").remove();
+		$("#othersCritEnd").append("<hr/>");
+	}
+
+	function addCriteriaHTML(criteria, operator, value, type) {
+	
+		if(operator == 'like') {
+			value = value.trim();
+			value = (value.indexOf('%') == 0) ? value.substring(1) : value;
+			value = (value.lastIndexOf('%') == (value.length -1)) ? value.substring(0, (value.length -1)) : value;
+		}
+		 
+		
+		var content = "<span class='"+ type +"_criteria_name'>"
+				+ escapeHTML(criteria)
+				+ "</span><span>&nbsp;</span><span class='"+ type +"_criteria_operator'>"
+				+ operator
+				+ "</span><span>&nbsp;</span><span class='"+ type +"_criteria_value'>"
+				+ escapeHTML(value.trim())
+				+ "</span><span>&nbsp;</span>"
+				+ "<span><button type='button' class='btn btn-xs removeCriteria' name='removeCriteria'>[<span class='glyphicon glyphicon-minus'></span>]</button>,&nbsp;</span>";
+		
+		var filterClass = escapeClass(criteria);
+			
+		//If already have content then replace with the new one.
+		if ($("span.criteria." + type + filterClass).length > 0) {
+			$("span.criteria." + type + filterClass).remove();
+		}
+
+		var criteriaHTML = "<span class='criteria " + type + filterClass + "'><span class='removeCriteriaType '>"
+				+ content + "</span></span>";
+
+		var tableName = "#" + type + "CriteriaTable";
+
+		$(tableName).append(criteriaHTML);
+	}
+
+	function clearCriteriaTable(type) {
+		var tableName = "#" + type + "CriteriaTable";
+		var tableEndTag = "#" + type + "CritEnd";
+		$(tableName + " span").remove();
+		$(tableEndTag + " hr").remove();
+	}
+
+	function removeDiv() {
+		$(this).closest("div").remove();
+	}
+
+	function removeCriteria() {
+		$(this).closest("span.criteria").remove();
+	}
+
+	function closeModal() {
+		$("#sel-column").dialog("close");
+	}
+
+	function showDisplayColumn(closeDialog) {
+
+		var content = getSelectedColumns();
+
+		var criteriaHTML = "<span id=\"selectedDispColumns\">" + content
+				+ "</span>";
+
+		$('#selectedDispColumns').remove()
+
+		$("#displayColumnTable").append(criteriaHTML);
+
+		if (closeDialog) {
+			$("#sel-column").dialog("close");
+		}
+	}
+
+	function getSelectedColumns() {
+		var selectedColumns = "";
+		var count = 0;
+		var content = "";
+		tempSelectColumns = [];
+	
+		$("#columnDispSelectms2side__dx option").each(function(i) {
+			
+			tempSelectColumns.push($(this).val());
+			if (count < 4) {
+				content += '' + $(this).text() + ',&nbsp;';
+			} else if (count == 4) {
+				content += '...';
+			}
+			count++;
+			
+		});
+		
+		return content;
+	}
+
+	function toggleForm() {
+		$("#set-criteria").toggle();
+	}
+	
+	function getFilterLists(sType, sSelectName, sCheckboxName, sSortList,
+			sPrefix) {
+
+		$
+				.ajax({
+					type : 'POST',
+					url : saveReportURL,
+					data : {
+						"TYPE" : sType,
+						"action" : "GET_MAPPING_DATA"
+					},
+					dataType : 'json',
+					success : function(data) {
+						populateResourceFilterList(sType, data, sSelectName,
+								sCheckboxName, sSortList, sPrefix);
+					},
+					error : function(xhr, status) {
+						handleError(xhr, 'Error encountered in loading report details');
+					},
+					async : false
+				});
+	}
+	
+	function validateFromDate() {
+		$("#beginDate").attr("style", "");
+		$('#formErrorAlert').hide();
+		var fromDate = $('#beginDate').val();
+		
+		var from = null;
+		
+		try
+		{
+			from = $.datepicker.parseDateTime("yy-mm-dd", "HH:mm:ss", fromDate);
+		}
+		catch(err)
+		{
+			$("#beginDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("Invalid From date")
+       		$("#formErrorAlert").show();
+			return null;
+		}
+		
+		return from;
+	}
+	
+	function validateToDate() {
+		
+		var from = validateFromDate();
+		
+		if ( from == null)
+		{
+			return false;
+		}
+		
+		$("#endDate").attr("style", "");
+		$('#formErrorAlert').hide();
+		var fromDate = $('#beginDate').val();
+		var toDate = $('#endDate').val();
+		
+		var to = null;
+		
+		try
+		{
+			to = $.datepicker.parseDateTime("yy-mm-dd", "HH:mm:ss", toDate);
+		}
+		catch(err)
+		{
+			$("#endDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("Invalid To date")
+       		$("#formErrorAlert").show();
+			return false;
+		}
+		
+		if(from.getTime() > to.getTime()) {
+			$("#endDate").attr("style", "background:#ffb2b2;");
+			$("#errorMsg").html("To Date should be equal or greater than From Date");
+       		$("#formErrorAlert").show();
+       		return false;
+		} 
+	   return true;
+	}
+
+	function populateResourceFilterList(sType, data, sSelectName,
+			sSelectGroupCategName, sSortList, sPrefix) {
+
+		var select = document.getElementById(sSelectName);
+		var optGroup = document.getElementById(sSortList);
+
+		$(this).find('ul>li').each(function() {
+			var opt = $('<option>').text($(this).find('>span').text());
+			group.append(opt);
+		});
+
+		var dataValues = [];
+		for (var i = 0; i < data.length; i++) {
+
+			var attrName = data[i].attr_name;
+			var attrType = data[i].attr_type;
+			var isDynamic = data[i].dynamic;
+			var displayValue;
+			if (isDynamic){
+				displayValue = attrType.substr(0,1) + attrType.substr(1).toLowerCase() + "." + attrName;
+			} else {
+				displayValue = attrName;
+			}
+
+			if ("ACTION" == attrName.toUpperCase()
+					|| "LOG_LEVEL" == attrName.toUpperCase()
+					|| "USER_NAME" == attrName.toUpperCase()
+					|| "POLICY_DECISION" == attrName.toUpperCase()
+					|| "POLICY_FULLNAME" == attrName.toUpperCase()
+					|| "DATE" == attrName.toUpperCase()) {
+				// do not add				
+			} else {
+				select.options[select.options.length] = new Option(attrName, displayValue);
+			}
+
+			//For select column use for sorting
+			optGroup.appendChild(new Option(attrName, displayValue));
+
+			dataValues[i] = sPrefix + "_" + attrName + "|" + displayValue;
+		}
+		resourceTypeColumnMap[sType] = dataValues;
+	}
+	
+	
+	function validateSession() {
+		$.ajax({
+			type : 'POST',
+			url : saveReportURL,
+			data : {
+				"data" : JSON.stringify(""),
+				"action" : "VALIDATE_USER_SESSION"
+			},
+			dataType : 'json',
+			success : function(data) {
+			},
+			error : function(xhr, status) {
+				handleError(xhr, 'Error in validating user session');
+			},
+			async : false
+		});
+	}
+	
+	function handleError(xhr, message)
+	{
+		var contentType = xhr.getResponseHeader("content-type").split(";") || "";
+
+		if (contentType[0] === "text/html" && (xhr.status != 403 || xhr.responseText.indexOf("CSRF") === -1))
+		{
+			window.location =  contextPath + "/login/login.jsf";
+		} else {
+			$.alert(message + ", Please Logout and Try again.", "ERROR!", function(){});
+		}
+	}
+	
+	function errorHandlerWithReload() {
+       			  
+		  var action = window.location.href;
+		  var id = "dumb_error";
+		  var html = "<form method='post' action='" + action + "' id='form_" + id+ "'>";
+		  var csrfToken = $('meta[name="csrfToken"]').attr('content');
+		  html += "<input type='hidden' name='csrfToken' value='" + csrfToken + "'/>";
+		  if ( reportId != null) {
+						 html += "<input type='hidden' id='reportId' name='reportId' value='" + reportId + "'>";
+		  }
+		  var hasAlertCriteria = false;
+		  if (alertJsonCriteria != null && alertJsonCriteria != ""){
+						 html+="<input type='hidden' id='jsonCriteria' name='jsonCriteria' value=''>";
+						 hasAlertCriteria = true;
+		  }
+		  html+="</form>";
+		  
+		  $('body').append(html);
+		  
+		  if ( hasAlertCriteria){
+			 $("#jsonCriteria").val(JSON.stringify(alertJsonCriteria));
+		  }
+
+		  $("#form_" + id ).submit();
+	}
+	
+</script>
+</f:verbatim>

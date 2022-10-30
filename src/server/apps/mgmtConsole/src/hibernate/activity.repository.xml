@@ -1,0 +1,21 @@
+<!DOCTYPE hibernate-configuration PUBLIC 
+	"-//Hibernate/Hibernate Configuration DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-2.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<!--
+			Persisted object class mappings
+		-->
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/PolicyActivityLogDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/storedresults/hibernateimpl/StoredQueryDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/storedresults/hibernateimpl/StoredQueryByIdResultDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/PolicyDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/TrackingActivityLogDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/ReportPolicyActivityDetailResultDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/ReportTrackingActivityDetailResultDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/UserDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/UserGroupDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/storedresults/hibernateimpl/StoredQuerySummaryResultDO.hbm.xml"/>								
+	</session-factory>
+</hibernate-configuration>

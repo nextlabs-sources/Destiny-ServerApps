@@ -1,0 +1,4 @@
+# Bootstrap components
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+com.nextlabs.destiny.configservice.config.LocalPropertySourceLocator,\
+com.nextlabs.destiny.configservice.config.TextEncryptorConfig

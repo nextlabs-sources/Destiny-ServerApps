@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title th:text="#{cas.mfa.googleauth.pagetitle}">Google Authentication Registration Review View</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+</head>
+
+<body id="cas">
+<main role="main" class="container mt-3 mb-3">
+    <div layout:fragment="content" id="login">
+        <div class="col-10 p-0">
+            <div>
+                <div class="cc-form-line show-overflow">
+                    <span class="cc-form-title" th:utext="#{screen.mfa.register.title}">
+                        REGISTER CONTROL CENTER WITH GOOGLE AUTHENTICATOR
+                    </span>
+                </div>
+            </div>
+            <div id="errorPanel" class="errors" style="display: none; background-color: rgb(255, 238, 221);">
+                <span th:utext="#{screen.authentication.gauth.invalidtoken}"></span>
+            </div>
+            <form method="post" id="fm1" class="fm-v clearfix" th:action="@{/login}">
+                <br/>
+                <p>
+                    <span class="font-weight-bold" th:utext="#{screen.mfa.step.one}">Step 1:&nbsp;</span>
+                    <span th:utext="#{screen.mfa.step.one.text}">Install your preferred TOTP authenticator app such as Google Authenticator&#8482.</span><br><br>
+                    <span class="font-weight-bold" th:utext="#{screen.mfa.step.two}">Step 2:&nbsp;</span>
+                    <span th:utext="#{screen.mfa.step.two.text}">Scan the QR code using the authenticator app or enter the secret key displayed below and follow the onscreen instructions.</span>
+                </p>
+                <br/>
+                <div class="form-group">
+                    <div>
+                        <img th:src="@{'data:image/jpeg;base64,' + ${QRcode}}" />
+                    </div>
+                    <br/>
+                </div>
+                <p>
+                    <span class="font-weight-bold" th:utext="#{screen.authentication.gauth.key}">Secret key:</span>
+                    &nbsp;
+                    <span th:text="${key.getSecretKey()}">Key</span>
+                </p>
+                <p class="font-weight-bold">
+                    <span th:utext="#{screen.authentication.gauth.scratchcodes}">Scratch Codes</span>
+                    <img th:title="#{screen.mfa.register.scrachcodes.help}" th:src="@{/images/info.png}"
+                         data-toggle="tooltip" data-placement="right" style="width: 16px; margin-right: 2px;"/>
+                    <span>:</span>
+                </p>
+                <ul style="list-style:none; margin-left: -40px;">
+                    <li th:each="code : ${key.getScratchCodes()}" th:text="${code}">code</li>
+                </ul>
+                <input id="fm1CsrfToken" type="hidden" name="csrfToken" th:value="${@csrfProtectionService.getCsrfToken()}"/>
+                <input id="eventId" type="hidden" name="_eventId_submit" value="Confirm"/>
+                <input id="accountName" type="hidden" name="accountName"/>
+                <script>
+                $(function() {
+                    document.getElementById("accountName").value = randomWord();
+                });
+                </script>
+                <input type="hidden" name="_eventId" value="submit"/>
+                <br/>
+                <p>
+                	<span class="font-weight-bold" th:utext="#{screen.mfa.step.three}">Step 3:&nbsp;</span>
+                    <span th:utext="#{screen.mfa.step.three.text}">Type the code from the TOTP authenticator app and click</span>
+                	<span th:utext="#{screen.mfa.step.three.text.register}" class="font-weight-bold">Register.</span>
+                </p>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <input type="password" class="form-control required"
+                               id="token" name="token" size="25" tabindex="1"
+                               th:placeholder="#{screen.mfa.token.label}"
+                               th:accesskey="#{screen.welcome.label.password.accesskey}" autocomplete="off"
+                               th:title="#{screen.mfa.verify.password.help}"
+                               data-toggle="tooltip" data-placement="right" required/>
+                    </div>
+                </div>
+                <br/>
+                <input class="submit" name="register" accesskey="l" id="registerMFA"
+                       th:value="#{screen.welcome.button.register}" tabindex="4" type="button" value="Register" disabled="true"/>
+                <input type="button" name="cancel" accesskey="c" class="back-to-login-btn"
+                       th:value="#{screen.password.resetpassword.backToLogin}" value="Back to login screen"
+                       onclick="location.href = location.href;"/>
+                <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+            </form>
+			<div class="modal fade" id="mfaConfirmDialog" role="dialog" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content" style="width: 600px;">
+						<div class="modal-body cc-ps-dialog-body">
+							Ensure you have stored the scratch codes in a secure location.
+							<br>You will not be able to return to this page after clicking <span class="font-weight-bold">CONFIRM</span>.
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-default cc-btn-discard" type="button"
+								onclick="closeConfirmRegistrationModal()" value="CANCEL">CANCEL</button>
+							<button class="btn btn-default cc-btn-primary" type="button" onclick="confirmRegistration()"
+								value="CONFIRM">CONFIRM</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+		    var confirmRegistrationModal;
+		    $('#registerMFA').click(function(event){
+		    	event.preventDefault();
+		    	confirmRegistrationModal = $('#mfaConfirmDialog').modal();
+		    });
+		    
+		    function closeConfirmRegistrationModal() {
+		    	confirmRegistrationModal.modal('hide');
+		    }
+		    
+		    function confirmRegistration() {
+		        closeConfirmRegistrationModal();
+		        var endpoint = $('#fm1').attr('action');
+		        $('#errorPanel').hide();
+		        var formData = $("#fm1").serializeArray();
+                formData.push({
+                    name: "validate",
+                    value: true
+                });
+
+                $.post(endpoint, formData)
+                    .done(function (data, status, jqxhr) {
+                        $('#errorPanel').hide();
+                        $("#fm1").submit();
+                    })
+                    .fail(function (data, status, jqxhr) {
+                        $('#errorPanel').show("fast", "swing");
+                    });
+		    	//$('#fm1').submit();
+		    }
+
+            var tokenElement = document.getElementById('token');
+            tokenElement.addEventListener('keyup', validate);
+		    function validate() {
+                $('#registerMFA').prop('disabled', tokenElement.value == '');
+            }
+        </script>
+</main>
+</body>
+</html>

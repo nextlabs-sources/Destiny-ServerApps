@@ -1,0 +1,302 @@
+<project name="Inquiry Center" default="build">
+
+	<property name="src.main.dir" value="${basedir}/java/main"/>
+	<property name="src.test.dir" value="${basedir}/java/test"/>   
+	<property name="src.jsp" value="${basedir}/jsp"/>
+	<property name="src.jspf" value="${basedir}/jspf"/>   
+	<property name="src.etc" value="${basedir}/etc"/>   
+	<property name="src.content" value="${basedir}/content"/>   
+	<property name="src.bundles" value="${basedir}/bundles"/> 
+	<property name="src.hibernate" value="${basedir}/hibernate" />
+	<property name="doc.dest" value="${build.root.dir}/server/apps/inquiryCenter/doc"/>
+	<property name="build.webapp" value="${build.root.dir}/server/apps/inquiryCenter"/>
+	<property name="build.engine" value="${build.webapp}/ReportEngine"/>
+	<property name="build.webinf" value="${build.webapp}/WEB-INF"/>
+	<property name="build.weblib" value="${build.webapp}/WEB-INF/lib"/>
+	<property name="build.webtld" value="${build.webapp}/WEB-INF/tld"/>
+	<property name="build.webconf" value="${build.webapp}/WEB-INF/conf"/>
+	<property name="build.temp" value="${build.webapp}/temp/"/>   
+	<property name="inquiryCenter.war.filename" value="inquiryCenter.war"/>
+	<property name="build.temp.metainf" value="${build.webapp}/temp/META-INF"/>
+	<property name="build.content" value="${build.webapp}/content/"/>  
+	<property name="birt.oda.jdbc" value="org.eclipse.birt.report.data.oda.jdbc_2.5.0.v20090605"/>
+        <property name="config.dest" value="${run.dir}/server/configuration"/>
+
+	<target name="setup-datasources">
+		<mkdir dir="${build.weblib}"/>
+		<copy toDir="${build.weblib}" failonerror="true">
+			<fileset refid="hibernate.lib"/>
+		</copy>
+		<copy file="${xlib_jar_dir}/hibernate2.jar" todir="${build.weblib}" failonerror="true"/>
+		<!-- Copy datasource information -->
+		<copy file="${build.root.dir}/common.repository.properties" todir="${build.webconf}" failonerror="true"/>
+		<copy file="${src.hibernate}/activity.repository.xml" todir="${build.webconf}" failonerror="true"/>
+		<copy file="${src.hibernate}/management.repository.xml" todir="${build.webconf}" failonerror="true"/>
+		<copy file="${src.hibernate}/dictionary.repository.xml" todir="${build.webconf}" failonerror="true"/>
+		<copy file="${src.hibernate}/policyframework.repository.xml" todir="${build.webconf}" failonerror="true"/>
+		
+		<!-- copy all custom apps xsd -->
+		<copy todir="${build.webinf}/classes">
+            <fileset dir="${src.main.dir}">
+                <include name="**/customapps/**/*.xsd"/>
+            </fileset>
+        </copy>
+	</target>
+				
+	<target name="setup-webapp" depends="setup-datasources">
+		<!-- Copy required libraries -->
+		<mkdir dir="${build.webinf}"/>
+
+		<copy todir="${build.weblib}" failonerror="true" flatten="true">
+			<fileset dir="${build.root.dir}">
+				<include name="app-framework.jar"/>
+				<include name="agent-types.jar"/>
+				<include name="client-security-config.jar"/>
+				<include name="common-dictionary.jar"/>
+				<include name="common-domain-types.jar"/>
+				<include name="common-domain.jar"/>
+				<include name="common-framework-types.jar"/>
+				<include name="common-framework.jar"/>
+				<include name="common-pf.jar"/>
+				<include name="server-pf.jar"/>
+				<include name="common-version-impl.jar"/>
+				<include name="crypt.jar"/>
+				<include name="dac-framework.jar"/>
+				<include name="dac-services.jar"/>
+				<include name="dac-types.jar"/>
+				<include name="dac-dataSync.jar"/>
+				<include name="deployment-types.jar"/>
+				<include name="inquiry-manager-shared.jar"/>
+				<include name="log-types.jar"/>
+				<include name="dms-services.jar"/>
+				<include name="management-types.jar"/>
+				<include name="messages.jar"/>
+				<include name="policy-types.jar"/>
+				<include name="server-axis-security.jar"/>
+				<include name="server-datasource.jar"/>
+				<include name="server-dcsf.jar"/>
+				<include name="server-dictionary.jar"/>
+				<include name="server-framework.jar"/>
+				<include name="server-pf.jar"/>
+				<include name="server-shared-applicationusers.jar"/>
+				<include name="server-shared-customapps.jar"/>
+				<include name="server-shared-enrollment.jar"/>
+				<include name="server-shared-services.jar"/>
+				<include name="server-shared-types.jar"/>
+				<include name="storedResults-shared.jar"/>
+				<include name="version.jar"/>
+				<include name="web-framework.jar"/>
+				<include name="dependencies/config-client-*.jar"/>
+				<include name="dependencies/log-manager-*.jar"/>
+			</fileset>
+			<fileset refid="axis.jars"/>
+			<fileset refid="xerces.jars"/>
+			<fileset dir="${xlib_jar_dir}/dependencies">
+				<include name="activemq-client-*.jar" />
+				<include name="adal4j-*.jar"/>
+				<include name="antlr-runtime-*.jar"/>
+				<include name="antlr-*.jar"/>
+				<include name="commons-codec-*.jar"/>
+				<include name="commons-collections-*.jar"/>
+				<include name="geronimo-j2ee-management_1.1_spec-*.jar" />
+				<include name="geronimo-jms_1.1_spec-*.jar" />
+				<include name="hawtbuf-*.jar" />
+				<include name="jackson-core-*.jar"/>
+				<include name="jackson-databind-*.jar"/>
+				<include name="java-jwt-*.jar"/>
+				<include name="json-*.jar"/>
+				<include name="json-smart-*.jar"/>
+				<include name="log4j-api-*.jar" />
+				<include name="log4j-core-*.jar" />
+				<include name="log4j-jcl-*.jar" />
+				<include name="log4j-web-*.jar" />
+				<include name="log4j-slf4j-impl-*.jar" />
+				<include name="javax.mail-*.jar"/>
+				<include name="nimbus-jose-jwt-*.jar"/>
+				<include name="oauth2-oidc-sdk-*.jar"/>
+				<include name="slf4j-api-*.jar" />
+				<include name="spring-web-*.RELEASE.jar"/>
+			</fileset>
+			<path>
+				<pathelement path="${xlib_jar_dir}/poi-4.1.0.jar"/>
+				<pathelement path="${xlib_jar_dir}/bcprov-jdk15on-1.62.jar"/>
+				<pathelement path="${xlib_jar_dir}/commons-io-2.6.jar"/>
+				<pathelement path="${xlib_jar_dir}/commons-fileupload-1.4.jar"/>
+				<pathelement path="${xlib_jar_dir}/jackson-annotations-2.10.0.jar"/>
+				<pathelement path="${xlib_jar_dir}/jackson-datatype-jsr310-2.10.0.jar"/>
+				
+				<!-- Ajax4jsf, RichFaces -->
+				<pathelement path="${xlib_jar_dir}/ajax4jsf-1.1.1.jar"/>
+				<pathelement path="${xlib_jar_dir}/richfaces-3.0.1.jar"/>
+
+				<!-- JSTL -->
+				<pathelement path="${xlib_jar_dir}/jstl-1.2.jar"/>
+				<pathelement path="${xlib_jar_dir}/taglibs-standard-impl-1.2.5.jar"/>
+
+				<pathelement path="${xlib_jar_dir}/myfaces-extensions.jar"/>
+				<pathelement path="${xlib_jar_dir}/tiles.jar"/>
+				
+				<!-- use for escape string in html -->
+				<pathelement path="${xlib_jar_dir}/commons-lang-2.6.jar"/>
+				<pathelement path="${xlib_jar_dir}/commons-lang3-3.9.jar"/>
+				<pathelement path="${xlib_jar_dir}/richfaces-3.0.1.jar"/>
+				<pathelement path="${xlib_jar_dir}/ehcache-2.10.6.jar"/>
+				
+				<!-- CAS client -->
+				<pathelement path="${xlib_jar_dir}/cas-client-core-3.5.1.jar" />
+
+				<!-- Antlr -->
+				<pathelement path="${external.dir}/dependencies/antlr-runtime-*.jar" />
+				<pathelement path="${external.dir}/dependencies/antlr-*.jar" />
+			</path>
+			
+			<!-- Copy JSF basic required libraries -->
+			<fileset dir="${faces.reporter.home}/lib">
+				<include name="*.jar"/>
+				<exclude name="commons-collections.jar"/> <!-- more recent version included in build.xml -->
+				<exclude name="commons-logging.jar"/> <!-- more recent version included in axis -->
+			</fileset>
+		</copy>
+
+		<copy file="${jstl.home}/tld/c.tld" todir="${build.webtld}" failonerror="true"/>
+		
+		<!-- Copy configuration files -->
+		<copy file="${src.etc}/web-template.xml" todir="${build.webinf}" failonerror="true"/>
+		<copy file="${src.etc}/faces-config.xml" todir="${build.webinf}" failonerror="true"/>
+		<copy file="${web.framework.dir}/etc/core-tiles-defs.xml" todir="${build.webinf}" failonerror="true"/>      
+		<copy file="${src.etc}/inquiry-center-tiles-defs.xml" todir="${build.webinf}" failonerror="true"/>
+		<copy file="${src.etc}/dashboard.xml" todir="${config.dest}" failonerror="true"/>
+		<copy file="${src.etc}/log4j2.xml" todir="${build.webinf}" failonerror="true"/>
+
+		<!-- Copy common CSS, images and JS files -->
+		<copy todir="${build.webapp}" failonerror="true">
+			<fileset dir="${web.framework.dir}/web/">
+				<exclude name="**/jspf/**/*"/>            
+				<exclude name="**/jspf"/>                 
+			</fileset>         
+		</copy>
+	
+		<!-- Copy common jsp fragments -->
+		<copy todir="${build.webinf}/jspf/core" failonerror="true">
+			<fileset dir="${web.framework.dir}/web/core/jspf/" />
+		</copy>
+					
+		<copy todir="${build.webinf}" failonerror="true">
+			<fileset dir="${web.framework.dir}/tld"/>
+		</copy>
+
+		<!-- Copy resource files (For messages) -->
+		<copy file="${src.bundles}/InquiryCenterMessages.properties" todir="${build.webinf}/classes" failonerror="true"/>
+		
+		<!-- Copy resource files (For datasource) -->
+		<copy file="${src.bundles}/DataSource-template.properties" tofile="${build.webinf}/classes/DataSource.properties" failonerror="true"/>
+		
+		<!-- Copy jsp pages -->
+		<copy todir="${build.webapp}" failonerror="true">
+			<fileset dir="${src.jsp}"/>
+		</copy>
+
+		<!-- Copy jspf pages -->
+		<copy todir="${build.webinf}/jspf" failonerror="true">
+			<fileset dir="${src.jspf}"/>
+		</copy>
+		
+		<!-- HACK: this is to accommodate a bug with Ajax4JSF -->
+		<copy todir="${build.webapp}/reports" failonerror="true">
+			<fileset dir="${src.jspf}/tiles/reports">
+				<include name="**/myReportsExecuteContent.jspf"/> 
+				<include name="**/reportDetailResultsContent.jspf"/> 
+			</fileset>
+		</copy>
+
+		<!-- Copy BIRT library files -->
+		<copy todir="${build.webapp}" failonerror="true" overwrite="true">
+			<fileset dir="${birt.app}/">
+				<exclude name="**/axis.jar"/>
+				<exclude name="**/axis-ant.jar"/>
+				<exclude name="**/web.xml"/>
+				<exclude name="**/web-template.xml"/>  
+				<exclude name="**/index.jsp"/>
+				<exclude name="**/test1.rptdesign"/>
+				<exclude name="**/test.rptdesign"/>
+			</fileset>         
+		</copy>
+		
+		<copy todir="${build.webinf}/platform/plugins/${birt.oda.jdbc}" failonerror="true">
+			<fileset dir="${build.root.dir}">
+				<include name="inquirycenterOda-jdbc.jar"/>
+				<include name="common-framework.jar"/>
+				<include name="server-framework.jar"/>
+				<include name="server-datasource.jar"/>
+			</fileset>
+		</copy>
+		<copy file="${xlib_jar_dir}/hibernate2.jar" todir="${build.webinf}/platform/plugins/${birt.oda.jdbc}" failonerror="true"/>	
+		<copy file="${xlib_jar_dir}/commons-logging-1.2.jar" todir="${build.webinf}/platform/plugins/${birt.oda.jdbc}" failonerror="true"/>	
+		
+		<copy file="${src.etc}/MANIFEST.MF" todir="${build.webinf}/platform/plugins/${birt.oda.jdbc}/META-INF" overwrite="true" failonerror="true"/>
+		<copy file="${src.etc}/plugin.xml" todir="${build.webinf}/platform/plugins/${birt.oda.jdbc}" overwrite="true" failonerror="true"/>
+		<copy file="${src.etc}/ToolbarFragment.jsp" todir="${build.webapp}/webcontent/birt/pages/control" overwrite="true" failonerror="true"/>
+		<copy file="${src.etc}/FramesetFragment.jsp" todir="${build.webapp}/webcontent/birt/pages/layout" overwrite="true" failonerror="true"/>
+		<copy file="${src.etc}/PrintReportDialogFragment.jsp" todir="${build.webapp}/webcontent/birt/pages/dialog" overwrite="true" failonerror="true"/>
+
+		<!-- Copy BIRT report files -->
+		<copy todir="${build.content}" failonerror="true">
+			<fileset dir="${src.content}/"/>
+		</copy>
+
+		<!-- Copy files for login -->
+		<copy file="${web.framework.dir}/web/core/javascript/core.js" todir="${build.webapp}/login/javascript/"/>                  
+	</target>
+
+	<target name="setup-war">
+		<copy file="${build.root.dir}/common-res.jar" tofile="${build.webapp}/WEB-INF/lib/common-res.jar"/>
+		<copy file="${web.framework.dir}/web/core/css/login.css" todir="${build.webapp}/login/css/"/>
+		<copy file="${web.framework.dir}/web/core/images/login_reporter.jpg" tofile="${build.webapp}/login/images/login.jpg"/>
+		<copy file="${web.framework.dir}/web/core/images/Bar_right_reporter.jpg" tofile="${build.webapp}/core/images/Bar_right.jpg"/>
+		<move file="${build.webapp}/WEB-INF/web-template.xml" tofile="${build.webapp}/WEB-INF/web.xml"/>
+		<replace file="${build.webapp}/WEB-INF/web.xml" token="[SKIN_TOKEN]" value="ruby"/>
+	
+		<war destfile="${build.webapp}/${inquiryCenter.war.filename}" 
+			basedir="${build.webapp}" 
+			webxml="${build.webapp}/WEB-INF/web.xml" 
+			excludes="genclasses/**/*.*, testclasses/**/*.*, ${inquiryCenter.war.filename}"/>
+	</target>
+
+	<target name="deploy">
+		<copy file="${build.webapp}/${inquiryCenter.war.filename}" todir="${war.dir}"/>
+	</target>
+
+	<target name="build-test">
+		<ant dir="${src.test.dir}" target="build" inheritrefs="true"/>
+	</target>
+			
+	<target name="build-main">
+		<delete dir="${build.webapp}"/>
+		<ant dir="${src.main.dir}" target="build" inheritrefs="true"/>
+	</target>
+
+	<target name="jar-res">
+		<jar destfile="${build.root.dir}/inquirycenter-res.jar">
+			<fileset dir="bundles">
+				<filename name="InquiryCenterMessages.properties"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="jar-birt">
+		<jar destfile="${build.root.dir}/inquirycenterOda-jdbc.jar">
+			<fileset dir="${build.webinf}/classes">
+				<filename name="**/ReportOdaJdbcDriver*"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="cleanup">
+		<delete dir="${build.webapp}" />
+		<delete dir="${build.root.dir}/run/server/tomcat/temp/Destiny Inquiry Center" />
+		<delete dir="${build.root.dir}/run/server/tomcat/work/reporter" />
+		<delete file="${build.root.dir}/run/server/apps/inquiryCenter.war" />
+	</target>
+	 
+	<target name="build" depends="build-main, jar-res, jar-birt, setup-webapp, setup-war, deploy"/>
+</project>

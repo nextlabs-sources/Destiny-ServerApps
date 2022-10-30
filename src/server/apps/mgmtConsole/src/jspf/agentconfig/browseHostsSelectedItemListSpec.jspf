@@ -1,0 +1,14 @@
+<%@ page buffer="none" errorPage="/error" %>
+
+<jsp:useBean id="selectedItemListSpecBean" class="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.ItemListDisplaySpecImpl" >
+  <jsp:useBean id="hostnameColumnSpec" class="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.ItemListColumnSpecImpl" >
+    <jsp:setProperty name="hostnameColumnSpec" property="columnHeader" value="${bundle['agent_config_browse_selected_items_hostname_column_header']}" />        
+    <jsp:setProperty name="hostnameColumnSpec" property="columnDisplayablePropertyId" value="hostname" />
+  </jsp:useBean>
+  <% selectedItemListSpecBean.addColumnSpec(hostnameColumnSpec); %>
+  <jsp:useBean id="currentProfileColumnSpec" class="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.ItemListColumnSpecImpl" >
+    <jsp:setProperty name="currentProfileColumnSpec" property="columnHeader" value="${bundle['agent_config_browse_selected_items_current_profile_column_header']}" />
+    <jsp:setProperty name="currentProfileColumnSpec" property="columnDisplayablePropertyId" value="currentProfileName" />
+  </jsp:useBean>
+<% selectedItemListSpecBean.addColumnSpec(currentProfileColumnSpec); %>
+</jsp:useBean>

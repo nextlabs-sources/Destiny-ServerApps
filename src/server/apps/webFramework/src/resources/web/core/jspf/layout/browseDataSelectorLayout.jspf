@@ -1,0 +1,156 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="CommonMessages" var="commonBundle" />
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<%-- Include CSS --%>
+<d:includeCSS location="/core/css/popup.css" />
+<!--[if IE]>
+<d:includeCSS location="/core/css/iepopup.css" />
+<![endif]-->
+
+    <title id="appTtle"> 
+<tiles:getAsString name="applicationTitle" />: <tiles:getAsString name="pageTitle"/>
+    </title>
+  </head>
+
+<body id="brsePckrLyt">
+		<div id="header">
+			<div id="masthead">
+				<div id="main-image"></div>
+				<div id="side-image"></div>
+			</div>
+	        <f:subview id="headerSubview">
+	            <tiles:insert attribute="header" flush="false">
+					<tiles:put name="applicationTitle">
+						<tiles:getAsString name="applicationTitle"/>
+					</tiles:put>
+					<tiles:put name="applicationIcon"><tiles:getAsString name="applicationIcon"/></tiles:put>
+					<tiles:put name="helpURL"><tiles:getAsString name="helpURL"/></tiles:put>  
+				</tiles:insert>
+			</f:subview>
+		</div>
+
+<div id="slctrCtntDv" class="content">
+
+<div id="slctnsDv" class="cart">
+<d:form id="slctdItmLstDv">
+  <h2 id="lstHdr"><tiles:getAsString name="selectedItemBoxLabel"/></h2>
+  
+  <tiles:importAttribute name="selectedItemListSpec" scope="request" ignore="true" />
+  
+  <div id="lstTblDv" class="listtable">
+    <d:dataTable id="lstTbl" columnClasses="lineop, " value="#{browsableDataPickerBean.selectedItems}" var="selectedItem" emptyTableMessage="#{commonBundle.data_picker_selected_items_list_empty_message_label}">
+      <h:column id="rmItmCol">
+        <h:commandLink id="rmItmLnk" styleClass="minus">
+        <f:param id="itmIdPrm" name="selectedItemId" value="#{selectedItem.id}" />
+          <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.RemoveItemActionListener"/>
+        </h:commandLink>
+      </h:column>
+      
+      <h:column id="itmCol" rendered="#{empty selectedItemListSpec}">
+        <h:outputText id="itmNmTxt" value="#{selectedItem.displayValue}" />
+      </h:column>
+      
+      <x:columns value="#{selectedItemListSpec.columnsSpec}" var="selectedItemListColumnSpec">
+        <f:facet name="header">
+          <h:outputText id="selected_item_column_header" value="#{selectedItemListColumnSpec.columnHeader}" />
+        </f:facet>
+        <h:outputText id="selected_item_column_value" value="#{selectedItem.displayableProperties[selectedItemListColumnSpec.columnDisplayablePropertyId]}" />
+      </x:columns>
+    </d:dataTable>
+<!--[if IE]>
+	<div id="spcrDv" class="spacerdiv">
+	  &nbsp;
+    </div>
+<![endif]-->
+  </div>
+  
+  <h:commandButton id="addItmsBtn" value="#{commonBundle.data_picker_add_selected_items_button_label}" action="#{browsableDataPickerBean.storeSelectedItems}" />
+  <h:commandButton id="cnclBtn" value="#{commonBundle.data_picker_cancel_add_selected_items_button_label}" action="#{browsableDataPickerBean.cancelDataSelection}" />
+</d:form>
+</div>
+
+<div id="availLstDv" class=itemselectionlist>
+
+<div id="srchBxDv" class="searchbox">
+  <%-- Ideally, for bookmarking puposes, the search results and search box should be in different forms.  However, it's not easy to apply only the 
+       change in the maximum search results field and not the change in the search box if that's the case.  Therefore, they're in different forms --%>
+  <d:form id="maxSearchResultsForm" method="GET">
+    <h:outputText id="maxResultsSelectLabel" value="#{commonBundle.data_picker_max_selectable_items_select_menu_label}"/> 
+    <h:selectOneMenu id="maxResultsSelect" value="#{browsableDataPickerBean.maxSelectableItemsToDisplay}" immediate="true" onchange="submit()">
+      <f:selectItems value="#{browsableDataPickerBean.maxSelectableItemsToDisplayOptions}" />
+    </h:selectOneMenu>
+  </d:form>
+  <d:form id="srchFrm" method="GET">
+    <h:outputText id="inptFldLbl" value="#{commonBundle.data_picker_search_box_search_input_field_label}"/> <h:inputText id="searchBox" value="#{browsableDataPickerBean.freeFormSearchString}" />
+    <h:commandButton id="srchBtn" value="#{commonBundle.data_picker_search_box_search_button_label}" />
+    <h:commandButton id="cnclSrchBtn" value="#{commonBundle.data_picker_search_box_cancel_button_label}" rendered="#{browsableDataPickerBean.freeFormSearch}">
+      <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.CancelFreeFormSearchActionListener"/>
+    </h:commandButton>
+    <h:outputText id="spaces" value="&nbsp;&nbsp;" escape="false"/>
+  </d:form>
+</div>
+
+<h3 id="curSrchStrHdr">
+<h:outputText id="srchStrLbl" value="#{browsableDataPickerBean.selectedSearchBucket.displayValue}" rendered="#{not browsableDataPickerBean.freeFormSearch}"/>
+<h:outputFormat id="srchStrFmt" value="#{commonBundle.data_picker_search_result_title_label}" rendered="#{browsableDataPickerBean.freeFormSearch}">
+  <f:param id="srchStrPrm" value="#{browsableDataPickerBean.freeFormSearchString}" />
+</h:outputFormat>
+</h3>
+
+<d:displayMessages />
+
+<div id="" class="selectableitems">
+  <d:form id="srchBktsFrm">
+    <x:dataList styleClass="categorymenu" layout="unorderedList" value="#{browsableDataPickerBean.searchBuckets}" var="searchBucket" rowIndexVar="searchBucketIndex" rendered="#{not browsableDataPickerBean.freeFormSearch}">
+      <h:commandLink id="srchBktLnk" value="#{searchBucket.displayValue}" immediate="true">
+        <f:param id="bktIndPrm" name="searchBucketIndex" value="#{searchBucketIndex}" />
+        <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.SelectSearchBucketActionListener"/>
+      </h:commandLink>
+    </x:dataList>
+
+    <d:dataTable id="selectableItemsTable" value="#{browsableDataPickerBean.selectableItems}" var="selectableItem" styleClass="selectableItemTable">
+      <h:column id="availItmTbl">  
+        <f:verbatim><span class="</f:verbatim>
+        <h:outputText value="#{selectableItem.styleClassId}" >      
+          <f:converter converterId="RequestAttributeConverter"/>
+        </h:outputText>
+        <f:verbatim>"></f:verbatim>
+        <h:commandLink id="itmNmLnk" value="#{selectableItem.displayValue}" title="#{selectableItem.displayValueToolTip}" immediate="true" rendered="#{selectableItem.selectable}">      
+          <f:param id="itmIdPrm" name="selectableItemid" value="#{selectableItem.id}" />
+          <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.SelectItemActionListener"/>
+        </h:commandLink>    
+        <h:outputText id="itmNmLbl" value="#{selectableItem.displayValue}" rendered="#{not selectableItem.selectable}"/>
+        <f:verbatim></span></f:verbatim>
+      </h:column>
+    </d:dataTable>
+  </d:form>
+</div>
+
+</div>
+</div>
+
+<div id="footer">
+
+<%-- Insert footer --%>
+<f:subview id="footerSubview">
+<tiles:insert attribute="footer" flush="false"/>
+</f:subview>
+
+</div>
+
+</body>
+</html>

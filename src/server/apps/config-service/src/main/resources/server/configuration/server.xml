@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<Server shutdown="SHUTDOWN" port="${NEXTLABS_CC_PORT_SERVERSHUTDOWNPORT}">
+
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <GlobalNamingResources>
+    </GlobalNamingResources>
+
+    <Service name="CE-Config">
+        <Connector connectionTimeout="60000"
+                   enableLookups="false"
+                   protocol="HTTP/1.1"
+                   port="${NEXTLABS_CC_PORT_CONFIGSERVICEPORT}">
+        </Connector>
+        <Engine name="CE-Config" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false"
+                  unpackWARs="true"
+                  appBase="${catalina.base}/apps/config">
+                <Context path="/config-service" reloadable="false" docBase="${catalina.home}/../apps/config-service.war"
+                         workDir="${catalina.home}/work/config-service">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+
+</Server>

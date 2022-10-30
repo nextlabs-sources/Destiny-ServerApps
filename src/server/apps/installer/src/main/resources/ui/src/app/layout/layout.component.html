@@ -1,0 +1,58 @@
+<div class="installer-header container-fluid p-0">
+  <div class="d-flex flex-row align-items-center h-100">
+    <div class="d-flex flex-row justify-content-center installer-header-logo-wrapper">
+      <div class="installer-header-logo"></div>
+    </div>
+    <div class="vertical-bar"></div>
+    <div class="cc-header-icon-smaller ml-5"></div>
+    <div class="installer-header-text">
+      Control Center
+    </div>
+    <div class="install-version ml-auto mr-5"> Version {{version}}</div>
+  </div>
+</div>
+<div class="container-fluid h-100 main-container">
+  <div>
+    <div class="row">
+      <mat-sidenav-container>
+        <mat-sidenav-content>
+          <div class="d-flex flex-column align-items-center" id="sidenav-content">
+              <router-outlet></router-outlet>
+          </div>
+        </mat-sidenav-content>
+        <mat-sidenav class="installer-sidenav" mode="side" opened disableClose fixedInViewport>
+          <div class="col-sm-12 installer-logo d-flex flex-column justify-content-end">
+            <div class="d-flex flex-row justify-content-center align-items-center">
+              <div class="cc-header-icon-small"></div>
+              <div class="logo-title p-1">
+                <div>Control Center</div>
+                <div class="logo-title-subtext">{{installMode}} Wizard</div>
+              </div>
+            </div>
+          </div>
+          <mat-nav-list class="mt-3">
+            <div class="nav-list-item" *ngFor="let route of routes; let index = index">
+              <a id="{{route.path}}" mat-list-item routerLink="{{route.path}}"
+                 routerLinkActive="active-tab">
+                <div class="d-flex flex-column h-100 progress-strip">
+                  <div
+                    [ngClass]="{'highlight': isStageCompleted(route.path) || isStageInProgress(route.path), 'hide': index === 0 }"
+                    class="divider flex-grow-1"></div>
+                  <div [ngClass]="{'highlight': isStageCompleted(route.path), 'active': isStageInProgress(route.path)}"
+                       class="node d-flex flex-row justify-content-center align-items-center">
+                    <i *ngIf="isStageCompleted(route.path)" class="fas fa-check"></i>
+                  </div>
+                  <div [ngClass]="{'highlight': isStageCompleted(route.path), 'hide': index === routes.length - 1}"
+                       class="divider flex-grow-1"></div>
+                </div>
+                <div class="nav-text ml-2">
+                  {{route.name}}
+                </div>
+              </a>
+            </div>
+          </mat-nav-list>
+        </mat-sidenav>
+      </mat-sidenav-container>
+    </div>
+  </div>
+</div>

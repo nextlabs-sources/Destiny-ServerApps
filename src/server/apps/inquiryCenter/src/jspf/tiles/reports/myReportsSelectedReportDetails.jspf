@@ -1,0 +1,110 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<h:panelGroup id="SlctdRptDtlsPgGrp">
+  <f:verbatim><div id="ExDtlsCntDv"></f:verbatim>
+    <h:outputText id="CntSrchLblTxt" value="#{message.my_reports_form_search_label} "/><h:outputText id="CntSrchTgtNmTxt" value="#{myReportsBean.selectedReport.targetDisplayName} " rendered="#{myReportsBean.selectedReport != null}"/><h:outputText id="CntSrchFrmWhrLblTxt" value="#{message.my_reports_form_where_label}"/>
+        <f:verbatim><table id="CntTbl" class="formtable1"></f:verbatim>
+          <f:verbatim><tr id="CntTblUsrRw" ></f:verbatim>
+            <f:verbatim><td id="UsrRwLblCol" class="label"></f:verbatim>
+              <h:outputText id="UsrLblTxt" value="#{message.my_reports_form_user_label}"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="UsrRwInCol" class="inputvalue"></f:verbatim>
+              <h:outputText id="UsrRwInColUsrTxt" value="#{myReportsBean.selectedReport.selectedUsers}" rendered="#{myReportsBean.selectedReport != null}" escape="true"/>
+            <f:verbatim></td></f:verbatim>
+          <f:verbatim></tr></f:verbatim>
+          <f:verbatim><tr id="CntTblActnRw"></f:verbatim>
+            <f:verbatim><td id="ActnRwLblCol" class="label"></f:verbatim>
+              <h:outputText id="ActnLblTxt" value="#{message.my_reports_form_action_label}"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="ActnRwInCol" class="inputvalue"></f:verbatim>
+              <h:outputText id="ActnRwInColActnTxt" value="#{myReportsBean.selectedReport.actions}" rendered="#{myReportsBean.selectedReport != null}"/>
+            <f:verbatim></td></f:verbatim>
+          <f:verbatim></tr></f:verbatim>
+          <%--
+          <f:verbatim><tr id="CntTblHstRw"></f:verbatim>
+            <f:verbatim><td id="HstRwLblCol" class="label"></f:verbatim>
+              <h:outputText id="HstLblTxt" value="#{message.my_reports_form_host_label}"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="HstRwInCol" class="inputvalue"></f:verbatim>
+              <h:outputText id="HstRwInColActnTxt" value="#{myReportsBean.selectedReport.actions}" rendered="#{myReportsBean.selectedReport != null}"/>
+            <f:verbatim></td></f:verbatim>
+          <f:verbatim></tr></f:verbatim>
+          --%>
+          <f:verbatim><tr id="CntTblRscRw"></f:verbatim>
+            <f:verbatim><td id="RscRwLblCol" class="label"></f:verbatim>
+              <h:outputText id="RscLblTxt" value="#{message.my_reports_form_resource_label}"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="RscRwInCol" class="inputvalue"></f:verbatim>
+              <h:outputText id="RscRwInColRscTxt" value="#{myReportsBean.selectedReport.selectedResources}" rendered="#{myReportsBean.selectedReport != null}" escape="true"/>
+            <f:verbatim></td></f:verbatim>
+          <f:verbatim></tr></f:verbatim>
+          <d:showHide id="CntTblPlcyShHd" rendered="#{myReportsBean.selectedReport.policyActivitySelected}">
+          	<f:verbatim><tr id="PlcyLblRw" ><td id="PlcyLblCol" class="label"></f:verbatim>
+	        	<h:outputText id="PlcyLblColTxt" value="#{message.my_reports_form_policy_label}"/>
+			<f:verbatim></td><td id="PlcyInCol" class="inputvalue"></f:verbatim>
+          		<h:outputText id="PlcyInColSelRptPlcyTxt" value="#{myReportsBean.selectedReport.selectedPolicies}" rendered="#{myReportsBean.selectedReport != null}" escape="true"/>
+          	<f:verbatim></td></tr><tr id="EnfRw" ><td id="EnfLblCol" class="label"></f:verbatim>
+          		<h:outputText id="EnfLblColTxt" value="#{message.my_reports_form_enforcement_label}"/>
+          	<f:verbatim></td><td id="EnfInCol" class="inputvalue"></f:verbatim>
+          		<h:outputText id="EnfInColEnfTxt" value="#{myReportsBean.selectedReport.enforcements}" rendered="#{myReportsBean.selectedReport != null}"/>
+          	<f:verbatim></td></tr></f:verbatim>
+          </d:showHide>
+          <f:verbatim><tr id="LvlRw" ><td id="LvlLblCol" class="label"></f:verbatim>
+          	<h:outputText id="LvlLblColTxt" value="#{message.my_reports_form_level_label}"/>
+          <f:verbatim></td><td id="LvlInCol" class="inputvalue"></f:verbatim>
+          	<h:outputText id="LvlInColEnfTxt" value="#{myReportsBean.selectedReport.loggingLevelUIDisplay}" rendered="#{myReportsBean.selectedReport != null}"/>
+          <f:verbatim></td></f:verbatim>
+          <f:verbatim></tr></f:verbatim>
+          <d:form id="rptEdtSvFrm" method="GET">
+          <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+          <%--
+		     	Title input
+	        --%>
+			<f:verbatim><tr id="CntTtlLblRw" ></f:verbatim>
+			  <f:verbatim><td id="TtlLblCol" class="label"></f:verbatim>
+			    <h:outputText id="TtlLblFldTxt" value="#{message.my_report_edit_form_display_title_field}:"/>
+			  <f:verbatim></td></f:verbatim>
+			  <f:verbatim><td id="TtlInCol" class="input"></f:verbatim>
+			    <h:inputText id="TtlInptBx" value="#{myReportsBean.selectedReport.title}" size="21" required="true" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>	
+		      <f:verbatim></td></f:verbatim>
+		      <f:verbatim></tr></f:verbatim>
+
+		  	<%--
+		  		Share-ability input
+		  	--%>		
+		  	<f:verbatim><tr id="CntShrdLblRw" ></f:verbatim>      
+		      <f:verbatim><td id="ShAbLblCol" class="label"></f:verbatim>
+			    <h:outputText id="ShAblLblFldTxt" value="#{message.my_report_edit_form_display_is_shared_field}:"/>
+			  <f:verbatim></td></f:verbatim>
+			  <f:verbatim><td id="ShAbInCol" class="input"></f:verbatim>
+			    <h:selectBooleanCheckbox id="ShAblInBnCkBx" value="#{myReportsBean.selectedReport.shared}" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+			  <f:verbatim></td></f:verbatim>
+			<f:verbatim></tr></f:verbatim>
+		  	<%--
+		  		Description input
+		  	--%>
+			<f:verbatim><tr id="CntDscLblRw" ></f:verbatim>
+			  <f:verbatim><td id="DscLblCol" class="label"></f:verbatim>
+			    <h:outputText id="DscLblFldTxt" value="#{message.my_report_edit_form_display_description_field}:"/>
+			  <f:verbatim></td></f:verbatim>
+			  <f:verbatim><td id="DscInCol" class="input"></f:verbatim>
+			    <h:inputTextarea id="DscInBnTxtAr" style="overflow: hidden" rows="2" cols="14" value="#{myReportsBean.selectedReport.description}" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+			  <f:verbatim></td></f:verbatim>
+			<f:verbatim></tr></f:verbatim>
+        <f:verbatim></table></f:verbatim>    
+        <f:verbatim><div id="MnPnTtlDtlsActBtnDv" class="actionbuttons"></f:verbatim>
+		<h:commandLink id="ActBtnSwtchVw" action="#{myReportsBean.getNavigateAction}" actionListener="#{myReportsBean.onRestoreDefinition}" rendered="#{myReportsBean.selectedReport.owned || myReportsBean.selectedReport.id == null}">
+	  	  <h:commandButton type="button" value="Edit" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/> 	
+	    </h:commandLink>
+		<a4j:commandLink id="ActBtnExeLnk" rendered="#{myReportsBean.selectedReport.owned || myReportsBean.selectedReport.id == null}" reRender="svdRptsLstTblPnl,myReportTable,myDataScroller,rptCntDsplyMsgGrp,rptNewDeleteBtnsGrp" oncomplete="submitted_myReportsDefinitionSubview_contentSubview_rptEdtSvFrm = 0;">
+          <h:commandButton id="ActBtnBtn" type="button" value="Save" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/> 
+	      <f:param id="ActBtnPgBnNm" name="reportPageBeanName" value="myReportsBean"/>
+		  <f:actionListener type="com.bluejungle.destiny.inquirycenter.report.ReportUpdateActionListener"/>
+		</a4j:commandLink>
+		<f:verbatim></div></f:verbatim>  
+		</d:form>
+   <f:verbatim></div></f:verbatim> 
+</h:panelGroup> 

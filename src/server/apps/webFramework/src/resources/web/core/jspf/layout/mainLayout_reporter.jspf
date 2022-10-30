@@ -1,0 +1,118 @@
+<%@	page buffer="none" errorPage="/error"	%>	<%-- No	buffer required	to included	JSF	pages.	Alternative	to verbatim	tags --%>
+<%@	taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles"	%>
+<%@	taglib uri="http://java.sun.com/jsf/html"	prefix="h" %>
+<%@	taglib uri="http://java.sun.com/jsf/core"	prefix="f" %>
+<%@	taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"	%>
+<%@	taglib uri="http://java.sun.com/jstl/core" prefix="c"	%>
+
+<%-- Load	Resource Bundles --%>
+<f:loadBundle	basename="CommonMessages"	var="commonBundle" />
+<f:loadBundle	basename="CustomizationMessages" var="customizedBundle"	/>
+	
+<!DOCTYPE	HTML PUBLIC	"-//W3C//DTD HTML	4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<%
+		HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            Object csrfToken = httpSession.getAttribute("csrfToken");
+            if (csrfToken != null) {
+		%><meta name="csrfToken" content="<%= csrfToken %>"><%}}%>
+		<%-- Include CSS --%>
+		<d:includeCSS location="/core/css/core_reporter.css" />
+		<d:includeCSS location="/calendar/DB/theme.css"/>
+		<d:includeCSS location="/calendar/WH/theme.css"/>
+		<!--[if	IE]>
+		<d:includeCSS location="/core/css/ie.css"	/>
+		<![endif]-->
+		<title id="appTtle"> 
+			 <%
+		String installMode = System.getProperty("console.install.mode", "OPL");
+		pageContext.setAttribute("installMode", installMode);
+		if("SAAS".equals(installMode)) {
+           %>
+				NextLabs Cloud Authorization Service
+			<%
+		} else {
+			%>
+				<h:outputText value="#{customizedBundle.product_title}" /> <tiles:getAsString name="applicationTitle" />: <tiles:getAsString name="pageTitle"/>
+			<%
+		}
+		%>
+		</title>
+		<c:choose>
+			<c:when test='${installMode eq "SAAS"}'>
+				<c:url value="/core/images/saas.ico" var="favicon"/>
+			</c:when>
+			<c:otherwise>
+				<c:url value="/core/images/favicon.ico" var="favicon"/>
+			</c:otherwise>
+		</c:choose>
+		<link rel="icon" href="${favicon}" type="image/x-icon" />
+	</head>
+
+	<body	id="appBdy">
+		<div id="header">
+			<div id="masthead" style="min-width:700px;">
+				<div id="main-image"></div>
+				<div id="side-image"></div>
+			
+			<f:subview id="headerSubview">
+				<tiles:insert attribute="header" flush="false">
+					<tiles:put name="applicationTitle">
+						<tiles:getAsString name="applicationTitle"/>
+					</tiles:put>
+					<tiles:put name="applicationIcon"><tiles:getAsString name="applicationIcon"/></tiles:put>
+					<tiles:put name="helpURL"><tiles:getAsString name="helpURL"/></tiles:put>	 
+				</tiles:insert>
+			</f:subview>
+			</div>
+			<%-- Include primary navigation	for	current	application	--%>
+			<f:subview id="primaryNavSubview">
+				<tiles:insert attribute="primaryNav" flush="false"/>
+			</f:subview>
+		</div>
+
+
+         <div id="subnav">
+            <%-- Import the secondary nav attribute from Tiles context space --%>
+            <tiles:importAttribute name="secondaryNav" ignore="true" />    
+            <c:choose>
+                <c:when test="${not empty secondaryNav}">
+                    <%-- Include secondary nav for current page --%>
+                    <f:subview id="secondaryNavSubview">
+                        <tiles:insert attribute="secondaryNav" flush="true"/>  
+                    </f:subview>
+                </c:when>
+            </c:choose>
+        </div> 
+        
+		<div id="pagecontent">
+			<%-- Import	the	content	header attribute from	Tiles	context	space	--%>
+			<tiles:importAttribute name="contentHeader"	ignore="true"	/> 
+			<c:if test="${not empty contentHeader}">
+				<%-- Include content header	for	current	page --%>
+				<f:subview id="contentHeaderSubview">
+					<tiles:insert attribute="contentHeader" flush="false">
+						<tiles:put name="pageTitle">
+							<tiles:getAsString name="pageTitle"/>
+						</tiles:put>	
+					</tiles:insert>
+				</f:subview>
+			</c:if>
+
+			<%-- Insert	content	--%>
+			<f:subview id="contentSubview">
+				<tiles:insert attribute="content" flush="false"/>
+			</f:subview>
+		</div>
+
+		<div id="footer" style="background-color: white;">
+			<%-- Insert	footer --%>
+			<f:subview id="footerSubview">
+				<tiles:insert attribute="footer" flush="false"/>
+			</f:subview>
+		</div>
+	</body>
+</html>	

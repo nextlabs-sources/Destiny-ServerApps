@@ -1,0 +1,6 @@
+
+$header-height: 3rem;
+$sidenav-width: 18rem;
+$sidenav-content-width: calc(100vw - #{$sidenav-width});
+$footer-height: 4.5rem;
+$sidenav-content-max-height: calc(100vh - #{$header-height} - #{$footer-height});

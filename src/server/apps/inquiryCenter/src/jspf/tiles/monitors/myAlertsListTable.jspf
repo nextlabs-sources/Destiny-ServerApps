@@ -1,0 +1,1186 @@
+<%@ page buffer="none" errorPage="/error" %>
+<%@ page import="com.nextlabs.destiny.inquirycenter.monitor.service.AlertService,
+com.nextlabs.destiny.inquirycenter.monitor.service.MonitoringService, com.nextlabs.destiny.inquirycenter.dashboard.NewDashboardService" %>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+<d:includeJS location="/core/javascript/jquery-1.10.2.js" />
+<d:includeJS location="/core/javascript/jquery.dataTables.js" />
+<d:includeJS location="/core/javascript/bootstrap/js/bootstrap.js" />
+<d:includeJS location="/core/javascript/jquery-ui-1.10.3.custom.js" />
+<d:includeJS location="/core/javascript/d3/d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nv.d3.min.js" />
+<d:includeJS location="/core/javascript/d3/nextLabsCharts.js" />
+<d:includeJS location="/core/javascript/d3/zoomable-treemap.js" />
+<d:includeJS location="/core/javascript/common.js" />
+<d:includeJS location="/core/javascript/jquery-ui-timepicker-addon.js" />
+
+<d:includeCSS location="/core/javascript/bootstrap/css/bootstrap.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables.css"/>
+<d:includeCSS location="/core/css/jquery-ui-1.10.3.custom.css"/>
+<d:includeCSS location="/core/css/jquery.dataTables_themeroller.css"/>
+<d:includeCSS location="/core/javascript/d3/nv.d3.css"/>
+<d:includeCSS location="/core/javascript/d3/override-nvd3-tooltip.css"/>
+<d:includeCSS location="/core/javascript/c3/c3.css"/>
+<d:includeCSS location="/core/javascript/d3/zoomable-treemap.css" />
+<d:includeCSS location="/core/css/jquery-ui-timepicker-addon.css" />
+
+<f:verbatim>
+<div style="background-color: #f5f5f5">
+<h3 class='panetitle'>Alerts</h3>
+</div>
+<div id="tabs" style="display:none">
+  <ul style="width: 13%;margin-left: 12px;margin-top: 10px;">
+    <li><a id ="tab_overview" href="#tabs-1" class="alertTabStyle">Alerts Overview</a></li>
+    <li><a id ="tab_by_tags" href="#tabs-2" class="alertTabStyle">By Monitor tags</a></li>
+    <li><a id ="tab_by_monitors" href="#tabs-3" class="alertTabStyle">By Monitors</a></li>
+    <li><a id ="tab_by_time" href="#tabs-4" class="alertTabStyle">By Time</a></li>
+  </ul>
+  <div id="tabs-1" style="width: 85%; min-height: 750px;">
+	<div style="width:100%">  
+    	<h4 class="alertTabTitle">Alerts Overview</h4>
+        <div class="col-xs-12 form-inline row" style="margin-bottom:10px;">
+				    	<label for="date_mode_alerts" class="control-label" style="width:75px;">Date mode :</label>
+						<select id="date_mode_alerts" class="date_mode alerts form-control input-xs" name="date_mode_alerts" style="width:130px;">
+							<option value="Relative" selected>Relative</option>
+							<option value="Fixed">Fixed Dates</option>
+						</select>
+						<span id="relative_date_alerts" class="relative_date">
+							<label for="date_window_alerts" style="width:95px;margin-left:15px;">Date Selection :</label>
+							<select id="date_window_alerts" name="relative_date_window" class="date_window alerts form-control input-xs" style="width:130px;">
+								<option value="today">Today</option>
+								<option value="current_week">Current Week</option>
+								<option value="current_month">Current Month</option>
+								<option value="current_quarter">Current Quarter</option>
+								<option value="yesterday">Yesterday</option>
+								<option value="last_week">Last Calendar Week</option>
+								<option value="last_month">Last Calendar Month</option>
+								<option value="last_quarter">Last Calendar Quarter</option>
+								<option value="last_7_days">Last 7 days</option>
+							    <option value="last_30_days">Last 30 days</option>
+							</select>
+						</span>
+						<span id="fixed_date_alerts" class="fixed_date">
+							<label for="begin_date_alerts" class="control-label" style="width:95px;margin-left:15px;" >From: </label>
+					       	<input id="begin_date_alerts" name="begin_date_alerts" class="begin_date alerts  form-control input-xs" style="background:white; width:130px;" placeholder="From Date" type="text">
+						     			  
+					      	<label for="end_date_alerts" class="control-label" style="width:59px;margin-left:5px;" >To: </label>
+					       	<input id="end_date_alerts" name="end_date_alerts" class="end_date alerts  form-control input-xs" style="background:white; width:130px;" placeholder="To Date" type="text">
+						</span>
+		</div>
+		<div class="col-xs-12 form-inline row" style="margin-bottom:10px;">
+					
+							<label for="monitor_alerts" class="control-label" style="width:75px;">Monitor :</label> 
+							<select id="monitor_alerts" name="monitor_alerts" class="monitor alerts form-control input-xs" style="width:130px;">
+							<option value="-">All</option>
+							</select>
+					
+					
+							<label for="tag_name_alerts" class="control-label" style="width:95px;margin-left:15px;">Tag Name: </label>
+					       	<input style="width:130px;" id="tag_name_alerts" name="tag_name_alerts" class="tag_name alerts form-control input-xs" type="text">
+							<label for="tag_value_alerts" class="control-label"style="margin-left:5px;">Tag Value: </label>
+					       	<input style="width:130px;" id="tag_value_alerts" name="tag_value_alerts" class="tag_value alerts form-control input-xs" type="text">
+					
+					
+						<div class="form-group" style="margin-left:15px;">
+					       	<label for="show_auto_dismiss" class="control-label">Show Dismissed </label>
+					       	<input style="vertical-align:top;" id="show_auto_dismiss" name="show_auto_dismiss" type="checkbox" value="1"/>
+					    </div>   	
+							<button style="height:25px;line-height:0.7;" type="button" class="btn btn-primary go alerts" name="alerts" id="alerts_details">Go</button>
+    	</div>
+    </div>	
+    <div style="clear:both;"></div>
+	<div id="overview_content" style="width: 90%;"></div>
+  </div>
+  <div id="tabs-2" style="width: 85%; min-height: 750px;">
+  	<div style="width:100%">
+	    <h4 class="alertTabTitle" >Alerts by Monitor Tags</h4>
+	    <div class="col-xs-12 form-inline row" style="margin-bottom:10px;">
+				    	<label for="date_mode_tags" class="control-label" >Date mode :</label>
+						<select id="date_mode_tags" class="date_mode tags form-control input-xs" name="date_mode_tags" style="width:130px;">
+							<option value="Relative" selected>Relative</option>
+							<option value="Fixed">Fixed Dates</option>
+						</select>
+						<span id="relative_date_tags" class="relative_date" style="margin-left:15px;">
+							<label for="date_window_tags" class="control-label" >Date Selection :</label>
+							<select id="date_window_tags" name="relative_date_window" class="date_window tags form-control input-xs" style="width:130px;">
+								<option value="today">Today</option>
+								<option value="current_week">Current Week</option>
+								<option value="current_month">Current Month</option>
+								<option value="current_quarter">Current Quarter</option>
+								<option value="yesterday">Yesterday</option>
+								<option value="last_week">Last Calendar Week</option>
+								<option value="last_month">Last Calendar Month</option>
+								<option value="last_quarter">Last Calendar Quarter</option>
+								<option value="last_7_days">Last 7 days</option>
+								<option value="last_30_days">Last 30 days</option>
+							</select>
+						</span>
+						<span id="fixed_date_tags" class="fixed_date" style="margin-left:15px;">
+							<label for="begin_date_tags" class="control-label" >From: </label>
+					       	<input id="begin_date_tags" name="begin_date_tags" class="begin_date tags form-control input-xs" style="background:white;width:130px;" placeholder="From Date" type="text">
+						     			  
+					      	<label for="end_date_tags" class="control-label" >To: </label>
+					       	<input id="end_date_tags" name="end_date_tags" class="end_date tags form-control input-xs" style="background:white;width:130px;" placeholder="To Date" type="text">
+						</span>
+						<button style="line-height:0.70; height:25px; margin-left: 5px;" type="button" class="btn btn-primary go tags" name="tags" id="group_by_tags">Go</button>
+	    </div>
+    </div>
+    <div style="clear:both;"></div>
+	<div id="by_tags"></div>
+  </div>
+  <div id="tabs-3" style="width: 85%; min-height: 750px;">
+  	<div style="width:100%;">
+    	<h4 class="alertTabTitle" >Alerts by Monitors</h4>
+     	<div class="col-xs-12 form-inline row" style="margin-bottom:10px;">
+				    	<label for="date_mode_monitors" class="control-label">Date mode :</label>
+						<select id="date_mode_monitors" name="date_mode_monitors" class="date_mode monitors form-control input-xs" style="width:130px;">
+							<option value="Relative" selected>Relative</option>
+							<option value="Fixed">Fixed Dates</option>
+						</select>
+						<span id="relative_date_monitors" class="relative_date" style="margin-left:15px;">
+							<label for="date_window_monitors" class="control-label">Date Selection :</label>
+							<select id="date_window_monitors" name="date_window_monitors" class="date_window monitors form-control input-xs" style="width:130px;">
+								<option value="today">Today</option>
+								<option value="current_week">Current Week</option>
+								<option value="current_month">Current Month</option>
+								<option value="current_quarter">Current Quarter</option>
+								<option value="yesterday">Yesterday</option>
+								<option value="last_week">Last Calendar Week</option>
+								<option value="last_month">Last Calendar Month</option>
+								<option value="last_quarter">Last Calendar Quarter</option>
+								<option value="last_7_days">Last 7 days</option>
+							    <option value="last_30_days">Last 30 days</option>
+							</select>
+						</span>
+						<span id="fixed_date_monitors" class="fixed_date" style="margin-left:15px;">
+					      	<label for="begin_date_monitors" class="control-label">From: </label>
+					       	<input id="begin_date_monitors" name="begin_date_monitors" class="begin_date monitors form-control input-xs" style="background:white;width:130px;" placeholder="From Date" type="text">
+						     			  
+					      	<label for="end_date_monitors" class="control-label">To: </label>
+					       	<input id="end_date_monitors" name="end_date_monitors" class="end_date monitors form-control input-xs" style="background:white;width:130px;" placeholder="To Date" type="text">
+						</span>
+						<button style="line-height:0.70; height:25px; margin-left: 5px;" type="button" class="btn btn-primary go monitors" name="monitors" id="group_by_monitors">Go</button>
+    	</div>
+    </div>	
+    <div style="clear:both;"></div>
+   	<div id="by_monitors"></div>
+  </div>
+  <div id="tabs-4" style="width: 85%; min-height: 750px;">
+  	<div style="width:100%">
+    	<h4 class="alertTabTitle">Alerts by Time</h4>
+     	<div class="col-xs-12 form-inline row" style="margin-bottom:10px;">
+				    	<label for="date_mode_time" class="control-label">Date mode :</label>
+						<select id="date_mode_time" name="date_mode_time" class="date_mode time form-control input-xs" style="width:130px;">
+							<option value="Relative" selected>Relative</option>
+							<option value="Fixed">Fixed Dates</option>
+						</select>
+						<span id="relative_date_time" class="relative_date">
+							<label for="date_window_time" class="control-label" style="margin-left:15px;">Date Selection :</label>
+							<select id="date_window_time" name="date_window_time" class="date_window time form-control input-xs" style="width:130px;">
+								<option value="today">Today</option>
+								<option value="current_week">Current Week</option>
+								<option value="current_month">Current Month</option>
+								<option value="current_quarter">Current Quarter</option>
+								<option value="yesterday">Yesterday</option>
+								<option value="last_week">Last Calendar Week</option>
+								<option value="last_month">Last Calendar Month</option>
+								<option value="last_quarter">Last Calendar Quarter</option>
+								<option value="last_7_days">Last 7 days</option>
+							    <option value="last_30_days">Last 30 days</option>
+							</select>
+						</span>
+						<span id="fixed_date_time" class="fixed_date">
+					      	<label for="begin_date_time" class="control-label" style="margin-left:15px;">From: </label>
+					       	<input id="begin_date_time" name="begin_date_time" class="begin_date time form-control input-xs" style="background:white;width:130px;" placeholder="From Date" type="text">
+						     			  
+					      	<label for="end_date_time" class="control-label">To: </label>
+					       	<input id="end_date_time" name="end_date_time" class="end_date time form-control input-xs" style="background:white;width:130px;" placeholder="To Date" type="text">		
+				       	</span>
+				       	<button style="line-height:0.70; height:25px; margin-left: 5px;" type="button" class="btn btn-primary go time" name="time" id="group_by_time">Go</button>
+    	</div>
+    </div>	
+    <div style="clear:both;"></div>
+	<div id="by_time"></div>    
+  </div>
+</div>
+
+<%! 
+	AlertService aService = new AlertService();
+	MonitoringService mService = new MonitoringService();
+%>
+
+
+<script type="text/javascript">
+
+/*
+ * default criteria to fetch today's alerts
+ */
+var alerts = <%= aService.getAlertsJSONByQuery(request, "{\"date_criteria\":{\"mode\":\"Relative\",\"date_window\":\"today\"},\"report_type\":\"alerts_details\",\"filters\":[]}") %>;
+
+var monitors = <%= mService.getMonitorsUIDNameInfo() %>;
+
+var monitorsUIDNameMap = {};
+
+var contextPath = "${pageContext.request.contextPath}";
+
+var monitorURL = "${pageContext.request.contextPath}/monitorServlet";
+
+var saveReportURL = "${pageContext.request.contextPath}/reportServlet";
+
+var queryOnLoad = <%= request.getParameter("query") %>;
+var showSharePointEnabled = <%= NewDashboardService.showSharePointReports() %>;
+
+var dismissChecked = false;
+
+$(document).ready(function() {	
+	
+	checkUserRole();
+	
+	$( "#tabs" ).tabs(
+	{
+        select: function(event, ui){
+            var tabNumber = ui.index;
+            var tabName = $(ui.tab).text();
+            //console.log(ui);
+            //console.log('Tab number ' + tabNumber + ' - ' + tabName + ' - clicked');
+        }
+    }
+	).addClass( "ui-tabs-vertical ui-helper-clearfix" );
+    $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
+	$( "[id='myAlertsDefinitionSubview:secondaryNavSubview:monitoringSecNavFrm:monitoringSecondaryNavMenu-alerts']" ).css("color","green");
+    $("#tabs").show();
+    
+    prepareMapAndFillMonitorDropDown();
+    
+	$("span.fixed_date").hide();
+	
+	attachEventHandlersForChartTabs();
+	
+    if (queryOnLoad != null)
+    {
+    	loadAlertsSubTab();
+    }
+    else
+    {
+    	renderDetailsTable(alerts);	
+    }
+    
+	var dt = new Date();
+	
+	var month = (dt.getMonth() + 1) < 10? "0" + (dt.getMonth() + 1) : dt.getMonth() + 1;
+	
+	var day = (dt.getDate()) < 10? "0" + dt.getDate() : dt.getDate();
+	
+	var today = dt.getFullYear() + "-" + month+ "-" + day;
+	
+	$('input.begin_date').datetimepicker({dateFormat: 'yy-mm-dd', timeFormat:'HH:mm:ss', showMinute:true, showSecond:true,
+		defaultDate:"-0d", hour:0, minute:0, second:0, showButtonPanel: false});
+	$('input.begin_date').val(today + " 00:00:00");
+	
+	$('input.begin_date').change(function(){validateFromDate($(this).val())});
+    
+	
+	$('input.end_date').datetimepicker({dateFormat: 'yy-mm-dd', timeFormat:'HH:mm:ss', showMinute:true, showSecond:true,
+		defaultDate:"-0d", hour:23, minute:59, second:59, showButtonPanel: false});
+	$('input.end_date').val(today + " 23:59:59");
+	
+	$('input.end_date').change(function(){validateToDate(null, $(this).val(), false)});
+	
+	attachEventsHandlersForAlertActions();
+	
+	
+} );
+
+
+function checkUserRole() {
+	 var action = "CHECK_USER_ACCESS";
+	 post_data = {};
+	 
+	 $.ajax({
+	 	type : 'POST',
+	 	url : saveReportURL,
+	 	data : {
+	 		"data" : JSON.stringify(post_data),
+	 		"action" : action
+	 	},
+	 	dataType : 'json',
+	 	success : function(response) {
+	 		isAdminUser = response.is_reproter_admin[0];
+	 	},
+	 	error : function(xhr, status) {
+	 		handleError(xhr, 'Error encountered in loading the saved report');
+	 	},
+	 	async : false
+	 });
+}
+
+function loadAlertsSubTab()
+{
+	var queryObj = queryOnLoad;
+	var tab = queryObj["report_type"];
+	if (tab == "alert_details")
+	{
+		loadOverviewTab(queryObj);
+		return;
+	}
+	loadTab(queryObj);
+}
+
+
+
+function prepareMapAndFillMonitorDropDown()
+{
+	$.each(monitors,function(index, value) 
+	{
+	    $("#monitor_alerts").append('<option value="' + value.monitor_uid + '">' + value.name + '</option>');
+	    monitorsUIDNameMap[""+value.monitor_uid] = value.name;
+	});
+}
+
+function attachEventHandlersForChartTabs()
+{
+	$("select.date_mode").change(showSelectedDateControls);
+	$("button.go").click(handleGoButtonClick);
+}
+
+function handleGoButtonClick()
+{
+	validateSession();
+	
+	var jSource = $(this);
+	var report_type = jSource.attr('id');
+	var tab = $.trim(jSource.attr('name'));
+	
+	var query = formQuery(tab, report_type);
+	
+	/*
+	we return null when there is a validation error
+	*/
+	if ( query == null)
+	{
+		return;
+	}
+	
+	queryMap[tab] = query;
+	
+	// Send the data using post
+	var request = $.post( monitorURL, {"action":"ALERTS_REPORTING" , "query": JSON.stringify(query)} );
+	 
+	var targetElement = $("#by_" + tab);
+	var content = targetElement.html();
+	targetElement.html("<div class='loadingmessage' style='align:center'><img src='/reporter/core/images/loader.gif'/></div>'");
+	
+	  // Put the results in a div
+	  request.done(function( data ) {
+		  invokeRenderer(data, tab, targetElement.attr('id'));
+	  });
+	  
+	  request.fail(function( data ) {
+		  targetElement.html("Error Loading content!!")
+	  });
+	
+}
+
+var rendererMap = {};
+rendererMap["tags"] = renderTreeMapChart;
+rendererMap["monitors"] = renderMonitorsBarChart;
+rendererMap["time"] = renderTimeBarChart;
+rendererMap["alerts"] = renderDetailsTable;
+
+var queryMap = {};
+
+var oTable;
+
+/* data returned from the server is of the following format 
+   for group by tags 
+ {
+	    "data": [
+	        {
+	            "value": "tt",
+	            "resultcount": 460,
+	            "name": "tt"
+	        },
+	        {
+	            "value": "L1",
+	            "resultcount": 460,
+	            "name": "level"
+	        }
+	    ],
+	    "header": [
+	        {
+	            "mData": "name",
+	            "sTitle": "name"
+	        },
+	        {
+	            "mData": "value",
+	            "sTitle": "value"
+	        },
+	        {
+	            "mData": "resultcount",
+	            "sTitle": "resultcount"
+	        }
+	    ]
+	}
+ */
+
+
+function invokeRenderer(data, tab, targetElementId)
+{
+	var renderer = rendererMap[tab];
+	renderer(data, targetElementId);
+}
+
+
+function renderMonitorsBarChart(data, targetElementId)
+{	
+	var xLabel = "Monitor";
+	var yLabel = "Number of Alerts";
+	
+	var processedData = data.data;
+	var dataRows = { "values" : []};
+	
+	$.each(processedData, function(index, value){
+		var dataRow = { "label" :  monitorsUIDNameMap["" + value.monitor],
+				        "value" : value.resultcount };
+		
+		dataRows.values.push( dataRow);
+		value["monitor_name"] = monitorsUIDNameMap["" + value.monitor];
+	});
+	
+	var chartData = [];
+	chartData.push(dataRows);
+	
+	var width = getChartWidth(dataRows.values.length);
+	//var maxLabelLength = getMaxLabelLenght(chartData);
+	var height = 850; //getBarChartHeighWithLabel(maxLabelLength);
+	
+	var style = "height:" + height + "px; width:" + width + "px;";
+	
+	$("#" + targetElementId).html("<svg id='chart_"+ targetElementId +"' style='" + style + "'> </svg>");
+	
+	discreteBarChart("chart_" + targetElementId, chartData, xLabel, yLabel, 650, monitorChartClickHandler);
+}
+
+function monitorChartClickHandler(elementClickEvent)
+{
+	validateSession();
+	
+	var label = elementClickEvent.point.label;
+	
+	$("#relative_date_alerts").hide();
+	$("#fixed_date_alerts").show();
+	$("#show_auto_dismiss").prop("checked", true);
+	
+	var query = queryMap["monitors"];
+	
+	var filters = query["filters"];
+	
+	filters.push({"name":"monitor_uid", "value": getMapKey(monitorsUIDNameMap, label)});
+	filters.push({"name":"show_auto_dismiss", "value": true});
+	
+	loadOverviewTab(query);
+}
+
+
+function renderTimeBarChart(data, targetElementId)
+{	
+	validateSession();
+	
+	var xLabel = "Time";
+	var yLabel = "Number of Alerts";
+	
+	var processedData = data.data;
+	var dataRows = { "values" : []};
+	
+	$.each(processedData, function(index, value){
+		var dataRow = { "label" : value.dimension,
+				        "value" : value.resultcount };
+		dataRows.values.push( dataRow);
+	});
+	
+	if (dataRows.values.length > 0){
+	var paramObj = data.param_obj || {};
+	var grouping_field = paramObj.grouping_field;
+	
+	if(grouping_field == "day_nb" || grouping_field == "month_nb") {
+		var field = "GROUP_BY_DAY";
+		if (grouping_field == "month_nb"){
+			field = "GROUP_BY_MONTH";
+		}			
+		dataRows.values = getDatesInBetweenWithData( paramObj.begin_date, paramObj.end_date, dataRows.values, "asc", field, "ALL", false);
+	}	
+	}
+	var chartData = [];
+	chartData.push(dataRows);
+	
+	var width = getChartWidth(dataRows.values.length);
+	// var maxLabelLength = getMaxLabelLenght(chartData);
+	var height = 850;  //getBarChartHeighWithLabel(maxLabelLength);
+	
+	var style = "height:" + height + "px;width:" + width + "px;";
+	
+	$("#" + targetElementId).html("<svg id='chart_"+ targetElementId +"' style='" + style + "'> </svg>");
+	
+	discreteBarChart("chart_" + targetElementId, chartData, xLabel, yLabel, 650, timeChartClickHandler);
+	
+}
+
+
+function timeChartClickHandler(elementClickEvent)
+{
+	validateSession();
+	
+	var label = elementClickEvent.point.label;
+	
+	var groupingModeValue = $('#date_window_time').val();
+	var groupingMode = "GROUP_BY_DAY";
+
+	if (groupingModeValue == 'current_quarter' || groupingModeValue == 'last_quarter') {
+		groupingMode = "GROUP_BY_MONTH";
+	}
+	
+	$("#date_mode_alerts").val("Fixed");
+	$("#relative_date_alerts").hide();
+	$("#fixed_date_alerts").show();
+	
+	var query = queryMap["time"];
+	query.date_criteria.mode="Fixed";
+	
+
+	if (groupingMode == "GROUP_BY_MONTH") {
+		var begin = formDate("01-" + label);
+		query.date_criteria.begin_date = begin + " 00:00:00";
+
+		var endDt = begin.split("-");
+		var lastDayOfMonth = daysInMonth(endDt[0], endDt[1]);
+		
+		var endDate = endDt[0] + "-"+ endDt[1] + "-" + lastDayOfMonth;
+		query.date_criteria.end_date = endDate + " 23:59:59";
+		
+	} else if (groupingMode == "GROUP_BY_DAY") {
+		var value = formDate(label);
+		//$("#begin_date_alerts").val(value);
+		query.date_criteria.begin_date = value + " 00:00:00";
+		//$("#end_date_alerts").val(value);
+		query.date_criteria.end_date = value + " 23:59:59";
+	}
+	
+	loadOverviewTab(query);
+}
+
+function daysInMonth(year, month) {
+	var m = [31,28,31,30,31,30,31,31,30,31,30,31];
+	if (month != 2) return m[month - 1];
+	if (year%4 != 0) return m[1];
+	if (year%100 == 0 && year%400 != 0) return m[1];
+	return m[1] + 1;
+}
+
+
+function renderTreeMapChart(data, targetElementId)
+{
+	validateSession();
+	
+	var dataArr = data.data;
+	
+	if (dataArr == undefined || dataArr.length == 0)
+	{
+		/*
+			invoking renderTimeBarChart so that we see
+			same message (with same style) when there is 
+			no data to render chart 
+		*/
+		renderTimeBarChart(data, targetElementId)
+		return;
+	}
+	
+	/*
+		sort dataArray by key,value, so that we can effeciently form 
+		the structure needed for treemap
+	*/ 
+	
+	dataArr.sort(function(a,b){
+		var aKey = a.name + a.value;
+		var bKey = b.name + b.value;
+		return aKey.localeCompare(bKey);
+	});
+	
+	var chartData = [];
+	
+	var prevKey = null;
+	var key = null;
+	var children = [];
+	var first = true;
+	for (var i=0; i<dataArr.length; i++) {
+		var obj = dataArr[i];
+		key = obj.name;
+		if (key != prevKey && !first)
+		{
+			chartData.push({"name":prevKey, "children": children});
+			children = [];
+		}
+		children.push({"name":obj.value, "value":obj.resultcount});
+		prevKey = key;
+		first = false;
+	}
+	if (!first)
+	{
+		chartData.push({"name":key, "children":children});
+	}
+	$("#" + targetElementId).html("<p id='chart'></p>");
+	renderTreeMap({"name":"Monitor Tags", "children":chartData}, "chart", 960, 500, treemapClickHandler);
+}
+
+function treemapClickHandler(d)
+{	
+	validateSession();
+	
+	var tab = "tags";	
+	var query = queryMap[tab];
+	var filters = query["filters"];
+	
+	var tagNameFilter = {};
+
+	tagNameFilter["name"] = "tag_name";
+	tagNameFilter["value"] = d.parent.name;
+	filters.push(tagNameFilter);
+	
+	var tagValueFilter = {};
+	tagValueFilter["name"] = "tag_value";
+	tagValueFilter["value"] = d.name;
+	filters.push(tagValueFilter);
+	
+	loadOverviewTab(query);
+}
+
+
+function validateFromDate(fromDate) {
+	var from = null;
+	
+	try
+	{
+		from = $.datepicker.parseDateTime("yy-mm-dd", "HH:mm:ss", fromDate);
+	}
+	catch(err)
+	{
+		$.alert("Invalid From date.", "Invalid Value!", function(){});
+		return null;
+	}
+	
+	return from;
+}
+
+function validateToDate(fromDate, toDate, validateBothDates) {
+	
+	if (validateBothDates)
+	{
+		var from = validateFromDate(fromDate);
+		
+		if ( from == null)
+		{
+			return false;
+		}
+	}
+	
+	var to = null;
+	
+	try
+	{
+		to = $.datepicker.parseDateTime("yy-mm-dd", "HH:mm:ss", toDate);
+	}
+	catch(err)
+	{
+		$.alert("Invalid To date.", "Invalid Value!", function(){});
+		return false;
+	}
+	
+	if (validateBothDates)
+	{
+		if(from.getTime() > to.getTime()) {
+			$.alert("To date must be greater than or equal to From date", "Invalid Value!", function(){});
+	   		return false;
+		}
+	}
+	
+   return true;
+}
+
+
+function formQuery(tab, report_type)
+{
+	var query = {};
+	var dateFilter = {};
+	var mode = $("#date_mode_" + tab).val();
+	dateFilter["mode"] = $("#date_mode_" + tab).val();
+	
+	if (mode == "Fixed")
+	{
+		var beginDate = $.trim($("#begin_date_" + tab).val());
+		var endDate = $.trim($("#end_date_" + tab).val());
+		
+		if (beginDate == "" || endDate == "")
+		{
+			$.alert("Please enter Begin Date and End Date", "Invalid Data!", function(){});
+			return null;
+		}
+		
+		if (!validateToDate(beginDate, endDate, true))
+		{
+			return null;
+		}
+		
+		dateFilter["begin_date"] = beginDate;
+		dateFilter["end_date"] = endDate;
+	}
+	else
+	{
+		dateFilter["date_window"] = $("#date_window_" + tab).val();
+	}
+	
+	var filters = [];
+	
+	var monitorFilter = {};
+	if ($("#monitor_" + tab).length > 0 && $.trim($("#monitor_" + tab).val()) != "-")
+	{
+		monitorFilter["name"] = "monitor_uid";
+		monitorFilter["value"] = $("#monitor_" + tab).val();
+		filters.push(monitorFilter);
+	}
+	
+	var showDismiss = {};
+	if($("#show_auto_dismiss").length > 0  || tab != "alerts" ) 
+	{
+		showDismiss["name"] = "show_auto_dismiss";
+		showDismiss["value"] = (tab != "alerts") ? true : $("#show_auto_dismiss").is(":checked"); 
+		filters.push(showDismiss);
+		if (tab == "alerts")
+		{
+			dismissChecked = $("#show_auto_dismiss").is(":checked");
+		}
+	}
+	
+	var tagNameFilter = {};
+	if ($("#tag_name_" + tab).length > 0 && $.trim($("#tag_name_" + tab).val()) != "")
+	{
+		tagNameFilter["name"] = "tag_name";
+		tagNameFilter["value"] = $.trim($("#tag_name_" + tab).val());
+		filters.push(tagNameFilter);
+	}
+	
+	var tagValueFilter = {};
+	if ($("#tag_value_" + tab).length > 0 && $.trim($("#tag_value_" + tab).val()) != "")
+	{
+		tagValueFilter["name"] = "tag_value";
+		tagValueFilter["value"] = $.trim($("#tag_value_" + tab).val());
+		filters.push(tagValueFilter);
+	}
+	
+	/*
+	{"date_criteria"}
+	*/
+	
+	query["date_criteria"] = dateFilter;
+	query["report_type"] = report_type;
+	
+	query["filters"] = filters;
+	
+	//console.log(JSON.stringify(query))
+	return query;
+}
+
+function clearFields(tab)
+{
+	if ($("#tag_name_"+ tab).length > 0)
+	{
+		$("#tag_name_" + tab).val("");
+	}
+	
+	if ($("#tag_value_" + tab).length > 0)
+	{
+		$("#tag_value_" + tab).val("");
+	}
+	
+	if ($("#monitor_" + tab).length > 0)
+	{
+		$("#monitor_" + tab).val("-");
+	}
+	
+	$("#show_auto_dismiss").prop("checked", false);
+	
+	// following fields are present in all tabs
+	$("#date_mode_" + tab).val("Relative");
+	$("#date_window_" + tab).val("Today");
+	
+	$("#relative_date_" + tab).show();
+	$("#fixed_date_" + tab).hide();
+}
+
+function loadOverviewTab(query)
+{
+	query["report_type"] = "alerts_details";
+	loadTab(query);
+}
+
+function loadTab(query)
+{
+	var type = query["report_type"];
+
+	var tab="alerts";
+	
+	if (type == "alerts_details")
+	{
+		tab = "alerts";
+	}
+	else
+	{
+		tab = type.replace("group_by_","");
+	}
+	
+	clearFields(tab);
+	
+	/*
+	load the overview tab using the jsonQuery and fire the request
+	*/
+
+	
+	var dateFilter = query["date_criteria"];
+	
+	$("#date_mode_" + tab).val(dateFilter.mode);
+	
+	if (dateFilter.mode == "Fixed")
+	{
+		var begin_date = dateFilter.begin_date;
+		var end_date = dateFilter.end_date;
+		$("#begin_date_" + tab).val(begin_date);
+		$("#end_date_" + tab).val(end_date);
+		$("#relative_date_" + tab).hide();
+		$("#fixed_date_" + tab).show();
+	}
+	else
+	{
+		$("#date_window_" + tab).val(dateFilter.date_window);
+		$("#relative_date_" + tab).show();
+		$("#fixed_date_" + tab).hide();
+	}
+	
+	var filters = query["filters"];
+	
+	for (var i = 0; i < filters.length; i++)
+	{
+		var filter = filters[i];
+		if (filter.name == "tag_name")
+		{
+			if ($("#tag_name_"+ tab).length > 0) $("#tag_name_" + tab).val(filter.value);
+		}
+		else if (filter.name == "tag_value")
+		{
+			if ($("#tag_value_"+ tab).length > 0) $("#tag_value_" + tab).val(filter.value);
+		}
+		else if (filter.name == "monitor_uid")
+		{
+			if ($("#monitor_"+ tab).length > 0) $("#monitor_" + tab).val(filter.value);
+		}
+		else if (filter.name == "show_auto_dismiss")
+		{
+			if ($("#show_auto_dismiss").length > 0) {
+				$('#show_auto_dismiss').prop('checked', filter.value);
+			}
+		}
+	}
+	
+	$('#' + type).trigger('click');
+	
+	var tabIndex = {};
+	tabIndex["alerts_details"] = 0;
+	tabIndex["group_by_tags"] = 1;
+	tabIndex["group_by_monitors"] = 2;
+	tabIndex["group_by_time"] = 3;
+	
+	$( "#tabs" ).tabs( "option", "active", tabIndex[type]);
+}
+
+function renderDataTable(alertsData)
+{
+	
+	var tableHdr = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="alertsList">' 
+		 + '<thead><tr>'
+		 + '<th>Level</th><th>Monitor Name</th><th>Alert Message</th><th>Raised At</th><th>Action</th>'
+		 + '</tr></thead></table>';
+	
+	$('#overview_content').html( tableHdr );
+	
+	//global variable
+	oTable = $('#alertsList').dataTable( {
+	"pagingType": "full_numbers",
+	"bJQueryUI": true,
+	"aaData": alertsData,
+	"bAutoWidth": false,
+	"aaSorting" : [[3, "desc"]],
+	"aoColumns": [
+	   { "sTitle": "Level", "mData":"alert_level", "sWidth":"10%" },
+	   { "sTitle": "Monitor Name", "mData":"monitor_name", "sWidth":"20%" },
+	   { "sTitle": "Alert Message", "mData":"alert_message", "sWidth":"30%" },
+	   { "sTitle": "Raised At", "mData":"triggered_datetime", "sWidth":"20%"},
+	   { "sTitle": "Action", "mData":"id", "bSortable":false, "bSearchable":false, "sWidth":"20%"}
+	],
+	"columnDefs": [  
+	{
+		"targets": 1,
+		"data":"monitor_name",
+		"render": function ( data, type, full, meta ) {
+				var name = shortenString(data);
+				return escapeHTML(name);
+			}
+	},
+	{
+		"targets": 2,
+		"data":"alert_message",
+		"render": function ( data, type, full, meta ) {
+				if (data == null || typeof data == 'undefined')
+				{
+					return "";
+				}
+				var description = shortenString(data)
+				return escapeHTML(description);
+			}
+	},
+	{
+		"targets": 4,
+		"render": function ( data, type, full, meta ) {
+			var dismissLink = "";
+			 if(isAdminUser || full.can_edit) {
+			
+				var dismissLink = "<span style='color:#808080' id='status_alert_" + full.id + "' >Dismiss</span>";
+				if (full.dismissed == false)
+				{
+					dismissLink = "<span style='cursor:pointer' id='status_alert_" + full.id + "' class='dismiss'>Dismiss</span>";
+				}
+				return ( dismissLink + " | " +
+						"<span style='cursor:pointer' id='delete_alert_" + full.id + "' class='delete'>Delete</span> | " +
+						"<span style='cursor:pointer' id='details_alert_" + full.id + "' class='details'>Details</span>");
+			
+			} else if (full.can_view){
+				return ("<span style='cursor:pointer' id='details_alert_" + full.id + "' class='details'>Details</span>");
+			} else {
+				return dismissLink = "No View Access";
+			}
+		}	
+	} ]
+	} );
+		
+	oTable.fnAdjustColumnSizing();
+	//highlight the selected alert
+	$('#alertsList tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('row_selected') ) {
+            $(this).removeClass('row_selected');
+        }
+        else {
+            oTable.$('tr').removeClass('row_selected');
+            $(this).addClass('row_selected');
+        }
+	});
+	$('#alertsList tbody').on( 'click', 'tr td span', function () {
+		oTable.$('tr').removeClass('row_selected');
+	});
+
+}
+
+function renderDetailsTable(data, targetElementId)
+{
+	renderDataTable(data.data);
+}
+
+function showSelectedDateControls()
+{
+	var jElement = $(this);
+	var value = jElement.val();
+	var tab = jElement.attr('id').replace('date_mode_', '');
+	
+	if (value === "Fixed")
+	{
+		$('#relative_date_' + tab).hide();
+		$('#fixed_date_' + tab).show();		
+	}
+	else
+	{
+		$('#relative_date_' + tab).show();
+		$('#fixed_date_' + tab).hide();
+	}
+}
+
+function attachEventsHandlersForAlertActions()
+{
+	$("#overview_content").on("click", "span.dismiss", hideAlertWrapper);
+	$("#overview_content").on("click", "span.delete", deleteAlertWrapper);
+	$("#overview_content").on("click", "span.details", showAlertDetails);
+	$("#overview_content").on("click", "span.keep", keepAlert);
+}
+
+
+function showAlertDetails()
+{
+	validateSession();
+	var id = $(this).attr('id').replace('details_alert_', '');
+	var csrfToken = $('meta[name="csrfToken"]').attr('content');
+	/*$("<form target='_blank' method='post' action='" + action + "' id='form_" + id+ "'><input type='hidden' name='alertId' value='" + id + "'>" +
+	"<input type='hidden' name='action' value='ALERT_DETAILS'></form>").appendTo('body').submit();*/
+	
+	var posting = $.post( monitorURL, { "action":"ALERT_DETAILS", "id":id } );
+	
+	  // Put the results in a div
+	posting.done(function( data ) {
+		var action = (showSharePointEnabled) ? contextPath + "/reports/multiReports.jsf" : contextPath + "/reports/myReports.jsf";
+
+		$('body').append("<form target='_blank' method='post' action='" + action + "' id='form_" + id+ "'><input type='hidden' id='jsonCriteria' name='jsonCriteria' value=''>" +
+		"<input type='hidden' name='csrfToken' value='" + csrfToken + "'/></form>");
+		
+		data["is_from_alert"] = true; 
+		data["is_owner"] = false; // always should apear as a new report in reporter
+		
+		$("#jsonCriteria").val(JSON.stringify(data));
+		
+		$( "#form_" + id ).submit();
+		$("#form_" + id).remove();
+	});
+	
+	posting.fail(function( data ) {
+		 $.alert("Error fetching Alert details",
+					"ERROR!", function() {});	 
+	});
+}
+
+
+function deleteAlertWrapper()
+{
+	var alert = this;
+	$.confirm("Are you sure you want to delete the Alert?", "Delete Alert", function () {deleteAlert(alert);});
+}
+
+function deleteAlert(that)
+{
+	validateSession();
+	var id = $(that).attr('id').replace('delete_alert_', '');
+	// Send the data using post
+	var posting = $.post( monitorURL, { "action":"DELETE_ALERT", "id":id } );
+	 
+	$(that).closest('tr').attr('id','row_' + id);
+	
+	var id_row = "row_" + id;
+	
+	var row = $(that).closest('tr');
+	  // Put the results in a div
+	posting.done(function( data ) {
+		var nRow =  $('#alertsList tbody tr[id='+id_row+']')[0];
+		oTable.fnDeleteRow( nRow, null, true );    
+	});
+	
+	posting.fail(function( data ) {
+		 $.alert("Error deleting Alert",
+					"ERROR!", function() {});	
+	});
+}
+
+function hideAlertWrapper()
+{
+	var alert = this;
+	$.confirm("Are you sure you want to dismiss the Alert?", "Dismiss Alert", function() {hideAlert(alert);});
+}
+
+function hideAlert(that)
+{
+	validateSession();
+	var id = $(that).attr('id').replace('status_alert_', '');
+	// Send the data using post
+	var posting = $.post( monitorURL, { "action":"DISMISS_ALERT", "id":id } );
+	 
+	$(that).closest('tr').attr('id','row_' + id);
+	
+	var id_row = "row_" + id;
+	
+	// Put the results in a div
+	posting.done(function( data ) {
+		/*
+		if auto_dismiss was not checked when the page was loaded,
+		delete the row corresponding to Alert
+		*/
+		if (!dismissChecked)
+		{
+			var nRow =  $('#alertsList tbody tr[id='+id_row+']')[0];
+			oTable.fnDeleteRow( nRow, null, true );
+		}
+		else
+		{
+			$("#status_alert_" + id).html("Dismiss").switchClass(
+					"dismiss", "").css("color","#808080").css("cursor","default");
+		}
+		//alert("Dismiss successful");
+	});
+	
+	posting.fail(function( data ) {
+		 $.alert("Error dismissing Alert",
+					"ERROR!", function() {});	
+	});
+}
+
+function keepAlert()
+{
+	//validateSession();
+	var id = $(this).attr('id').replace('status_alert_', '');
+	// Send the data using post
+	var posting = $.post( monitorURL, { "action":"DETAIN_ALERT", "id":id } );
+	 
+	$(this).closest('tr').attr('id','row_' + id);
+	
+	var id_row = "row_" + id;
+	
+	// Put the results in a div
+	posting.done(function( data ) {
+		$("#status_alert_" + id).html("Dismiss").switchClass(
+				"keep", "dismiss");
+	});
+	
+	posting.fail(function( data ) {
+		 $.alert("Error detaining Alert",
+					"ERROR!", function() {});	
+	});
+}
+
+
+function validateSession() {
+	$.ajax({
+		type : 'POST',
+		url : saveReportURL,
+		data : {
+			"data" : JSON.stringify(""),
+			"action" : "VALIDATE_USER_SESSION"
+		},
+		dataType : 'json',
+		success : function(data) {
+		},
+		error : function(xhr, status) {
+			handleError(xhr, 'Error in validating user session');
+		},
+		async : false
+	});
+}
+
+function handleError(xhr, message)
+{
+	var contentType = xhr.getResponseHeader("content-type").split(";") || "";
+
+	if (contentType[0] === "text/html" && (xhr.status != 403 || xhr.responseText.indexOf("CSRF") === -1))
+	{
+		window.location =  contextPath + "/login/login.jsf";
+	} else {
+		 $.alert(message + " Please Logout and Try again.",
+					"ERROR!", function() {});	
+	}
+}
+
+</script>
+
+</f:verbatim>

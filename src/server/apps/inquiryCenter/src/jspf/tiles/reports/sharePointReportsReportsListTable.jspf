@@ -1,0 +1,22 @@
+<%@ page buffer="none" errorPage="/error" %>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+<d:form id="reportListTableForm" method="get">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+	<f:verbatim><div id="rptLstTblDv" class="listtable"></f:verbatim>
+		<d:dataTable id="sharePointReportTable" value="#{sharePointReportsBean.reportList}" var="currentReport" preserveDataModel="true" rows="11">
+			<d:row id="tblSlctRw" styleClass="selected" rendered="#{sharePointReportsBean.selectedReport == currentReport}"/>
+			<h:column id="tblSlctRwTtlCol" >
+				<h:commandLink id="sharePointReportLink" value="#{currentReport.title}" action="sharePointReportsExecute">
+					<f:param id="ttlColPgBnNm" name="reportPageBeanName" value="sharePointReportsBean"/>
+					<f:param id="ttlColRptId" name="reportId" value="#{currentReport.id}"/>
+					<f:actionListener type="com.bluejungle.destiny.inquirycenter.report.ReportClickedActionListener"/>
+				</h:commandLink>
+			</h:column>
+		</d:dataTable>
+	<f:verbatim></div></f:verbatim>
+</d:form>

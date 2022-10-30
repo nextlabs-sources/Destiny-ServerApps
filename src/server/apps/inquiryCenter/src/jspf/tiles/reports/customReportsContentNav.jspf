@@ -1,0 +1,43 @@
+<%@ page buffer="none" errorPage="/error" %>  
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
+
+<style>
+.dr-pnl-h {
+	background-color: #f5f5f5;
+	border-color: white;
+	font-size: 16px;
+	color: black;
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	background-image: none;
+	height:20px;
+}
+.panelTitle {
+	font-family: Arial,Helvetica,Sans-Serif;
+	padding: 10px;
+}
+</style>
+
+<d:includeJS location="/calendar/popcalendar.js"/>
+
+<rich:panel id="custRptsLstTblPnl" styleClass="panelBar green_border" 
+               headerClass="panelTitle green_background" bodyClass="panelContent">
+    <f:facet name="header">
+        <h:outputText value="#{customReportsBean.reportPanelHeaderLabel}"/>
+    </f:facet>
+    <%@ include file="customReportsListTable.jspf" %>
+</rich:panel>  
+
+<f:verbatim>&nbsp;</f:verbatim>
+
+<rich:panel id="cstSlctdRptDtlsPnl" styleClass="panelBar green_border" 
+               headerClass="panelTitle green_background" 
+               rendered="#{customReportsBean.reportResultsSelected}">
+    <f:facet name="header">
+        <h:outputText value="#{customReportsBean.descriptionPanelHeaderLabel}"/>
+    </f:facet>
+    <%@ include file="customReportsSelectedReportDetails.jspf" %> 
+</rich:panel>

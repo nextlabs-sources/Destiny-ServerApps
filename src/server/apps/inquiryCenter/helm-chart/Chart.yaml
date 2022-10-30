@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nextlabs-control-center-reporter
+description: NextLabs Control Center Reporter Helm Chart for Kubernetes
+type: application
+version: "${appVersion}"
+appVersion: "${appVersion}"

@@ -1,0 +1,35 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%@ page
+	import="com.bluejungle.destiny.inquirycenter.report.defaultimpl.SharePointReportPageBeanImpl"%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="/birt.tld" prefix="birt"%>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<script type="text/javascript">
+	var element = document.getElementById("birtViewer");
+	if (element) {
+    element.parentNode.removeChild(element);
+    }
+</script>
+
+<%
+	SharePointReportPageBeanImpl bean = (SharePointReportPageBeanImpl) request
+			.getSession().getAttribute("sharePointReportsBean");
+%>
+
+<f:verbatim>
+	<div style="text-align: center;">
+</f:verbatim>
+<f:verbatim>
+	<iframe id="birtViewer"
+		src="/reporter/frameset?__showtitle=false&__format=HTML&__report=<%= bean.getBIRTReportName() %>&__target=_self&__masterpage=false&__parameterpage=false&Title=<%= bean.getReportTitle() %>&Folder=<%= bean.getFolder() %>"
+		frameborder="no"
+		style='height: 475px; width: 615px; text-align: center;'></iframe>
+</f:verbatim>
+<f:verbatim>
+	</div>
+</f:verbatim>

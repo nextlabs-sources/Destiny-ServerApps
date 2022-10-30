@@ -1,0 +1,80 @@
+<%@ page buffer="none" errorPage="/error"%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<f:verbatim>
+	<div class="container-fluid" id="main_page_content" style="min-height: 750px;">
+		<div class="row">
+			<div class="col-xs-12">
+				<span id="reportQuery_name"
+					class="report_title h4">Audit Log Query</span>
+			</div>
+		</div>
+		<div class="row" id="set-criteria">
+			<div class="col-xs-12">
+			   <div id="formErrorAlert" class="alert alert-danger" style='display:none;' >
+				 <a href="#" class="close" onclick="$('#formErrorAlert').hide();">&times;</a> <strong>Error!</strong>
+				 <span id="errorMsg"></span> 
+			   </div>
+			
+				<form role="form" id="criteria-form">
+					<div class="form-group row">
+						<div class="col-xs-3">
+							<label for="beginDate" class="control-label">From: </label> <input
+								type="text" id="beginDate" name="beginDate"
+								class="form-control input-xs" placeholder="From Date"  onchange="validateFromDate()" >
+						</div>
+						<div class="col-xs-3">
+							<label for="endDate" class="control-label">To: </label> <input
+								type="text" id="endDate" name="endDate"
+								class="form-control input-xs" placeholder="To Date" onchange="validateToDate()">
+						</div>
+					</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-5">
+				<button type="button" id="run_button" class="btn btn-primary btn-sm"
+					onclick="runReport();">
+					Run <i class="glyphicon glyphicon-play"></i>
+				</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-8">
+				<div id='loadingmessage' style='display: none; align: center'>
+					<img src='/reporter/core/images/loader.gif' />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<div id="reportContentViewer" style="text-align: center;"></div>
+			</div>
+		</div>
+	</div>
+</f:verbatim>
+<style type="text/css">
+html, body {
+	background-color: white;
+	padding: 0;
+	margin:	0;
+	overflow-y: auto;
+}
+.pane {
+	display: none; /* will appear when layout inits */
+}
+table.dataTable tbody tr {
+	line-height: 1;
+}
+#myReportsTableDiv table.dataTable tbody tr {
+    cursor: pointer;
+}
+</style>

@@ -1,0 +1,140 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<d:displayMessages />
+
+<div id="stsTblDv" class="statustable">
+
+  <h:panelGrid columns="2" columnClasses="statustablecolumn">
+
+    <h:panelGrid columns="1" rowClasses="statustablecolumnonerows">
+    <d:form method="GET">
+      <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+      <h:panelGrid columns="1">
+          <h:outputText id="shwFltMnLbl" value="#{bundle.status_by_host_page_show_filter_menu_label}" />
+          <h:selectOneMenu id="fltrByStsMnu" value="#{statusByHostBean.filterValue}" onchange="submit()" valueChangeListener="#{statusByHostBean.filterChanged}">
+            <f:selectItems value="#{statusByHostBean.filterSelections}"/>
+          </h:selectOneMenu>
+          <h:panelGroup>
+            <h:selectBooleanCheckbox title="#{bundle.status_by_host_page_warnings_filter_checkbox_label}" value="#{statusByHostBean.filteredByWarningsOnly}" onclick="submit()" valueChangeListener="#{statusByHostBean.filterChanged}"/>
+            <h:outputText value="#{bundle.status_by_host_page_warnings_filter_checkbox_label}"/>
+          </h:panelGroup>
+          <h:panelGroup>
+            <h:outputText id="maxResultsSelectLabel" value="#{commonBundle.data_picker_max_selectable_items_select_menu_label}"/>
+            <h:selectOneMenu id="maxResultsSelect" value="#{statusByHostBean.maxSelectableItemsToDisplay}" immediate="true" onchange="submit()">
+              <f:selectItems value="#{statusByHostBean.maxSelectableItemsToDisplayOptions}" />
+            </h:selectOneMenu>      
+          </h:panelGroup>
+        </h:panelGrid>
+      </d:form>
+    
+
+      <d:form id="srchBxFrm" method="GET">
+        <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+        <h:panelGrid columns="1">
+          <h:outputText id="srchInpLbl" value="#{bundle.status_by_host_search_box_search_input_field_label}"/>
+          <h:inputText id="searchBox" value="#{statusByHostBean.searchString}" />
+          <h:panelGroup>
+            <h:commandButton id="srchBtn" value="#{bundle.status_by_host_search_box_search_button_label}" />
+            <h:commandLink id="srchActvLnk" rendered="#{statusByHostBean.searchActive}">
+              <h:commandButton id="srchBxCnclBtn" value="#{bundle.status_by_host_search_box_cancel_button_label}" />
+              <f:param id="sttsAgntBnNm" name="statusByAgentViewBeanName" value="statusByHostBean" />
+              <f:actionListener type="com.bluejungle.destiny.mgmtconsole.agentstatus.CancelSearchActionListener"/>    
+            </h:commandLink>
+          </h:panelGroup>
+        </h:panelGrid>
+      </d:form>
+    </h:panelGrid>
+    
+    <d:form id="stsTblDv">
+      <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+      <d:dataTable styleClass="hoststatus" id="statustable" value="#{statusByHostBean.statusByAgentData}" var="agent" sortColumn="#{statusByHostBean.currentSortColumnName}" sortAscending="#{statusByHostBean.currentSortAscending}">
+        <h:column id="msngStsCol">
+          <f:facet name="header">
+    	    <d:commandSortHeader id="stsSrtHdr" columnName="#{statusByHostBean.missingInLast24HoursColumnName}" sortDownClassName="dn" sortUpClassName="up">
+		      <h:outputText id="stsHdr" value="#{bundle.status_by_host_page_data_table_status_header}"/>
+  		  </d:commandSortHeader>
+	      </f:facet>
+	     <h:graphicImage id="okStsImg" value="#{request.contextPath}/core/images/ok.png" rendered="#{not agent.missingMoreThan24Hours}"/> <h:graphicImage id="wrnStsImg" value="#{request.contextPath}/core/images/warn.gif" rendered="#{agent.missingMoreThan24Hours}"/>
+        </h:column>
+
+        <h:column id="hstNmCol">
+          <f:facet name="header">
+      	    <d:commandSortHeader id="hstNmHdr" columnName="#{statusByHostBean.hostColumnName}" sortDownClassName="dn" sortUpClassName="up">
+		      <h:outputText id="hstNmLbl" value="#{bundle.status_by_host_page_data_table_host_header}" />
+  		    </d:commandSortHeader>
+          </f:facet>
+          <h:outputText id="hstNmTxt" value="#{agent.hostName}" />
+        </h:column>
+
+        <h:column id="typCol">
+          <f:facet name="header">
+            <d:commandSortHeader id="typHdr" columnName="#{statusByHostBean.typeColumnName}" sortDownClassName="dn" sortUpClassName="up">
+	   	      <h:outputText id="typLbl" value="#{bundle.status_by_host_page_data_table_type_header}" />
+		    </d:commandSortHeader>
+          </f:facet>
+          <h:outputText id="typTxt" value="#{agent.typeDisplayValue}" />
+        </h:column>
+
+        <h:column id="lstHBTmCol">
+          <f:facet name="header">
+            <d:commandSortHeader id="lstHBTmHdr" columnName="#{statusByHostBean.lastHeartbeatColumnName}" sortDownClassName="dn" sortUpClassName="up">
+	          <h:outputText id="lstHBTmLbl" value="#{bundle.status_by_host_page_data_table_last_heartbeat_header}" />
+		    </d:commandSortHeader>
+          </f:facet>
+          <h:outputFormat id="lstHBTmFmt" value="{0, date, medium} - {0, time, medium}" rendered="#{agent.lastHeartbeatTime != null}">
+            <f:param id="lstHBTmPrm" value="#{agent.lastHeartbeatTime.time}" />
+          </h:outputFormat>
+          <h:outputText id="lstHBTmNil" value="-" rendered="#{agent.lastHeartbeatTime == null}" />
+        </h:column>
+
+        <h:column id="lstPlcyUpdTmCol">
+          <f:facet name="header">
+            <d:commandSortHeader id="lstPlcyUpdTmHdr" columnName="#{statusByHostBean.lastPolicyUpdateColumnName}" sortDownClassName="dn" sortUpClassName="up">
+    	      <h:outputText id="lstPlcyUpdTmLbl" value="#{bundle.status_by_host_page_data_table_last_policy_update_header}" />
+		    </d:commandSortHeader>
+          </f:facet>
+          <h:outputFormat id="lstPlcyUpdTmFmt" value="{0, date, medium} - {0, time, medium}" rendered="#{agent.lastPolicyUpdateTime != null and agent.lastPolicyUpdateTime.timeInMillis > 0}">
+            <f:param id="lstPlcyUpdTmPrm" value="#{agent.lastPolicyUpdateTime.time}" />
+          </h:outputFormat>
+          <h:outputText id="lstPlcyUpdTmNil" value="-" rendered="#{agent.lastPolicyUpdateTime == null}" />
+        </h:column>
+
+       <h:column id="plcyUpToDtCol">
+          <f:facet name="header">
+       	    <d:commandSortHeader id="plcyUpToDtHdr" columnName="#{statusByHostBean.policyUptoDateColumnName}" sortDownClassName="dn" sortUpClassName="up">
+    	      <h:outputText id="plcyUpToDtLbl" value="#{bundle.status_by_host_page_data_table_policy_up_to_date_header}" />
+		    </d:commandSortHeader>
+          </f:facet>
+	      <h:graphicImage id="plcyUpToDtYImg" value="#{request.contextPath}/core/images/check.gif" rendered="#{agent.policyUpToDate}"/> <h:graphicImage id="plcyUpToDtNImg" value="#{request.contextPath}/core/images/errorstate.gif" rendered="#{not agent.policyUpToDate}"/>
+        </h:column>
+
+        <h:column id="prfNmCol">
+          <f:facet name="header">
+    	    <h:outputText id="prfNmLbl" value="#{bundle.status_by_host_page_data_table_profile_name_header}" />
+          </f:facet>
+          <h:outputText id="prfNmTxt" value="#{agent.commProfileName}" />
+        </h:column>
+  
+        <h:column id="hidAgntStsCol">
+          <f:facet name="header">
+            <h:outputText id="hidAgntStsLbl" value="&nbsp;&nbsp;#{bundle.status_by_host_page_data_table_deregister_header}&nbsp;&nbsp;" escape="false"/>
+          </f:facet>
+          <h:commandLink id="hidAgntLnk" styleClass="minus">
+            <f:param id="agntIdPrm" name="agentId" value="#{agent.agentId}" />
+            <f:param id="bnNmPrm" name="statusByAgentViewBeanName" value="statusByHostBean" />
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.agentstatus.UnregisterAgentActionListener" />
+          </h:commandLink>
+        </h:column>
+      </d:dataTable>
+    </d:form>
+  
+  </h:panelGrid>
+  
+</div>
+

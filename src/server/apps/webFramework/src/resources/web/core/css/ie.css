@@ -1,0 +1,45 @@
+/* CSS for IE only*/
+/* This style sheet addresses issues where IE needs special treatment.
+ * It should only be included for IE user agents */
+ 
+ div.details div.tabheader ul {
+   margin-bottom: 0px;
+ }
+ 
+ div.details div.tabheader ul li {
+   top: 0px;
+ }
+ 
+ /*get rid of the three pixel text jog in ie*/
+ .alertlog {margin-left: -3px;}
+ 
+ /*another hack to get rid of the three pixel text jog in ie*/
+ div.componentstatus {
+  height: 1%;
+}
+ 
+/*ie specific behavior for the modal dialog curtain-- needed because IE does not support fixed positioning or the CSS3 opacity property */
+/* Instead, IE's proprietary expression language is used here to mimic fixed positioning */
+ .curtain{
+  position: absolute;
+  left: expression( ( ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+  width: expression( ( (ignoreMe3= document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth)  ) + 'px');
+  height: expression( ( (ignoreMe4= document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)  ) + 'px');
+  filter:alpha(opacity=50);
+}
+
+div.dateresulttable table a.barlink {
+  width: 30px;
+  left: -5px;
+  bottom: 0px;
+}
+
+div.dateresulttable a.barlink:hover,
+div.results a.barlink:hover {
+  filter:alpha(opacity=20);
+}
+
+div.results a.barlink {
+  top:-2px;
+}

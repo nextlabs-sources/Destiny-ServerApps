@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="logging.pattern">%d %-5p [%4.15t] %c{1.}: %m%n</Property>
+        <Property name="logging.pattern.console">%n%m%n</Property>
+        <Property name="file.prefix.installer">${env:NEXTLABS_CC_HOME}/server/logs/${sys:server.hostname}/installer</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <MarkerFilter marker="INSTALLER_CONSOLE" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${logging.pattern.console}"/>
+        </Console>
+        <RollingFile name="RootLogFile" fileName="${file.prefix.installer}.log"
+                     filePattern="${file.prefix.installer}-%i.log.gz" createOnDemand="true" append="false">
+            <PatternLayout>
+                <Pattern>${logging.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="2 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RootLogFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

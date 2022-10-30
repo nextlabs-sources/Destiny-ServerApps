@@ -1,0 +1,28 @@
+<div #upload_file_container class="upload-file-container" appFileDragDrop (onFileDropped)="selectFiles($event)">
+  <input hidden type="file" #fileInput id="fileInput" (change)="selectFiles($event.target.files)" [multiple]="acceptMultipleFile">
+  <div class="d-flex flex-column justify-content-center align-items-center h-100">
+    <div class="d-flex flex-column justify-content-center align-items-center w-100"
+         *ngIf="acceptMultipleFile || (!files || files.length == 0)">
+      <div class="w-100 p-2 text-center">Drag and drop the {{fileLabel}} file or click <strong>BROWSE</strong> to choose the {{fileLabel}} file from your computer.</div>
+      <button id="browse_file" mat-button class="btn btn-block accent mt-3" (click)="fileInput.click()" type="button">
+        BROWSE
+      </button>
+    </div>
+    <div class="d-flex flex-column justify-content-center align-items-center mt-4 w-100"
+         *ngIf="files && files.length > 0">
+      <div>Selected the {{fileLabel}} file</div>
+      <div class="d-flex selectedFileList mt-3 w-100">
+        <div class="m-auto w-75">
+          <div *ngFor="let file of files; let index = index" class="file-item w-100 mt-1">
+            <div class="row col-12 d-flex flex-row align-items-center m-0">
+              <div class="col-10"><strong>{{ file.name }}</strong></div>
+              <div class="d-flex col-2 delete-file" (click)="deleteAttachment(index)">
+                <i class="fas fa-trash-alt m-auto"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

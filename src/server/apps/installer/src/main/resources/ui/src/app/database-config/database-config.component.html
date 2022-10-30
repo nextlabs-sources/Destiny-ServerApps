@@ -1,0 +1,156 @@
+<form [formGroup]="dbConfigForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 h-100 ie-wrapper">
+      <div class="text-center">
+        <div class="page-heading">Database Configuration</div>
+      </div>
+      <div class="text-center">
+        <div class="page-sub-heading">
+          Configure the database details.
+        </div>
+      </div>
+      <div class="page-content w-100">
+        <div class="form-group col-12">
+          <div class="row d-flex flex-row justify-content-start w-100">
+            <label for="config-mode" id="config-modeLabel"
+                   class="col-form-label installer-form-label col-lg-3 col-sm-5 col-7 pr-4">Configuration</label>
+            <select class="form-control col-lg-3 col-sm-5 col-7" id="config-mode" name="configMode"
+                    formControlName="configMode">
+              <option id="basic_config" value="{{BASIC_CONFIG_KEY}}">Basic</option>
+              <option id="advanced_config" value="{{ADVANCED_CONFIG_KEY}}">Advanced</option>
+            </select>
+          </div>
+        </div>
+        <hr/>
+        <div class="d-flex flex-column align-items-center w-100">
+          <div class="form-group col-12" *ngIf="isAdvancedConfig()">
+            <div class="row">
+              <label for="jdbcUrl" id="jdbcUrlLabel" class="col-form-label installer-form-label col-6 pr-4">JDBC
+                URL</label>
+              <textarea type="text" class="form-control col-6 jdbcUrlInput" id="jdbcUrl"
+                        formControlName="jdbcUrl"></textarea>
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="dbServer" id="dbServerLabel" class="col-form-label installer-form-label col-lg-4 col-6 pr-4">Database
+                Server</label>
+              <select class="form-control col-lg-4 col-6" id="dbServer" formControlName="dbServer">
+                <option *ngFor="let db of available_dbs" value="{{db.type}}">{{db.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="hostname" id="hostnameLabel"
+                     class="col-form-label installer-form-label col-6 pr-4">Host</label>
+              <input type="text" class="form-control col-6" id="hostname" formControlName="hostname">
+            </div>
+          </div>
+          <div class="form-group col-12 col-lg-8 w-100" *ngIf="!isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="port" id="portLabel"
+                     class="col-form-label installer-form-label col-lg-4 col-6">Port</label>
+              <div class="col-lg-4 col-6 pl-0">
+                <input type="number" class="form-control port-field" id="port" formControlName="port">
+              </div>
+            </div>
+            <div
+              *ngIf="(dbConfigForm.get('port').invalid && !dbConfigForm.get('port').errors.required) && (dbConfigForm.get('port').dirty || dbConfigForm.get('port').touched)"
+              class="row installer-error">
+              <div class="offset-6 col-6 error-item" id="portMinError" *ngIf="dbConfigForm.get('port').errors.min">
+                Minimum allowed value for port is 1.
+              </div>
+              <div class="offset-6 col-6 error-item" id="portMaxError" *ngIf="dbConfigForm.get('port').errors.max">
+                Maximum allowed value for port is 65535.
+              </div>
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="dbSid" id="dbSidLabel" class="col-form-label installer-form-label col-6">Database
+                Name
+                /SID</label>
+              <input type="text" class="form-control col-6" id="dbSid" formControlName="dbSid">
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isAdvancedConfig() && showSchema">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="dbSchema" id="dbSchemaLabel" class="col-form-label installer-form-label col-6">Schema
+                Name</label>
+              <input type="text" class="form-control col-6" id="dbSchema" formControlName="dbSchema">
+            </div>
+          </div>
+
+
+          <div class="mt-5" *ngIf="!isAdvancedConfig()"></div>
+          <div class="form-group col-12 col-lg-8 w-100" *ngIf="!isAdvancedConfig()">
+            <div class="d-flex flex-row justify-content-center align-items-center">
+              <label for="sslConnection" id="sslConnectionLabel"
+                     class="col-form-label installer-form-label col-lg-4 col-6">SSL
+                Connection</label>
+              <mat-slide-toggle class="pl-0 col-lg-4 col-6" id="sslConnection" color="primary"
+                                formControlName="sslConnection"></mat-slide-toggle>
+            </div>
+          </div>
+          <div class="form-group col-12 col-lg-8 w-100" *ngIf="!isAdvancedConfig() && isSslConnectionEnabled()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="validateServer" id="validateServerLabel"
+                     class="col-form-label installer-form-label col-lg-4 col-6"
+                     [ngClass]="{'faded': !isSslConnectionEnabled()}">Validate
+                Server</label>
+              <mat-slide-toggle class="pl-0 col-lg-4 col-6" id="validateServer" color="primary"
+                                formControlName="validateServer"></mat-slide-toggle>
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="showServerDomain()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="serverDomain" id="serverDomainLabel"
+                     class="col-form-label installer-form-label col-6 pr-4"
+                     [ngClass]="{'faded': !isValidateServer()}">{{serverDomainLabel}}</label>
+              <input type="text" class="form-control col-6" id="serverDomain" formControlName="serverDomain">
+            </div>
+          </div>
+
+          <div class="form-group mt-5 col-12 w-100" *ngIf="showAuthType && !isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="authType" id="authTypeLabel" class="col-form-label installer-form-label col-6">Authentication</label>
+              <mat-button-toggle-group id="authType" name="authType" aria-label="Authentication Type"
+                                       formControlName="authType" class="col-6">
+                <mat-button-toggle class="mat-button-toggle-split-2" value="nativeAuth">Native</mat-button-toggle>
+                <mat-button-toggle class="mat-button-toggle-split-2" value="osAuth">OS</mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+          </div>
+
+          <div class="mt-5" *ngIf="!showAuthType || isAdvancedConfig()">
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isOSAuthentication() || isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="username" id="usernameLabel" class="col-form-label installer-form-label col-6"
+                     [ngClass]="{'faded': dbConfigForm.get('username').disabled}">Username</label>
+              <input type="text" class="form-control col-6" id="username" formControlName="username">
+            </div>
+          </div>
+          <div class="form-group col-12 w-100" *ngIf="!isOSAuthentication() || isAdvancedConfig()">
+            <div class="row d-flex flex-row justify-content-center align-items-center">
+              <label for="password" id="passwordLabel" class="col-form-label installer-form-label col-6"
+                     [ngClass]="{'faded': dbConfigForm.get('password').disabled}">Password</label>
+              <input type="password" class="form-control col-6" id="password" formControlName="password">
+            </div>
+          </div>
+          <div class="form-group mt-5 col-12 w-100">
+            <div class="row d-flex flex-row align-items-center">
+              <div class="col-6 pr-4">
+                <!--                Empty div to align the button-->
+              </div>
+              <button type="button" mat-button class="accent test-connection btn btn-block col-3" (click)="validateDBConnection()"
+              [disabled]="dbConfigForm.invalid">TEST CONNECTION</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="dbConfigForm"></app-bottom-nav>
+</form>

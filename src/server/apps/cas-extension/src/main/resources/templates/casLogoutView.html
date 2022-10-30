@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title th:text="#{screen.logout.header}">CAS Logout</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+</head>
+<body>
+<main role="main" class="container mt-3 mb-3">
+    <div layout:fragment="content">
+        <div class="col-10 p-0">
+            <div>
+                <div class="cc-form-line show-overflow">
+                    <span class="cc-form-title" th:text="#{screen.logout.header}">LOGOUT SUCCESSFUL</span>
+                </div>
+            </div>
+            <br/><br/>
+            <p th:utext="#{screen.logout.success}">You have successfully logged out of the Control Center Central
+                Authentication Service.</p>
+            <br/>
+            <a class="redirect-text text-decoration-none submit" style="color:#FFFFFF;" id="login" th:href="@{/login}" th:text="#{screen.login.to.account}">
+                LOGIN
+            </a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

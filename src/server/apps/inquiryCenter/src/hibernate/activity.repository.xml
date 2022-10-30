@@ -1,0 +1,41 @@
+<!DOCTYPE hibernate-configuration PUBLIC 
+	"-//Hibernate/Hibernate Configuration DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-2.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ReporterDataHolderDO.hbm.xml"/>
+		
+		<!--  custom reports -->  
+        <mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/customapps/hibernateimpl/CustomReportDataDO.hbm.xml"/>
+        <mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/customapps/hibernateimpl/CustomReportFileDO.hbm.xml"/>
+        <mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/customapps/hibernateimpl/CustomReportUIDO.hbm.xml"/>
+		
+		<!--
+			Persisted object class mappings
+		-->
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/PolicyDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/UserDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/MonitorDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/MonitorTagDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/AlertDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/SavedReportDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ReportActivityLogDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ReportActivityLogAttributeDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ArchiveReportActivityLogDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ArchiveReportActivityLogAttributeDO.hbm.xml"/>
+		
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/ReportPolicyActivityLogDO.hbm.xml"/>
+		<mapping resource="com/nextlabs/destiny/container/shared/inquirymgr/hibernateimpl/AttributeColumnMappingDO.hbm.xml"/>
+		
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/ReportDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryActionDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryObligationDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryPolicyDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryPolicyDecisionDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryResourceDO.hbm.xml"/>
+		<mapping resource="com/bluejungle/destiny/container/shared/inquirymgr/hibernateimpl/InquiryUserDO.hbm.xml"/>
+		
+	</session-factory>
+</hibernate-configuration>

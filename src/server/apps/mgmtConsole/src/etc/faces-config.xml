@@ -1,0 +1,357 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+	<application>
+		<locale-config>
+			<default-locale>en_US</default-locale>
+		</locale-config>
+		<message-bundle>MgmtConsoleMessages</message-bundle>
+		<default-render-kit-id>HTML_BASIC</default-render-kit-id>
+	</application>
+	
+	<managed-bean>
+		<description>Managed Bean containing pre-render actions associated with particular views</description>
+		<managed-bean-name>PrerenderActionManagerBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.faces.PrerenderActionManagerBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<description>
+				Map of viewid to pre-render actions
+			</description>
+			<property-name>prerenderActions</property-name>
+			<map-entries>
+				<map-entry>
+					<key>/login/login.jsp</key>
+					<value>loginManager.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/agentconfig/agentConfig.jsp</key>
+					<value>agentConfigurationBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/agentconfig/agentConfigBrowseHosts.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/status/statusByHost.jsp</key>
+					<value>statusByHostBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/roles.jsp</key>
+					<value>rolesViewBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/users.jsp</key>
+					<value>usersViewBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/userGroups.jsp</key>
+					<value>userGroupsViewBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/usersBrowseAvailableUsers.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/userGroupsBrowseAvailableExternalGroups.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/userGroupsBrowsePotentialGroupMembers.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/usersandroles/userGroupsBrowsePrincipals.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>				
+			</map-entries>
+		</managed-property>
+		<managed-property>
+			<description>
+				Error page to display if a prerender action throws an exception
+			</description>
+			<property-name>errorViewId</property-name>
+			<value>/error/errorDisplay.jsp</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>envLookup</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.faces.EnvLookupBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<property-name>keyName</property-name>
+			<value>DMSLocation</value>
+		</managed-property>		
+	</managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>changePasswordBean</managed-bean-name>
+        <managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.users.defaultimpl.ChangePasswordBeanImpl</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>        
+    </managed-bean>
+	
+	<managed-bean>
+		<description>Server Statistics Bean</description>
+		<managed-bean-name>serverStatisticsBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.status.defaultimpl.ServerStatisticsBeanImpl</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Component Status Bean</description>
+		<managed-bean-name>componentStatusBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.status.defaultimpl.ComponentStatusBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Status By Host Bean</description>
+		<managed-bean-name>statusByHostBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.agentstatus.defaultimpl.StatusByAgentBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Agent Configuration Bean</description>
+		<managed-bean-name>agentConfigurationBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.AgentConfigurationBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Agent Host Selectable Item Source Bean</description>
+		<managed-bean-name>hostSelectableItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.browsablehostpicker.HostSelectableItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The agent configuration bean associated with this desktop agent host selectable item source bean
+			</description>
+			<property-name>agentConfigurationBean</property-name>
+			<value>#{agentConfigurationBean}</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>agentConfig</value>
+		</managed-property>
+	</managed-bean>
+		
+	<managed-bean>
+		<description>Roles View Bean</description>
+		<managed-bean-name>rolesViewBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.roles.defaultimpl.RolesViewBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Users View Bean</description>
+		<managed-bean-name>usersViewBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.users.defaultimpl.UsersViewBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+		
+	<managed-bean>
+		<description>Available Users Selectable Item Source Bean</description>
+		<managed-bean-name>availableApplicationUsersSelectableItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.users.defaultimpl.browsableuserpicker.AvailableUsersSelectableItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The users page bean associated with this available users selectable item source bean
+			</description>
+			<property-name>usersViewBean</property-name>
+			<value>#{usersViewBean}</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>usersAndRolesUsers</value>
+		</managed-property>
+	</managed-bean>
+    
+	<managed-bean>
+		<description>User Groups View Bean</description>
+		<managed-bean-name>userGroupsViewBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.groups.defaultimpl.UserGroupsViewBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Available External User Groups Selectable Item Source Bean</description>
+		<managed-bean-name>availableExternalUserGroupsSelectableItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.groups.defaultimpl.datapicker.AvailableExternalUserGroupSelectableItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The users group  view bean associated with this external user group selectable item source
+			</description>
+			<property-name>userGroupsViewBean</property-name>
+			<value>#{userGroupsViewBean}</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>usersAndRolesUserGroups</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Potential User Group Members Selectable Item Source Bean</description>
+		<managed-bean-name>potentialMembersSelectableItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.groups.defaultimpl.datapicker.PotentialMemberSelectableItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The users group view bean associated with this potential member selectable item source
+			</description>
+			<property-name>userGroupsViewBean</property-name>
+			<value>#{userGroupsViewBean}</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>usersAndRolesUserGroups</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Principal Selectable Item Source Bean for adding principals to the default access rights of a User Group</description>
+		<managed-bean-name>principalSelectableItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.mgmtconsole.usersandroles.groups.defaultimpl.datapicker.PrincipalSelectableItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The users group  view bean associated with this external user group selectable item source
+			</description>
+			<property-name>userGroupsViewBean</property-name>
+			<value>#{userGroupsViewBean}</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>usersAndRolesUserGroups</value>
+		</managed-property>
+	</managed-bean>
+	
+	<!-- Global navigation rules for the application -->
+	<navigation-rule>
+        <navigation-case>
+            <description>Navigates to change password page </description>
+            <from-outcome>userPreferences</from-outcome>
+            <to-view-id>/userpreferences/changePassword.jsf</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <description>Navigates home</description>
+            <from-outcome>changePasswordDone</from-outcome>
+            <to-view-id>/status/statusOverview.jsf</to-view-id>
+        </navigation-case>
+		<navigation-case>
+			<from-outcome>statusOverview</from-outcome>
+			<to-view-id>/status/statusOverview.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>statusByHost</from-outcome>
+			<to-view-id>/status/statusByHost.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesUsers</from-outcome>
+			<to-view-id>/usersandroles/users.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesUsersBrowseAvailableUsers</from-outcome>
+			<to-view-id>/usersandroles/usersBrowseAvailableUsers.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>				
+		<navigation-case>
+			<from-outcome>usersAndRolesUserGroups</from-outcome>
+			<to-view-id>/usersandroles/userGroups.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesUserGroupsBrowseAvailableExternalGroups</from-outcome>
+			<to-view-id>/usersandroles/userGroupsBrowseAvailableExternalGroups.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesUserGroupsBrowsePotentialGroupMembers</from-outcome>
+			<to-view-id>/usersandroles/userGroupsBrowsePotentialGroupMembers.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesUserGroupsBrowsePrincipals</from-outcome>
+			<to-view-id>/usersandroles/userGroupsBrowsePrincipals.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>usersAndRolesRoles</from-outcome>
+			<to-view-id>/usersandroles/roles.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>agentConfig</from-outcome>
+			<to-view-id>/agentconfig/agentConfig.jsf?agentTypeId=#{agentConfigurationBean.agentType.agentTypeId}</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>agentConfigBrowseHosts</from-outcome>
+			<to-view-id>/agentconfig/agentConfigBrowseHosts.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>		
+		<navigation-case>
+			<from-outcome>login</from-outcome>
+			<to-view-id>/login/login.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>		
+	</navigation-rule>	
+	
+	<!-- Login page navigation rules -->
+	<navigation-rule>
+		<from-view-id>/login/login.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/status/statusOverview.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Failure</from-outcome>
+			<to-view-id>/login/login.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>	
+	
+	<validator>
+		<validator-id>com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.DabsUrlValidator</validator-id>
+		<validator-class>com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.DabsUrlValidator</validator-class>
+	</validator>
+	<validator>
+		<validator-id>NameStringValidator</validator-id>
+		<validator-class>com.nextlabs.destiny.webui.validators.NameStringValidator</validator-class>
+	</validator>
+	<validator>
+		<validator-id>AlphabetValidator</validator-id>
+		<validator-class>com.nextlabs.destiny.webui.validators.AlphabetValidator</validator-class>
+	</validator>
+</faces-config>

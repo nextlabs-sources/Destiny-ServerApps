@@ -1,0 +1,24 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle" />
+
+<d:form id="scndryNvMnuFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <d:menu id="agentConfigSecondaryNavMenu" selectedItemStyleClass="current">
+        <c:forEach items="${agentConfigurationBean.agentTypes}" var="agentType">
+            <c:if test="${agentType.agentTypeId != 'ACTIVE_DIRECTORY'}">
+                <d:menuItem id="agentConfigSecondaryNavMenu-${agentType.agentTypeId}" viewIdPattern="${agentType.agentTypeId}" value="${agentType.agentTypeTitle}" action="agentConfig" immediate="true">
+                    <d:param id="agentTypeParam-${agentType.agentTypeId}" name="agentType" value="${agentType.agentTypeId}" />
+                    <d:param id="agentConfigViewBeanParam-${agentType.agentTypeId}" name="agentConfigurationViewBeanName" value="agentConfigurationBean" />  
+                    <f:actionListener type="com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.AgentTypeSelectionActionListener" />
+                </d:menuItem>
+            </c:if>
+        </c:forEach>
+    </d:menu>
+</d:form>

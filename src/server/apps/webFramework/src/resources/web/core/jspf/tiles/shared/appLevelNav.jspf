@@ -1,0 +1,12 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="CommonMessages" var="commonBundle" />
+
+<ul id="appLblLst">
+  <li id="admnstItm"><a id="admnstLnk" href="#" ><h:outputText id="admnstLbl" value="#{commonBundle.app_level_nav_management_console_item_label}" /></a></li>
+  <li id="pmgrItm"><a id="pmgrLnk" href="#" ><h:outputText id="pmgrLbl" value="#{commonBundle.app_level_nav_policy_manager_item_label}" /></a></li>
+  <li id="inqCtrItm"><a id="inqCtrLnk" href="#" class=current><h:outputText id="inqCtrLbl" value="#{commonBundle.app_level_nav_inquiry_center_item_label}" /></a></li>
+</ul>

@@ -1,0 +1,144 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<d:includeJS location="core/javascript/modaldialog.js" />
+<d:includeJS location="/core/javascript/stripe.js"/>
+<d:includeJS location="/core/javascript/disable.js"/>
+<d:includeJS location="/core/javascript/core.js"/>
+
+<div id="rlsLstDv" class="contentnav">
+  <h2 id="rlsLstHdr"><h:outputText id="rlsLstLbl" value="#{bundle.users_and_roles_roles_list_nav_title}" /></h2>
+  <d:form id="rlsLstFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <div id="rlsLstTbl" class="listtable">
+      <d:dataTable id="roleslist" value="#{rolesViewBean.roles}" var="roleItem">
+        <d:row id="lstRw" styleClass="selected" rendered="#{rolesViewBean.selectedRole.roleId == roleItem.roleId}"/>
+        <h:column id="rowTitleColumn">
+          <h:commandLink id="rlLnk" immediate="true" value="#{roleItem.roleTitle}">
+            <f:param id="rlIdPrm" name="selectedRoleId" value="#{roleItem.roleId}" />
+            <f:param id="rlBnNmPrm" name="rolesViewBeanName" value="rolesViewBean"/>
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.roles.SelectRoleActionListener"/>
+          </h:commandLink>
+        </h:column>
+      </d:dataTable>
+    </div>
+  </d:form>
+</div>
+
+<d:form id="roleEditForm">
+<h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+<div id="rlsEdtDv" class="contentmain">
+  <div class="panetitle"><h:outputText id="selectedRoleTitle" value="#{rolesViewBean.selectedRole.roleTitle}" /></div>
+  <d:displayMessages />
+  <div id="rlDetDv" class="details">
+    <div id="rlDetHdrDv" class="sectionheader">
+        <h:outputText id="roleApplicationsEditSectionHeaderLabel" value="#{bundle.users_and_roles_roles_applications_edit_section_header_label}" />
+    </div>
+    <div id="rlCntDv" class="sectioncontent">
+      <c:forEach items="${rolesViewBean.selectedRole.allResource}" var="appResource" varStatus="loopCounter">
+        <div class="settinggroup">
+          <c:choose>
+            <c:when test="${appResource.internalName == 'Policy Author'}">
+              <d:selectBooleanCheckbox id="${appResource.id}_${appResource.accessible}" value="${appResource.accessible}" onclick="changeEnabledState('policyauthorsettings', this.checked); changeEnabledClass('policyauthorsettings', this.checked);" />
+            </c:when>
+            <c:otherwise>
+              <d:selectBooleanCheckbox id="${appResource.id}_${appResource.accessible}" value="${appResource.accessible}" />          
+            </c:otherwise>
+          </c:choose>
+          <label for="rolesDefinitionSubview:contentSubview:roleEditForm:${appResource.id}-${appResource.accessible}"><c:out value="${appResource.displayName}"/></label>
+        </div>
+      </c:forEach>
+    </div>
+    <div id="policyauthorsettings">
+      <div id="edtPrivsHdrDv" class="sectionheader">
+        <h:outputText id="edtPrivsHdr" value="#{bundle.users_and_roles_roles_policy_and_component_edit_section_header_label}" />
+      </div>
+      <div id="privCntDv" class="sectioncontent">
+        <h:panelGrid id="privCntGrd" styleClass="roledetails" columns="1">
+          <h:panelGroup id="privCntGrp">
+            <f:verbatim><div id="plcyCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canEditPoliciesCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.policyEditViewAccessibleToRole}" />
+              <h:outputLabel id="plcyCmpEdtLbl" for="canEditPoliciesCheckbox" value="#{bundle.users_and_roles_roles_can_edit_policies_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="usrCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessUserComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.userComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="usrCmpEdtLbl" for="canAccessUserComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_user_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="rsrcCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessResourceComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.resourceComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="rsrcCmpEdtLbl" for="canAccessResourceComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_resource_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="portalCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessPortalComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.portalComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="portalCmpEdtLbl" for="canAccessPortalComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_portal_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="hstCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessDesktopComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.desktopComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="hstCmpEdtLbl" for="canAccessDesktopComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_desktop_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="appCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessApplicationComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.applicationComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="appCmpEdtLbl" for="canAccessApplicationComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_application_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="actnCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessActionComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.actionComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="actnCmpEdtLbl" for="canAccessActionComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_action_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="deviceCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessDeviceComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.deviceComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="deviceCmpEdtLbl" for="canAccessDeviceComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_device_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="SAPCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessSAPComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.SAPComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="SAPCmpEdtLbl" for="canAccessSAPComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_SAP_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+            <f:verbatim><div id="enoviaCmpEdtDv" class="settinggroup"></f:verbatim>
+              <h:selectBooleanCheckbox id="canAccessEnoviaComponentsCheckbox" value="#{rolesViewBean.selectedRole.rolePolicyAuthorComponentAccess.enoviaComponentEditViewAccessibleToRole}" />
+              <h:outputLabel id="enoviaCmpEdtLbl" for="canAccessEnoviaComponentsCheckbox" value="#{bundle.users_and_roles_roles_can_edit_enovia_classes_checkbox_label}" />
+            <f:verbatim></div></f:verbatim>
+          </h:panelGroup>
+        </h:panelGrid>
+      </div>
+    </div>
+    <div id="actnBtnsDv" class="actionbuttons">
+      <h:commandLink id="saveLink">
+        <h:commandButton id="svBtn" type="button" value="#{bundle.users_and_roles_roles_save_button_label}" />
+        <f:param id="rlsVwBnNm" name="rolesViewBeanName" value="rolesViewBean"/>
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.roles.SaveSelectedRoleActionListener"/>
+      </h:commandLink>
+      <h:commandButton id="rstBtn" type="reset" value="#{bundle.users_and_roles_roles_reset_button_label}" onclick="resetCustom('policyauthorsettings', this.document.getElementById('rolesDefinitionSubview:contentSubview:roleEditForm:canAccess1674716217Checkbox_true').checked); resetCustom('policyauthorsettings', this.document.getElementById('rolesDefinitionSubview:contentSubview:roleEditForm:canAccess1674716217Checkbox_false').checked);"/>
+    </div>
+  </div>
+</div>
+</d:form>
+
+<script language="JavaScript">
+<%-- Note that we hard code the element ids below.  Not ideal, but not much else possible --%>
+addLoadEvent( function () {
+    var policyAuthorCheckBox = this.document.getElementById('rolesDefinitionSubview:contentSubview:roleEditForm:canAccess1674716217Checkbox_true');
+    
+    if(policyAuthorCheckBox == null) {
+    	policyAuthorCheckBox = this.document.getElementById('rolesDefinitionSubview:contentSubview:roleEditForm:canAccess1674716217Checkbox_false');
+    }
+    
+    if (policyAuthorCheckBox != null && !policyAuthorCheckBox.checked) {
+        changeEnabledState('policyauthorsettings', this.checked);
+        changeEnabledClass('policyauthorsettings', this.checked);
+    }
+});
+</script>
+
+<div id="curtainDiv" class="curtain" style="display: none;"></div>
+<div id="deleteConfirmDialogDiv" class="modalDialog" style="display: none;">
+  <div class="title">
+<h:outputFormat id="delCfmFmt" value="#{bundle.users_and_roles_roles_delete_confirmation_question_text}">
+  <f:param id="delCfmPrm" value="#{rolesViewBean.selectedRole.roleTitle}" />
+</h:outputFormat>
+  </div>
+  <div id="cfmWrnDv" class="reason"><h:outputText id="cfmWrnTxt" value="#{bundle.users_and_roles_roles_delete_confirmation_warning_text}" /></div>
+  <div id="cfmCnclDv" class="buttons"><h:commandButton id="cfmBtn" value="#{bundle.users_and_roles_roles_delete_confirmation_button_label}" /><h:commandButton id="cnclBtn" type="button" value="#{bundle.users_and_roles_roles_cancel_delete_button_label}" onclick="hideModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" /></div>
+</div>

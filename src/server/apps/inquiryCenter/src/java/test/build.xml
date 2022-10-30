@@ -1,0 +1,60 @@
+<project name="Inquiry Center Test Build" default="build">
+
+	<property name="src.dir"      value="${basedir}"/>
+    <property name="build.dest"   value="${build.root.dir}/server/apps/inquiryCenter/testclasses"/>
+    <property name="build.main.dest"   value="${build.root.dir}/server/apps/inquiryCenter/WEB-INF/classes"/>   
+	
+	<path id="compile.inquirycenter.test.classpath">
+		<path refid="compile.classpath"/>
+        <pathelement path="${build.dest}"/>
+        <pathelement path="${build.main.dest}"/>      
+        <pathelement path="${xlib_jar_dir}/jsf-api.jar"/>
+		<pathelement path="${xlib_jar_dir}/jsf-impl.jar"/>
+		<pathelement path="${xlib_jar_dir}/mockobjects-core-0.09.jar"/>
+		<pathelement path="${xlib_jar_dir}/mockobjects-jdk1.4-j2ee1.3-0.09.jar"/>
+        <pathelement path="${build.root.dir}/common-domain.jar"/>
+        <pathelement path="${build.root.dir}/common-framework.jar"/>
+        <pathelement path="${build.root.dir}/common-framework-test.jar"/>
+        <pathelement path="${build.root.dir}/common-res.jar"/>
+        <pathelement path="${build.root.dir}/app-framework.jar"/>       
+        <pathelement path="${build.root.dir}/web-framework.jar"/> 
+        <pathelement path="${build.root.dir}/web-framework-test.jar"/> 
+        <pathelement path="${build.root.dir}/common-framework.jar"/>       
+        <pathelement path="${build.root.dir}/server-framework.jar"/>             
+		<pathelement path="${build.root.dir}/dac-types.jar"/>    <!-- FIX ME - Need to talk to PM about backwards compatibility -->
+        <pathelement path="${build.root.dir}/dac-services.jar"/> <!-- FIX ME - Need to talk to PM about backwards compatibility -->     
+		<pathelement path="${build.root.dir}/inquirycenter-res.jar"/>
+		<pathelement path="${build.root.dir}/server-shared-types.jar"/>
+		<pathelement path="${build.root.dir}/server-shared-enrollment.jar"/>
+		<pathelement path="${build.root.dir}/common-ind.jar"/>
+		<pathelement path="${build.root.dir}/server-base.jar"/>
+		<pathelement path="${build.root.dir}/server-dcsf.jar"/>
+		<pathelement path="${build.root.dir}/server-dcsf-test.jar"/>
+		<pathelement path="${build.root.dir}/server-shared-tests.jar"/>
+		<pathelement path="${build.root.dir}/server-shared-customapps.jar"/>
+	</path>
+
+	<target name="pre-build">
+		<mkdir dir="${build.dest}"/>
+	</target>
+	
+	<target name="compile">
+		<javac srcdir="${src.dir}" destdir="${build.dest}" debug="${compile.debug}" verbose="${compile.verbose}" source="${compile.source}">
+			<classpath refid="compile.inquirycenter.test.classpath"/>
+        </javac>
+	</target>
+	
+	<target name="build" depends="pre-build, compile">
+	</target>
+	
+	<target name="tests">
+		<junit printsummary="withOutAndErr" showoutput="yes" haltonfailure="${junit.haltonfailure}" failureproperty="junit.fail" fork="true">
+			<formatter type="xml"/>
+			<sysproperty key="build.root.dir" value="${build.root.dir}" />		
+			<test name="com.bluejungle.destiny.inquirycenter.InquiryCenterTestSuite" todir="${log.dir}/tests"/>
+            <classpath>
+                <path refid="compile.inquirycenter.test.classpath"/>
+            </classpath>			
+		</junit>
+	</target>
+</project>

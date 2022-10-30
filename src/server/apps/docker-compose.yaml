@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  elasticsearch-console:
+    image: "elasticsearch:7.8.0"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+    networks:
+      - ccnet
+
+  config-service:
+    image: "localhost:5000/nextlabs-control-center-config-service:latest"
+    ports:
+      - "8001:8001"
+    environment:
+      - NEXTLABS_CC_APPLICATION_DEFAULT_DB_PASSWORD=<db-password>
+      - NEXTLABS_CC_APPLICATION_DEFAULT_DB_URL=<db-url>
+      - NEXTLABS_CC_APPLICATION_DEFAULT_DB_USERNAME=<db-username>
+    networks:
+      - ccnet
+
+  console:
+    image: "nextlabs-control-center-console:latest"
+    ports:
+      - "443:443"
+      - "8002:8002"
+    environment:
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:8001
+      - SPRING_CLOUD_CONFIG_USERNAME=config-client
+      - SPRING_CLOUD_CONFIG_PASSWORD=<spring-cloud-config-password>
+    networks:
+      - ccnet
+    depends_on:
+      - config-service
+      - elasticsearch-console
+
+networks:
+  ccnet:
+    driver: bridge

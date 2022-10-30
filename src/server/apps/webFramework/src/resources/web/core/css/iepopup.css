@@ -1,0 +1,8 @@
+div.listtable {
+  overflow: visible;		
+  overflow-x: auto;
+}
+
+div.spacerdiv {
+  background-color: #f2f2f2;			 
+}

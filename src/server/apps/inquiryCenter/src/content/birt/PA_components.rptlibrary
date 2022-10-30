@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.20" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.5.0.v20090603 Build &lt;2.5.0.v20090617-0630></property>
+    <property name="units">in</property>
+    <property name="comments">Copyright (c) 2007 &lt;&lt;Your Company Name here>></property>
+    <property name="theme">defaultTheme</property>
+    <parameters>
+        <parameter-group name="DetailsTableParams" id="299">
+            <text-property name="displayName">Details Table Parameters</text-property>
+            <parameters>
+                <scalar-parameter name="SortKey" id="173">
+                    <property name="hidden">true</property>
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">Date</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="ExistingSortKey" id="179">
+                    <property name="hidden">true</property>
+                    <property name="valueType">static</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">Date</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="UserName" id="159">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.user_name LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Action" id="160">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.action LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Resource" id="180">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.toresourcename LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Policy" id="181">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_cached_policy.name LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Enforcement" id="163">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.policy_decision LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="EventLevel" id="164">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.log_level LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="concealValue">false</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="SelectedLogID" id="249">
+                    <property name="hidden">true</property>
+                    <property name="valueType">static</property>
+                    <property name="isRequired">true</property>
+                    <property name="dataType">decimal</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">12,884,901,891</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Host" id="278">
+                    <property name="valueType">static</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">t_policy_activity_log.host_id LIKE '%'</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="TimeDimension" id="279">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="Time" id="280">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">0</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="BeginDate" id="281">
+                    <property name="valueType">static</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">0</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="EndDate" id="282">
+                    <property name="valueType">static</property>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="defaultValue">
+                        <value type="constant">253402329599000</value>
+                    </simple-property-list>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="DBDriver" id="295">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="DBURL" id="296">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="DBUsername" id="297">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+                <scalar-parameter name="DBPassword" id="298">
+                    <property name="valueType">static</property>
+                    <property name="isRequired">false</property>
+                    <property name="dataType">string</property>
+                    <property name="paramType">simple</property>
+                    <property name="controlType">text-box</property>
+                    <property name="distinct">true</property>
+                    <structure name="format">
+                        <property name="category">Unformatted</property>
+                    </structure>
+                </scalar-parameter>
+            </parameters>
+        </parameter-group>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Activity_Database_Oracle" id="308">
+            <property name="odaDriverClass">oracle.jdbc.driver.OracleDriver</property>
+            <property name="odaURL">jdbc:oracle:thin:@oracle1.linuxtest.bluejungle.com:1521:orcl</property>
+            <property name="odaUser">ssen</property>
+            <encrypted-property name="odaPassword" encryptionID="base64">c3Nlbg==</encrypted-property>
+        </oda-data-source>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Activity_Database_SQLServer" id="309">
+            <property name="odaDriverClass">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+            <property name="odaURL">jdbc:sqlserver://localhost:1433;;DatabaseName=report;</property>
+            <property name="odaUser">root</property>
+            <encrypted-property name="odaPassword" encryptionID="base64">MTIzYmx1ZSE=</encrypted-property>
+        </oda-data-source>
+    </data-sources>
+    <themes>
+        <theme name="defaultTheme" id="4">
+            <styles>
+                <style name="TableValueEntry" id="259">
+                    <property name="fontFamily">"Verdana"</property>
+                    <property name="fontSize">small</property>
+                    <property name="fontWeight">bold</property>
+                    <property name="paddingLeft">5pt</property>
+                </style>
+            </styles>
+        </theme>
+    </themes>
+    <components>
+        <label name="EmptyResultSetMsg" id="306">
+            <property name="style">TableValueEntry</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr">rowCount > 0</expression>
+                </structure>
+            </list-property>
+            <text-property name="text">This report did not generate any data with the specified parameters. 
+
+Please modify the parameters and run the report again. </text-property>
+        </label>
+    </components>
+    <page-setup>
+        <simple-master-page name="NewSimpleMasterPage" id="3">
+            <property name="topMargin">1in</property>
+            <property name="leftMargin">1.25in</property>
+            <property name="bottomMargin">1in</property>
+            <property name="rightMargin">1.25in</property>
+        </simple-master-page>
+    </page-setup>
+</library>

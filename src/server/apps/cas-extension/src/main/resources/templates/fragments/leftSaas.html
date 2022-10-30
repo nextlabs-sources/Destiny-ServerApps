@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>Header Fragment</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+</head>
+<body>
+
+
+<article th:fragment="leftsaas" class="left-section col-5">
+    <div class="promo-content">
+        <div class="logo"><a href="#"><img src="images/CloudAz-Logo-100.png" alt="CloudAz" title="CloudAz"/></a></div>
+        <div class="promo-image"><img src="images/chart.png" alt="CloudAz"/></div>
+        <div class="promo-text">
+            <h2>
+                <spring:message code="screen.login.welcome.msg"/>
+                <br/>
+                <span class="lrgtxt"><spring:message code="screen.login.page.cloud.auth"/></span></h2>
+            <h3>
+                <spring:message code="screen.login.page.cloud.auth.msg"/>
+            </h3>
+        </div>
+        <div class="powered-by"><span><spring:message code="screen.login.powerd.by"/></span> <img
+                src="images/nxl-dynamic-authorization-logo.png" alt="Nextlabs Dynamic Authorization"
+                title="Nextlabs Dynamic Authorization"/></div>
+    </div>
+</article>
+
+
+</body>
+</html>

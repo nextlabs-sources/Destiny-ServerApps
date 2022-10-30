@@ -1,0 +1,201 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<d:includeJS location="core/javascript/modaldialog.js" />
+<d:includeJS location="/core/javascript/stripe.js"/>
+<d:includeJS location="/core/javascript/disable.js"/>
+<d:includeJS location="/core/javascript/core.js"/>
+
+<div id="usrLstDv" class="contentnav">
+  <h2 id="usrLstHdr"><h:outputText id="usrLstLbl" value="#{bundle.users_and_roles_users_list_nav_title}" /></h2>
+  <d:form id="usrLstFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <div id="lstDv" class="listtable">
+      <d:dataTable id="userslist" value="#{usersViewBean.users}" var="userItem">
+        <d:row id="slctRw" styleClass="selected" rendered="#{usersViewBean.selectedUser.userId == userItem.userId}"/>
+        <h:column id="rowTitleColumn">  
+          <h:commandLink id="usrLnk" immediate="true" value="#{userItem.userTitle}" title="#{userItem.userTitleToolTip}">
+            <f:param id="usrIdPrm" name="selectedUserId" value="#{userItem.userId}" />
+            <f:param id="usrBnNmPrm" name="usersViewBeanName" value="usersViewBean"/>
+            <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.users.SelectUserActionListener"/>
+          </h:commandLink>  
+        </h:column>
+      </d:dataTable>
+    </div>
+    <div id="actnBtns" class="listbuttons">
+      <h:commandLink id="crtLnk" action="createUser" immediate="true" rendered="#{usersViewBean.localUserCreationAllowed}">
+        <h:commandButton id="crtBtn" value="#{bundle.users_and_roles_users_manual_add_button_label}" title="#{bundle.users_and_roles_users_manual_add_button_title}"/>
+        <f:param id="usrBnNmPrm" name="usersViewBeanName" value="usersViewBean"/>        
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.users.CreateUserActionListener"/>        
+      </h:commandLink>    
+      <h:commandLink id="impLnk" action="usersAndRolesUsersBrowseAvailableUsers" immediate="true">
+        <%-- Style attribute below is used to limit size of button in IE.  In IE, the whitespace on the sides of the text in the button increase with the increased length of the text itself --%>
+        <h:commandButton id="impBtn" type="button" value="#{bundle.users_and_roles_users_add_button_label}" title="#{bundle.users_and_roles_users_add_button_tooltip}" style="padding:0 .25em 0 .25em; width:auto; overflow:visible"/>
+        <f:param id="srcBnNmPrm" name="selectableItemSourceBeanName" value="availableApplicationUsersSelectableItemSourceBean"/>
+        <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+      </h:commandLink>
+      <h:commandButton id="delBtn" type="button" value="#{bundle.users_and_roles_users_delete_button_label}" onclick="showModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" disabled="#{usersViewBean.userSelected}"/> 
+    </div>
+  </d:form>
+</div>
+
+<d:form id="userEditForm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+  <div id="edtCtntDv" class="contentmain">
+    <div id="ctntTtleDv" class="panetitle">
+      <h:outputText id="selectedUserTitle" 
+        value="#{(empty usersViewBean.selectedUser.userTitle) ? bundle.users_and_roles_new_user_value : usersViewBean.selectedUser.userTitle}" />
+    </div>
+    <d:displayMessages />
+    <div id="detDv" class="details">
+      <div id="genDv" class="detailcontent">       
+        <div id="hdrDv" class="sectionheader">
+            <h:outputText id="userRolesEditUserSectionHeaderLabel" value="#{bundle.users_and_roles_edit_user_section_header_label}" />
+        </div>
+        <div id="genEdtDv" class="sectioncontent">
+            <table id="genEdtTbl" class="formtable">
+                <tr id="upnRw">
+                    <td id="upnLblCol" class="label">
+                        <h:outputText
+                        	id="upnLbl"
+                            value="#{bundle.users_and_roles_user_creation_login_name_input_label}"/>
+                    </td>
+                    <td id="upnInCol" class="input" colspan="3">
+                        <h:inputText 
+                        	id="upnIn"
+                            value="#{usersViewBean.selectedUser.loginName}" 
+                            required="true" size="20" 
+                            disabled="#{not usersViewBean.selectedUser.new}">
+	                        <f:validator validatorId="NameStringValidator"/>
+                        </h:inputText>
+                    </td>
+                </tr>
+                <tr id="fnRw">
+                    <td id="fnLblCol" class="label">
+                        <h:outputText 
+                        	id="fnLbl" 
+                            value="#{bundle.users_and_roles_user_creation_first_name_input_label}"/>
+                    </td>
+                    <td id="fnInCol" class="input">
+                        <h:inputText 
+                        	id="fnIn" 
+                            value="#{usersViewBean.selectedUser.firstName}" 
+                            required="true" size="20">
+                            <f:validator validatorId="NameStringValidator"/>
+                        </h:inputText>
+                    </td>
+                    <td id="lnLblCol" class="label">
+                        <h:outputText 
+                        	id="lnLbl" 
+                            value="#{bundle.users_and_roles_user_creation_last_name_input_label}"/>
+                    </td>
+                    <td id="lnInCol" class="input">
+                        <h:inputText 
+                        	id="lnIn" 
+                            value="#{usersViewBean.selectedUser.lastName}" 
+                            required="true" size="20">
+                            <f:validator validatorId="NameStringValidator"/>
+                        </h:inputText>
+                    </td>
+                </tr>
+            </table>
+            <d:inputPassword value="#{usersViewBean.selectedUser.password}" 
+            	id="inpPwd" 
+                styleClass="formtable" labelColumnStyleClass="label" 
+                inputFieldsColumnStyleClass="input" 
+                passwordInputFieldLabel="#{bundle.users_and_roles_user_creation_password_input_label}" 
+                confirmPasswordInputFieldLabel="#{bundle.users_and_roles_user_creation_confirm_password_input_label}" 
+                required="#{usersViewBean.selectedUser.new}"
+                rendered="#{usersViewBean.selectedUser.local}"
+				size="20"/>
+            <table id="authTpTbl" class="formtable">
+                <tr id="typRw">
+                    <td id="typLblCol" class="label">
+                        <h:outputText 
+                        	id="typLbl" 
+                            value="#{bundle.users_and_roles_auth_type_label}"/>
+                    </td>
+                    <td id="typTxtCol" class="input" colspan="3">
+                        <h:outputText 
+                        	id="typTxt" 
+                            value="#{usersViewBean.selectedUser.local ? bundle.users_and_roles_internal_auth_value : bundle.users_and_roles_external_auth_value}" />
+                    </td>
+                </tr>                
+            </table>
+        </div>
+        <div id="rlsHdrDv" class="sectionheader">
+          <h:outputText id="userRolesEditPermissionsSectionHeaderLabel" value="#{bundle.users_and_roles_edit_permissions_section_header_label}" />
+        </div>
+        <div id="rlsEdtDv" class="sectioncontent">
+        <h:panelGrid id="rlsEdtGrd" styleClass="userdetails" columns="4" columnClasses="label, inputcheckbox, label, input">
+	        <h:outputText id="asndRlsLbl" value="#{bundle.users_and_roles_users_assigned_roles_input_label}" />
+            <h:panelGroup id="rlScltnsGrp">  
+          	  <f:verbatim><div id="sysAdmDv"></f:verbatim>
+          	    <h:selectBooleanCheckbox id="systemAdministratorCheckbox" value="#{usersViewBean.selectedUser.systemAdmin}" />
+          	    <h:outputLabel id="sysAdmLbl" for="systemAdministratorCheckbox" value="#{bundle.users_and_roles_users_roles_edit_section_system_administrator_checkbox_label}" />
+          	  <f:verbatim></div></f:verbatim>
+              <f:verbatim><div id="plcyAdmDv"></f:verbatim>
+                <h:selectBooleanCheckbox id="policyAdministratorCheckbox" value="#{usersViewBean.selectedUser.policyAdmin}" />
+                <h:outputLabel id="plcyAdmLbl" for="policyAdministratorCheckbox" value="#{bundle.users_and_roles_users_roles_edit_section_policy_administrator_checkbox_label}" />
+              <f:verbatim></div></f:verbatim>
+              <f:verbatim><div id="plcyAnlyDv"></f:verbatim>
+                <h:selectBooleanCheckbox id="policyAnalystCheckbox" value="#{usersViewBean.selectedUser.policyAnalyst}" />
+                <h:outputLabel id="plcyAnlyLbl" for="policyAnalystCheckbox" value="#{bundle.users_and_roles_users_roles_edit_section_policy_analyst_checkbox_label}" />
+              <f:verbatim></div></f:verbatim>
+              <f:verbatim><div id="busAnlyDv"></f:verbatim>
+                <h:selectBooleanCheckbox id="userCheckbox" value="#{usersViewBean.selectedUser.businessAnalyst}" />
+                <h:outputLabel id="busAnlyLbl" for="userCheckbox" value="#{bundle.users_and_roles_users_roles_edit_section_business_analyst_checkbox_label}" />
+              <f:verbatim></div></f:verbatim>
+              <f:verbatim><div id="rptAdminDv"></f:verbatim>
+                <h:selectBooleanCheckbox id="reportAdminCheckbox" value="#{usersViewBean.selectedUser.reportAdmin}" />
+                <h:outputLabel id="rptAdminLbl" for="reportAdminCheckbox" value="#{bundle.users_and_roles_users_roles_edit_section_report_admin_checkbox_label}" />
+              <f:verbatim></div></f:verbatim>
+              
+            </h:panelGroup>
+            <h:outputText id="dfltAclGrpLbl" value="#{bundle.users_and_roles_users_default_access_group_input_label}"/>
+            <h:selectOneMenu id="dfltAclGrpSlct" value="#{usersViewBean.selectedUser.primaryUserGroupId}">
+              <f:selectItems value="#{usersViewBean.selectedUser.primaryUserGroups}" />
+            </h:selectOneMenu>
+        </h:panelGrid>
+      </div>
+    </div>               
+    <div id="actnBtnsDv" class="actionbuttons">
+      <h:commandLink id="saveLink">
+        <h:commandButton id="svBtn" type="button" value="#{bundle.users_and_roles_users_save_button_label}" />          
+        <f:param id="usrBnNmPrm" name="usersViewBeanName" value="usersViewBean"/>
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.users.SaveSelectedUserActionListener"/>
+      </h:commandLink>
+      <h:commandLink id="unlockLink">
+        <h:commandButton id="unlockBtn" type="button" value="#{bundle.users_and_roles_users_unlock_button_label}" />          
+        <f:param id="usrIdPrm" name="unlockUserId" value="#{usersViewBean.selectedUser.userId}"/>
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.users.UnlockSelectedUserActionListener"/>
+      </h:commandLink>
+    </div>
+    <div id="clrDv" class="usersClear">
+    </div>
+  </div>
+</d:form>
+
+<div id="curtainDiv" class="curtain" style="display: none;"></div>
+<div id="deleteConfirmDialogDiv" class="modalDialog" style="display: none;">
+  <d:form id="delCnfFrm">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+    <div id="cnfQDv" class="title">
+      <h:outputFormat id="cnfQFmt" value="#{bundle.users_and_roles_users_delete_confirmation_question_text}">
+        <f:param id="usrNmPrm" value="#{usersViewBean.selectedUser.userTitle}" />
+      </h:outputFormat>
+    </div>
+    <div id="cnfTxtDv" class="reason"><h:outputText id="cnfTxt" value="#{bundle.users_and_roles_users_delete_confirmation_warning_text}" /></div>
+    <div id="actnBtns" class="buttons">
+      <h:commandLink id="cnfDelLnk">
+        <h:commandButton id="cnfDelBtn" type="button" value="#{bundle.users_and_roles_users_delete_confirmation_button_label}" />
+        <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.users.DeleteSelectedUserActionListener"/>
+        <f:param id="usrBnNmPrm" name="usersViewBeanName" value="usersViewBean"/>
+      </h:commandLink>
+      <h:commandButton id="cnclBtn" type="button" value="#{bundle.users_and_roles_users_cancel_delete_button_label}" onclick="hideModalDialog('curtainDiv', 'deleteConfirmDialogDiv');" />
+    </div>
+  </d:form>
+</div>

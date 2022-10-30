@@ -1,0 +1,16 @@
+{
+    "index": {
+        "number_of_shards": "1",
+        "number_of_replicas": "0",
+        "max_result_window": "100000",
+        "analysis": {
+            "analyzer": {
+                "case_insensitive_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "keyword",
+                    "filter" : [ "lowercase"]
+                }
+            }
+        }
+    }
+}

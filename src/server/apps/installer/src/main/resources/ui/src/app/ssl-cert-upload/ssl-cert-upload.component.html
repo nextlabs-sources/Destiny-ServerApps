@@ -1,0 +1,34 @@
+<form [formGroup]="sslCertForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div>
+        <div class="text-center">
+          <div class="page-heading">SSL Certificates</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading">
+            Select SSL Certificates here. You can use this screen to upload SSL certificates including database SSL certificates.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center">
+            <div class="certificate-file w-75">
+              <app-file-drag-drop id="certificate" class="h-100" [acceptMultipleFile]="true"
+                                  [fileLabel]="'CA/Server certificate'"
+                                  formControlName="certificate" (onFileDelete)="deleteSslCert($event)"></app-file-drag-drop>
+            </div>
+            <div
+              *ngIf="(sslCertForm.get('certificate').invalid && !sslCertForm.get('certificate').errors.required) && (sslCertForm.get('certificate').dirty || sslCertForm.get('certificate').touched)"
+              class="installer-error">
+              <div *ngIf="sslCertForm.get('certificate').errors.invalidCertificate">
+                Invalid Certificate file.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="sslCertForm"></app-bottom-nav>
+</form>

@@ -1,0 +1,46 @@
+image:
+  repository:
+  pullPolicy:
+  imagePullSecret:
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+securityContext:
+  runAsUser:
+  fsGroup:
+volumes:
+  enrollmentData:
+    storageClassName: manual
+    storage: 1Gi
+nextlabs:
+  cc:
+    adminPassword:
+    commProfile:
+      heartBeatFreqTime:
+      heartBeatFreqTimeUnit:
+    db:
+      retryAttempts:
+      url:
+      username:
+      password:
+    dnsName:
+    subDomain:
+    license:
+    port:
+      externalPort: 443
+    oidc:
+      clientSecret:
+    configService:
+      password:
+    ssl:
+      keystore:
+        password:
+      truststore:
+        password:
+    type:
+    url:
+    logsVolumeClaimName:

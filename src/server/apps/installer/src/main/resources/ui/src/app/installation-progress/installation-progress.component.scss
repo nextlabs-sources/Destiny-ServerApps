@@ -1,0 +1,70 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.progress-percentage {
+  font-size: 5rem;
+  line-height: 6rem;
+  margin: 1rem;
+  color: #C0D631;
+
+  &.error {
+    color: #FF0000
+  }
+}
+
+.progress-div {
+  padding: 0;
+}
+
+#task-item {
+  font-size: .75rem;
+  line-height: 1.4375rem;
+  color: #666666;
+
+  .completed {
+    color: #79A340;
+  }
+
+  .error {
+    color: #D63131;
+  }
+}
+
+.tasks {
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 3px;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.progress-bar {
+  background-color: #79A340;
+
+  &.error {
+    background-color: #D63131;
+  }
+}
+
+.task-check {
+  color: #C0D631;
+  i {
+    font-size: .90rem;
+  }
+}
+
+.task-error {
+  color: #FF0000;
+  i {
+    font-size: .90rem;
+  }
+  a {
+    color: #FF0000;
+  }
+}
+
+.hide {
+  opacity: 0;
+}

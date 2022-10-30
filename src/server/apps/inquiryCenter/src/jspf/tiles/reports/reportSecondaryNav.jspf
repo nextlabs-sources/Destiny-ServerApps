@@ -1,0 +1,29 @@
+<%@ page buffer="none" errorPage="/error"%>
+<%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%>
+
+<%-- Load Resource Bundles --%>
+
+<%-- Include CSS --%>
+          
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() + 
+       "/core/css/ie.css" %>" /> 
+    <![endif]-->
+    
+<f:loadBundle basename="InquiryCenterMessages" var="bundle" />
+
+<d:form id="reportSecNavFrm">
+	<h:inputHidden value="#{csrfToken}" id="reportSecNavFrm-csrfToken" />
+	<d:menu id="reportSecondaryNavMenu" selectedItemStyleClass="current">
+		<d:menuItem id="reportSecondaryNavMenu-policies" viewIdPattern="/myReports" value="Policies" action="myReports" immediate="true"/>
+		<d:menuItem id="reportSecondaryNavMenu-audits" viewIdPattern="/auditLogReports" value="Audit Logs" action="auditLogReports" immediate="true" />
+		<c:if test="${sessionScope.reportNavigatorBean.hasMultipleReportsPages}">		
+			<d:menuItem id="reportSecondaryNavMenu-sharepoint" viewIdPattern="/multiReports" value="SharePoint" action="sharePointReports" immediate="true" />
+		</c:if>		
+	</d:menu>
+</d:form>

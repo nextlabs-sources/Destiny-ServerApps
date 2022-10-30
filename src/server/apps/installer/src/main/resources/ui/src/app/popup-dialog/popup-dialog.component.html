@@ -1,0 +1,14 @@
+<div class="d-flex flex-column justify-content-around align-items-start h-100">
+  <div class="d-flex flex-row justify-content-center align-items-center w-100 h-50">
+    <div *ngIf="data.status === 'success'" class="connection-popup popup-success col-2"></div>
+    <div *ngIf="data.status === 'error'" class="connection-popup popup-error col-2"></div>
+    <div *ngIf="data.status === 'inprogress'" class="connection-popup popup-inprogress col-2"></div>
+    <div class="pl-3 message">{{data.msg}}</div>
+  </div>
+  <button *ngIf="!data.confirmDialog" type="button" mat-button class="accent test-connection btn btn-block col-4 mt-auto align-self-center"
+  (click)="closeDialog()">CLOSE</button>
+  <div *ngIf="data.confirmDialog" class="d-flex flex-row justify-content-around align-items-center w-100">
+    <button id="popup-no" mat-button class="accent btn btn-block col-4" type="button" [mat-dialog-close]="false">NO</button>
+    <button id="popup-yes" mat-button class="primary btn col-4" type="button" [mat-dialog-close]="true" cdkFocusInitial>YES</button>
+  </div>
+</div>

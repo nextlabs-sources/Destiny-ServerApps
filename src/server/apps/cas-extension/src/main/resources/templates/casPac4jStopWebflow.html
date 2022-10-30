@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title th:text="#{screen.pac4j.unauthz.pagetitle}">Pac4j Stop Webflow View</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag" />
+</head>
+
+<body>
+<main role="main" class="container mt-3 mb-3">
+    <div layout:fragment="content">
+        <div class="col-8 p-0">
+            <div>
+                <div class="cc-form-line show-overflow">
+                    <span class="cc-form-title" th:text="#{screen.error.page.authdenied}">AUTHORIZATION DENIED</span>
+                </div>
+            </div>
+            <div id="msg" class="errors"
+                 style="background-color: rgb(255, 238, 221); border: none; border-radius: 0; color: #BB0000;">
+                <span th:text="#{screen.pac4j.unauthz.message}">Authentication request was rejected or the Control Center CAS denied access due to permissions.</span>
+            </div>
+            <br/>
+            <a class="back-to-login-btn"
+                   name="cancel"
+                   accesskey="c"
+                   th:href="@{/login} + '?service=' + ${service.getOriginalUrl()}"
+                   th:text="#{screen.error.page.loginagain}">Back</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

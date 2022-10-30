@@ -1,0 +1,102 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %> 
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="CommonMessages" var="message"/>
+<f:loadBundle basename="CustomizationMessages" var="customizedBundle" />
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+		<%-- Include CSS --%>
+		<d:includeCSS location="/login/css/login.css" />
+   
+		<%-- Include javascript --%>
+		<d:includeJS location="/login/javascript/core.js"/>
+
+		<title id="appTtle">
+			 <%
+		String installMode = System.getProperty("console.install.mode", "OPL");
+		pageContext.setAttribute("installMode", installMode);
+		if("SAAS".equals(installMode)) {
+           %>
+				NextLabs Cloud Authorization Service
+			<%
+		} else {
+			%>
+				<h:outputText value="#{customizedBundle.product_title}" /> <tiles:getAsString name="applicationTitle" />: <tiles:getAsString name="pageTitle"/>
+			<%
+		}
+		%>
+		</title>
+		<c:if test='${installMode eq "SAAS"}'>
+			<c:url value="core/images/favicon.ico" var="favicon"/>
+			<link rel="icon" href="${favicon}" type="image/x-icon" />
+		</c:if>
+		
+		<script type="text/javascript">
+		var existingSubFn;
+
+		function stripRandomInput() {
+			var inp = document.getElementsByTagName('input');
+			for(var i=0; i< inp.length; i++){
+				if(inp[i].getAttribute('type') == "text" || inp[i].getAttribute('type') == "password"){
+					inp[i].setAttribute("name",inp[i].getAttribute('name').split("_")[0]);
+					inp[i].setAttribute("id",inp[i].getAttribute('id').split("_")[0]);
+				}
+			}
+			if(eval(existingSubFn))
+			document.forms[0].submit();
+		}
+
+		function addRandomInput() {
+			document.forms[0].setAttribute("autocomplete","off");                                           
+			var t = new Date().getTime();
+			var inp = document.getElementsByTagName('input');
+			for(var i=0; i< inp.length; i++){
+				if(inp[i].getAttribute('type') == "text" || inp[i].getAttribute('type') == "password"){
+					inp[i].setAttribute("autocomplete","off");
+					inp[i].setAttribute("name",inp[i].getAttribute('name')+"_"+t);
+					inp[i].setAttribute("id",inp[i].getAttribute('id')+"_"+t);
+					inp[i].focus();
+				}
+			}
+			inp[0].focus();
+			existingSubFn = document.forms[0].getAttribute("onsubmit");
+			document.forms[0].onsubmit = stripRandomInput;
+		}
+
+		window.onload = addRandomInput;
+										
+		</script>  		
+	</head>
+
+	<body id="lgnPgBdy">
+
+		<div id="box">
+			<h:graphicImage id="login_logo" url="/login/images/login.jpg" />
+		</div>
+	
+		<d:form id="loginForm" inputToFocus="userName">
+		<div id="userInfo">
+			<h:panelGrid columns="2">
+				<h:outputText id="lgnTxt" styleClass="label" value="#{message.login_userName_label}"/>
+				<h:inputText id="userName" styleClass="input" value="#{loginInfo.userName}" />
+				<h:outputText id="pwdTxt" styleClass="label" value="#{message.login_password_label}"/>
+				<h:inputSecret id="password" styleClass="input" value="#{loginInfo.password}" />
+				<h:outputText/>
+				<h:commandButton id="loginButton" styleClass="button" action="#{loginManager.performLogin}" value="#{message.login_button_label}"/>
+			</h:panelGrid>
+			<d:displayMessages />
+		</div>
+		</d:form>       
+	      
+		<br clear="all" /><!-- without this little <br /> NS6 and IE5PC do not stretch the frame div down to encopass the content DIVs -->
+    </body>
+    
+</html>

@@ -1,0 +1,11 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="CommonMessages" var="commonBundle" />
+
+<div id="cpyrghtDv" class="copyright">
+  &copy;<h:outputText id="cpyrghtLbl" value="#{commonBundle.copyright}" />
+</div>

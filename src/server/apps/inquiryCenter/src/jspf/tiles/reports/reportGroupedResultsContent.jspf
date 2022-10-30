@@ -1,0 +1,109 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message"/>
+<d:includeJS location="/core/javascript/stripe.js"/>
+
+<d:displayMessages/>		
+
+<div id="grpRsltRsltsDv" class="results">
+<h:outputFormat id="grpRsltBgnFmt" value="{0, date, medium}" rendered="#{reportExecutionBean.lastExecutedReport != null && reportExecutionBean.lastExecutedReport.beginDate != null}">
+	<f:param id="bgnDateTime" value="#{reportExecutionBean.lastExecutedReport.beginDate.time}" />
+</h:outputFormat>
+<h:outputText id="grpTimeRsltTxt" value="#{message.reports_grouped_time_results_to}" rendered="#{reportExecutionBean.lastExecutedReport != null && reportExecutionBean.lastExecutedReport.endDate != null}"/> 
+<h:outputFormat id="grpRsltEndFmt" value="{0, date, medium}" rendered="#{reportExecutionBean.lastExecutedReport != null && reportExecutionBean.lastExecutedReport.endDate != null}">
+	<f:param id="endDateTime" value="#{reportExecutionBean.lastExecutedReport.endDate.time}" />
+</h:outputFormat>
+
+<d:form id="grpRsltFrm" method="GET">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+	<d:dataTable id="groupedResults" 
+			 binding="#{reportExecutionBean.resultTable}"
+			 value="#{reportExecutionBean.results}" 
+			 var="currentRow"
+			 preserveDataModel="true"
+			 rowClasses="bars, none, none"
+			 rows="#{reportExecutionBean.pageSize}"
+			 styleClass="grouped"
+			 columnClasses="groupdisplay">
+		<h:column id="rsltFootCol" >
+			<f:facet name="header">
+				<h:outputText id="colTtlTxt" value="#{columnTitle}"/>
+			</f:facet>
+			<h:outputText id="dspValTxt" value="#{currentRow.displayValue}"/>
+			<f:facet name="footer">
+				<h:outputText id="totFootTxt" value="#{message.reports_grouped_results_total_footer}"/>
+			</f:facet>
+		</h:column>
+		<h:column id="rsltStatCol">
+			<d:barItem 	id="barCntItem" containerClassName="barcontainer" 
+						barClassName="bar" 
+						value="#{currentRow.count}"
+						maxBarSize="300" 
+						maxRange="#{reportExecutionBean.resultsStatistics.maxCount}" 
+						orientation="Horizontal">
+				<h:commandLink id="grpBarLnk" styleClass="barlink" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToRecordDetails}">
+					<f:param id="grpBarGrpVal" name="groupedValue" value="#{currentRow.value}"/>
+					<f:param id="grpBarGrpTyp" name="groupedType" value="#{groupingType}"/>
+		    		<f:param id="grpBarExecId" name="execId" value="#{timestampBean.currentTimestamp}"/>
+				</h:commandLink>
+			</d:barItem>
+		</h:column>
+		<h:column id="rsltEvntCol" >
+			<f:facet name="header">
+				<h:outputText id="evntHdrTxt" value="Events"/>
+			</f:facet>
+			<h:commandLink id="grpEvntHdrLnk" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToRecordDetails}" value="#{currentRow.count}">
+				<f:param id="grpEvntGrpVal" name="groupedValue" value="#{currentRow.value}"/>
+				<f:param id="grpEvntGrpTyp" name="groupedType" value="#{groupingType}"/>
+	    		<f:param id="grpEvntExecId" name="execId" value="#{timestampBean.currentTimestamp}"/>				
+			</h:commandLink>
+			<f:facet name="footer">
+				<h:commandLink id="grpEvntFootLnk" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToAllDetails}" value="#{reportExecutionBean.resultsStatistics.totalSummaryCount}">
+					<f:param id="grpEvntFtGrpTyp" name="groupedType" value="#{groupingType}"/>
+		    		<f:param id="grpEvntFtExecId" name="execId" value="#{timestampBean.currentTimestamp}"/>					
+				</h:commandLink>
+			</f:facet>
+		</h:column>
+	</d:dataTable>
+	<d:dataScroller id="bottomResultScroller"
+	                    for="groupedResults"
+	                    fastStep="5"
+	                    styleClass="pagecontrol"
+	                    paginator="true"
+	                    paginatorActiveColumnClass="active"
+	                    paginatorColumnClass="inactive"
+	                    rowsCountVar="rowsCount"
+	                    firstRowIndexVar="firstRowIndex"
+	                    lastRowIndexVar="lastRowIndex">
+        <f:facet name="previous">
+        	<h:commandLink id="prvLnk" >
+				<h:outputText id="prvLblTxt" value="#{message.my_reports_list_previous_label}"/>	
+				<f:param id="prvLblGrpTyp" name="groupedType" value="#{groupingType}"/>
+		    	<f:param id="prvLblExecId" name="execId" value="#{timestampBean.currentTimestamp}"/>					
+			</h:commandLink>
+        </f:facet>
+         <h:outputFormat id="lstPgFmt" value="#{message.my_reports_list_page_format}" styleClass="pagecounter" rendered="#{reportExecutionBean.resultsStatistics != null && reportExecutionBean.resultsStatistics.availableRowCount == reportExecutionBean.resultsStatistics.totalRowCount}">
+            <f:param id="pFFirstRowIndex" value="#{firstRowIndex}"/>
+            <f:param id="pFLastRowIndex" value="#{lastRowIndex}"/>
+            <f:param id="pFRowsCount" value="#{rowsCount}"/>
+        </h:outputFormat>
+         <h:outputFormat id="lstPgFmtPlus" value="#{message.my_reports_list_page_format_plus}" styleClass="pagecounter" rendered="#{reportExecutionBean.resultsStatistics != null && reportExecutionBean.resultsStatistics.availableRowCount < reportExecutionBean.resultsStatistics.totalRowCount}">
+            <f:param id="pFPFirstRowIndex" value="#{firstRowIndex}"/>
+            <f:param id="pFPLastRowIndex" value="#{lastRowIndex}"/>
+            <f:param id="pFPRowsCount" value="#{rowsCount}"/>
+        </h:outputFormat>
+        <f:facet name="next">
+			<h:commandLink id="nxtLnk" >
+				<h:outputText id="nxtLblTxt" value="#{message.my_reports_list_next_label}"/>
+				<f:param id="nxtLblGrpTyp" name="groupedType" value="#{groupingType}"/>
+		    	<f:param id="nxtLblExecId" name="execId" value="#{timestampBean.currentTimestamp}"/>					
+			</h:commandLink>
+        </f:facet>	
+    </d:dataScroller>
+</d:form>
+</div>
+<BR>

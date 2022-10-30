@@ -1,0 +1,32 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle" />
+
+<d:form id="prmNvFrm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+  <d:menu id="parimaryNavMenu" styleClass="tabs" selectedItemStyleClass="current">
+    <d:menuItem id="primaryNavMenu-statusOverview" viewIdPattern="/status/" value="#{bundle.primary_nav_status_menu_item_label}" action="statusOverview" immediate="true" />
+    
+    <%
+	    String installMode = System.getProperty("console.install.mode", "OPL");
+	    if("OPL".equals(installMode)) {
+    %>
+    <d:menuItem id="primaryNavMenu-usersAndRolesUsers" viewIdPattern="/usersandroles/" value="#{bundle.primary_nav_users_and_roles_menu_item_label}" action="usersAndRolesUsers" immediate="true">
+      <f:param id="prmNvUsrNRolsBnsToRst" name="beansToReset" value="usersViewBean, userGroupsViewBean, rolesViewBean" />
+      <f:actionListener type="com.bluejungle.destiny.webui.framework.faces.ResetBeanActionListener" />
+    </d:menuItem>
+    <%
+   		 }
+    %>
+    
+    <d:menuItem id="primaryNavMenu-agentConfigDesktop" viewIdPattern="/agentconfig/" value="#{bundle.primary_nav_agent_config_menu_item_label}" action="agentConfig" immediate="true" >
+      <f:param id="prmNvAgntCfgBnsToRst" name="beansToReset" value="agentConfigurationBean" />
+      <f:actionListener type="com.bluejungle.destiny.webui.framework.faces.ResetBeanActionListener" />
+    </d:menuItem>
+  </d:menu>
+</d:form>

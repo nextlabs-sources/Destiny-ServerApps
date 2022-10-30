@@ -1,0 +1,102 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+
+  <h:panelGrid id="cfgStgsPnlGrd" styleClass="agentconfig" columns="2" columnClasses="label, input">
+    <%-- Row One --%>
+    <h:outputText id="cfgTitleLblTxt" value="#{bundle.agent_config_title_input_label}"/>
+    <h:inputText id="cfgTitleIn" value="#{agentConfigurationBean.selectedProfile.profileTitle}" required="true" maxlength="111">
+      <f:converter converterId="TokenConverter"/>
+      <f:validator validatorId="TokenValidator"/>
+      <f:validator validatorId="NameStringValidator"/>
+    </h:inputText>
+    
+    <%-- Row Two --%>
+    <h:outputText id="cfgSrvrLblTxt" value="#{bundle.agent_config_server_url_input_label}"/>
+    <h:panelGroup id="cfgSrvrPnlGrp">
+      <h:selectOneMenu id="profileBrokerURLMenu" value="#{agentConfigurationBean.selectedProfile.profileBrokerURL}">
+        <f:selectItems value="#{agentConfigurationBean.selectedProfile.DABSURLs}" />
+        <f:converter converterId="URLConverter"/>
+      </h:selectOneMenu> 
+
+      <h:outputText id="cfgSrvrSepTxt" styleClass="label" value=" #{bundle.agent_config_server_url_input_separator} " />
+      
+      <h:inputText id="cfgAltSrvrTxt" value="#{agentConfigurationBean.selectedProfile.alternateProfileBrokerURL}" size="30">
+        <f:converter converterId="URLConverter"/>
+        <f:validator validatorId="com.bluejungle.destiny.mgmtconsole.agentconfig.defaultimpl.DabsUrlValidator" />
+      </h:inputText>
+    </h:panelGroup>
+    
+    <%--  Row Three --%>
+    <h:outputText id="cfgHBFrqLbl" value="#{bundle.agent_config_heartbeat_frequency_input_label}" />
+    
+    <h:panelGroup id="cfgHBFrq">
+      <h:inputText id="cfgHBFrqIn" value="#{agentConfigurationBean.selectedProfile.profileHeartBeatFrequency.time}" size="4" maxlength="4" required="true">
+        <f:validateLongRange minimum="1" />
+      </h:inputText>
+      <h:selectOneMenu id="cfgHBFrqTmUnt" value="#{agentConfigurationBean.selectedProfile.profileHeartBeatFrequency.timeUnit}">
+        <f:selectItem itemValue="days" itemLabel="days"/>
+        <f:selectItem itemValue="hours" itemLabel="hours"/>
+        <f:selectItem itemValue="minutes" itemLabel="minutes"/>
+        <%-- removed the seconds for bugfix 8241 --%>
+        <%-- <f:selectItem itemValue="seconds" itemLabel="seconds"/> --%>
+      </h:selectOneMenu>
+    </h:panelGroup>
+    
+   
+    <%-- Row Four --%>
+    <h:outputText id="cfgUplFrqLbl" value="#{bundle.agent_config_log_upload_frequency_input_label}" />
+    <h:panelGroup id="cfgUplFrq">
+      <h:inputText id="cfgUplFrqIn" value="#{agentConfigurationBean.selectedProfile.profileLogFrequency.time}" size="4" maxlength="4" required="true">
+        <f:validateLongRange minimum="1" />
+      </h:inputText>      
+      <h:selectOneMenu id="cfgUplFrqTmUnt" value="#{agentConfigurationBean.selectedProfile.profileLogFrequency.timeUnit}">
+        <f:selectItem itemValue="days" itemLabel="days"/>
+        <f:selectItem itemValue="hours" itemLabel="hours"/>
+        <f:selectItem itemValue="minutes" itemLabel="minutes"/>
+        <f:selectItem itemValue="seconds" itemLabel="seconds"/>
+      </h:selectOneMenu>
+    </h:panelGroup>
+    
+    
+    <%-- Row Five --%>
+    <h:outputText id="cfgLgSzLbl" value="#{bundle.agent_config_log_size_limit_input_label}" />
+    <h:panelGroup id="cfgLgSz">
+      <h:inputText id="cfgLgSzIn" value="#{agentConfigurationBean.selectedProfile.profileMaxLogSize}" size="3" maxlength="3" required="true">
+       <f:validateLongRange minimum="1" />
+      </h:inputText> 
+      <h:outputText id="cfgLgSzTmUntLbl" value="#{bundle.agent_config_log_size_limit_unit_label}" />
+    </h:panelGroup>
+    
+    <%-- Sixth Row --%>
+    <h:panelGroup id="cfgPshEnbl">
+      <h:outputLabel id="cfgPshEnblLbl" for="pushck">
+        <h:outputText id="cfgPshEnblTxt" value="#{bundle.agent_config_enable_push_input_label}" />
+      </h:outputLabel>
+      <h:selectBooleanCheckbox value="#{agentConfigurationBean.selectedProfile.pushEnabledOnProfile}" id="pushck"/>
+    </h:panelGroup>
+    
+    <h:panelGroup id="cfgDfltPrt">
+      <h:outputText id="cfgDfltPrtLbl" value="#{bundle.agent_config_default_port_input_label}" />
+      <h:inputText id="cfgDfltPrtIn" value="#{agentConfigurationBean.selectedProfile.profilePushPort}" size="5" maxlength="5" required="true">
+        <f:validateLongRange minimum="1" maximum="65535" />
+      </h:inputText> 
+    </h:panelGroup>
+    
+    <%-- Seventh Row --%>
+    <%-- <h:outputText id="cfgLgLvlLbl" value="#{bundle.agent_config_activity_journaling_main_label}" />
+    <h:panelGroup id="cfgLgLvl">
+      <h:selectOneRadio id="cfgLgLvlSlct" layout="pageDirection" value="#{agentConfigurationBean.selectedProfile.assignedJournalingSettingsName}">
+        <f:selectItems value="#{agentConfigurationBean.agentType.predefinedJournalingSettings.predefinedJournalingSettingsLevelsAsSelectItems}" />
+        <f:selectItem itemValue="#{agentConfigurationBean.selectedProfile.customJournalingSettings.name}" itemLabel="#{bundle.agent_config_activity_journaling_custom_option_label}" /> 
+      </h:selectOneRadio>
+      <h:commandButton id="cfgCstmLgLvlBtn" type="button" value="#{bundle.agent_config_configure_custom_journaling_button_label}" onclick="showJournalingSettingsDialog();" />    
+    </h:panelGroup> --%>
+
+  </h:panelGrid>
+  
+  <%-- Seventh Row --%>
+  <d:inputPassword id="cfgPwdIn" value="#{agentConfigurationBean.selectedProfile.profilePassword}" styleClass="agentconfig" labelColumnStyleClass="label" inputFieldsColumnStyleClass="input" passwordInputFieldLabel="#{bundle.agent_config_new_password_input_label}" confirmPasswordInputFieldLabel="#{bundle.agent_config_confirm_password_input_label}" required="#{agentConfigurationBean.selectedProfile.new}" />

@@ -1,0 +1,716 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+
+sourceSets {
+    main {
+        resources {
+            exclude 'configuration'
+            exclude 'elasticsearch'
+            exclude 'docker'
+            exclude 'images'
+            exclude 'ui'
+            exclude 'license'
+            exclude 'scripts'
+            exclude 'tomcat'
+        }
+    }
+}
+
+configurations {
+    apps
+    download
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+dependencies {
+    download "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    download "com.mchange:c3p0:${versions.c3p0}"
+    download "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    download "com.microsoft.sqlserver:mssql-jdbc_auth:${versions.mssqlJdbcAuth}"
+    apps "com.nextlabs.cc:app-home:${version}@war"
+    apps "com.nextlabs.cc.apps:dabs:${version}@war"
+    apps "com.nextlabs.cc.apps:dac:${version}@war"
+    apps "com.nextlabs.cc.apps:dcsf:${version}@war"
+    apps "com.nextlabs.cc.apps:dem:${version}@war"
+    apps "com.nextlabs.cc.apps:dkms:${version}@war"
+    apps "com.nextlabs.cc.apps:dms:${version}@war"
+    apps "com.nextlabs.cc.apps:dpc:${version}@war"
+    apps "com.nextlabs.cc.apps:dps:${version}@war"
+    apps "com.nextlabs.cc:service-manager:${version}@war"
+    apps "com.nextlabs.cc:policy-controller-manager:${version}@war"
+    download "com.nextlabs.cc.base:certificates:${version}@zip"
+    download "com.nextlabs.cc.base:common-version:${version}"
+    download "com.nextlabs.cc.base:crypt:${version}"
+    download "com.nextlabs.cc.base:license:${version}"
+    download "com.nextlabs.cc.base:console-oauth2-jwt-secret-plugin-server:${version}@zip"
+    download "com.nextlabs.cc.base:nextlabs-openaz-pep-resources:${version}@zip"
+    download "com.nextlabs.cc.base:seed-data:${version}@zip"
+    download "com.nextlabs.cc.base:server-base-internal:${version}"
+    download "com.nextlabs.cc.base:server-base:${version}"
+    download "com.nextlabs.cc.base:server-security:${version}"
+    download "com.nextlabs.cc.base:tools:${version}@zip"
+    download "com.nextlabs.cc.java.openjdk:jre-linux:${versions.java}@zip"
+    download "com.nextlabs.cc.java.openjdk:jre-linux-ppc64le:${versions.java}@zip"
+    download "com.nextlabs.cc.java.openjdk:jre-windows:${versions.java}@zip"
+    download "com.nextlabs.cc:apache-tomcat:${project.'cc.tomcat.version'}@zip"
+    download "com.nextlabs.cc:elasticsearch:${versions.elasticsearch}@zip"
+    download "com.nextlabs.cc.node:node-linux-ppc64le:${versions.node}@zip"
+    download "com.nextlabs.cc.plugins.jwtsecret:pdp-jwtsecrets-manager-server:${versions.jwtSecretsPluginManager}"
+    download "com.nextlabs.cc.plugins.jwtsecret:pdp-jwtsecrets-manager-server-properties:${versions.jwtSecretsPluginManager}@properties"
+    download "com.nextlabs.cc.plugins.pdppluginmanager:pdp-plugin-manager-server:${versions.pdpPluginManager}"
+    download "com.nextlabs.cc.plugins.pdppluginmanager:pdp-plugin-manager-server-properties:${versions.pdpPluginManager}@properties"
+    download "com.nextlabs.cc:policy-validator:${version}@zip"
+    download "commons-logging:commons-logging:${versions.commonsLogging}"
+    download "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    download "org.postgresql:postgresql:${versions.postgresql}"
+    implementation "com.googlecode.json-simple:json-simple:${versions.jsonSimple}"
+    implementation "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    implementation "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "commons-cli:commons-cli:${versions.commonsCli}"
+    implementation "commons-io:commons-io:${versions.commonsIo}"
+    implementation "net.sf.jopt-simple:jopt-simple:${versions.joptSimple}"
+    implementation "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    implementation 'net.java.dev.jna:jna:5.9.0'
+    implementation 'net.java.dev.jna:jna-platform:5.9.0'
+    implementation "org.apache.commons:commons-exec:1.3"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "org.apache.httpcomponents:httpclient:${versions.httpclient}"
+    implementation "org.apache.logging.log4j:log4j-web:${versions.log4j}"
+	implementation "org.bouncycastle:bcpkix-jdk15on:${versions.bcpkixJdk15on}"
+    implementation "org.bouncycastle:bcprov-jdk15on:${versions.bcprovJdk15on}"
+    implementation "org.postgresql:postgresql:${versions.postgresql}"
+    implementation "org.springframework.boot:spring-boot-starter-test"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation "org.springframework.boot:spring-boot-starter-websocket"
+    implementation "xalan:xalan:${versions.xalan}"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation "com.fasterxml.jackson.core:jackson-core:${versions.jackson}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${versions.jacksonDatabind}"
+    implementation "org.bitbucket.b_c:jose4j:${versions.jose4j}"
+    testImplementation 'org.springframework.security:spring-security-test'
+    if (project.hasProperty('includeApiDocs') && includeApiDocs.toBoolean()) {
+        implementation 'com.nextlabs.common:spring-boot-starter-swagger-docs:1.0-SNAPSHOT'
+    }
+
+    implementation project(':serverapps-common')
+
+}
+
+springBoot {
+    mainClassName = 'com.nextlabs.destiny.cc.installer.InstallerApplication'
+}
+
+task npmInstall(type: Exec) {
+    workingDir "${project.projectDir}/src/main/resources/ui/"
+    commandLine "${npmPath}", 'install'
+}
+
+task ngBuild(type: Exec) {
+    dependsOn npmInstall
+    workingDir "${project.projectDir}/src/main/resources/ui/"
+    commandLine "${ngPath}", 'build', '--configuration=production', '--deployUrl=ui/'
+}
+
+if (project.hasProperty('npmPath') && project.hasProperty('ngPath')) {
+    bootWar.dependsOn ngBuild
+}
+
+bootWar {
+    archiveFileName = packageName
+    from('./src/main/resources/ui/dist/ui') {
+        include 'index.html'
+        include 'favicon.ico'
+        into ''
+    }
+    from('./src/main/resources/ui/dist/ui') {
+        include '*.js'
+        include '*.css'
+        include 'resources/*'
+        into 'ui'
+    }
+    doLast {
+        println('Building ' + archiveFileName.get() + ' completed at ' + new Date())
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+project.ext.ccVersion = project.version.replace('-SNAPSHOT', '')
+project.ext.ccPackageName = "PolicyServer"
+project.ext.ccPackageDir = "${buildDir}/distributions/control-center/${ccPackageName}"
+
+task publishServerApps {
+    doLast {
+        copy {
+            from './../cas-extension/build/libs/cas.war'
+            into "${buildDir}/run/server/apps"
+        }
+        copy {
+            from './../cc-console/build/libs/control-center-console.war'
+            into "${buildDir}/run/server/apps"
+        }
+        copy {
+            from './../cc-console/build/libs/nxl-filehandler.jar'
+            into "${buildDir}/run/server/tomcat/shared/lib"
+        }
+        copy {
+            from './../config-service/build/libs/config-service.war'
+            into "${buildDir}/run/server/apps"
+        }
+        copy {
+            from './../inquiryCenter/build/libs/inquiryCenter.war'
+            into "${buildDir}/run/server/apps"
+        }
+        copy {
+            from './../inquiryCenter/src/etc/dashboard.xml'
+            into "${buildDir}/run/server/configuration"
+        }
+        copy {
+            from './../mgmtConsole/build/libs/mgmtConsole.war'
+            into "${buildDir}/run/server/apps"
+        }
+
+    }
+}
+
+task packageAndPublishServerApps(type: Zip) {
+    archiveFileName = String.format('destiny-%s-%sPS-Main-%s-build.zip', ccVersion, buildNumber, new Date().format("yyyMMddHHmm"))
+    destinationDirectory = file("${buildPublishLocation}/artifacts/Destiny-Server-Apps/${ccVersion}/${buildNumber}PS-Main/")
+    from("$buildDir/run") {
+        into 'run'
+    }
+    doLast {
+        copy {
+            from "${buildDir}/distributions"
+            into "${buildPublishLocation}/Platform/${ccVersion}/${buildNumber}"
+            include '*.zip'
+        }
+    }
+}
+
+if (project.hasProperty('buildPublishLocation')) {
+    publishServerApps.finalizedBy(packageAndPublishServerApps)
+}
+
+task buildPackage {
+    doLast {
+        mkdir "${ccPackageDir}"
+        mkdir "${ccPackageDir}/java"
+        mkdir "${ccPackageDir}/server"
+        mkdir "${ccPackageDir}/tools"
+        mkdir "${ccPackageDir}/server/aliased_shares"
+        mkdir "${ccPackageDir}/server/apps"
+        mkdir "${ccPackageDir}/server/certificates"
+        mkdir "${ccPackageDir}/server/certificates/cacerts"
+        mkdir "${ccPackageDir}/server/configuration"
+        mkdir "${ccPackageDir}/server/custom_apps"
+        mkdir "${ccPackageDir}/server/data"
+        mkdir "${ccPackageDir}/server/images"
+        mkdir "${ccPackageDir}/server/license"
+        mkdir "${ccPackageDir}/server/logqueue"
+        mkdir "${ccPackageDir}/server/logs"
+        mkdir "${ccPackageDir}/server/plugins"
+        mkdir "${ccPackageDir}/server/plugins/jar"
+        mkdir "${ccPackageDir}/server/plugins/config"
+        mkdir "${ccPackageDir}/server/resources"
+        mkdir "${ccPackageDir}/tools/enrollment/data"
+
+        copy {
+            from zipTree(configurations.download.find { it.name == "apache-tomcat-${project.'cc.tomcat.version'}.zip" })
+            into "${ccPackageDir}/server"
+        }
+        file("${ccPackageDir}/server/apache-tomcat-${project.'cc.tomcat.version'}").renameTo(file("${ccPackageDir}/server/tomcat"))
+        file("${ccPackageDir}/server/tomcat/bin/tomcat9.exe").renameTo(file("${ccPackageDir}/server/tomcat/bin/control-center.exe"))
+        delete "${ccPackageDir}/server/tomcat/webapps/"
+        copy {
+            from './src/main/resources/tomcat/lib'
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from './src/main/resources/tomcat/conf'
+            into "${ccPackageDir}/server/tomcat/conf"
+        }
+        copy {
+            from './src/main/resources/tomcat/bin'
+            into "${ccPackageDir}/server/tomcat/bin"
+            include 'catalina.bat'
+            include 'setenv.bat'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("dos"))
+        }
+        copy {
+            from './src/main/resources/tomcat/bin'
+            into "${ccPackageDir}/server/tomcat/bin"
+            include 'catalina.sh'
+            include 'setenv.sh'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from "${buildDir}/libs/installer.war"
+            into "${ccPackageDir}/server/apps"
+        }
+        if (!project.hasProperty('containerBuild')) {
+            copy {
+                from './../cas-extension/build/libs/cas.war'
+                into "${ccPackageDir}/server/apps"
+            }
+            copy {
+                from './../cc-console/build/libs/control-center-console.war'
+                into "${ccPackageDir}/server/apps"
+            }
+            copy {
+                from './../cc-console/build/libs/nxl-filehandler.jar'
+                into "${ccPackageDir}/server/tomcat/shared/lib"
+            }
+            copy {
+                from './../config-service/build/libs/config-service.war'
+                into "${ccPackageDir}/server/apps"
+            }
+            copy {
+                from './../inquiryCenter/build/libs/inquiryCenter.war'
+                into "${ccPackageDir}/server/apps"
+            }
+            copy {
+                from './../inquiryCenter/src/etc/dashboard.xml'
+                into "${ccPackageDir}/server/configuration"
+            }
+            copy {
+                from './../mgmtConsole/build/libs/mgmtConsole.war'
+                into "${ccPackageDir}/server/apps"
+            }
+            copy {
+                from configurations.apps
+                into "${ccPackageDir}/server/apps"
+                rename "(.+)-${version}(.+)", '$1$2'
+            }
+            copy {
+                from zipTree(configurations.download.find { it.name == "elasticsearch-${versions.elasticsearch}.zip" })
+                into "${ccPackageDir}/server/data"
+            }
+            file("${ccPackageDir}/server/data/elasticsearch-${versions.elasticsearch}").renameTo(file("${ccPackageDir}/server/data/search-index"))
+            copy {
+                from './src/main/resources/elasticsearch/config'
+                into "${ccPackageDir}/server/data/search-index/config"
+                include "elasticsearch.yml"
+            }
+            // This is added to fix an issue where ES_JAVA_OPTS contains ;; when Java version is below 14
+            ant.replaceregexp(match: 'echo %ES_JAVA_OPTS%', replace: 'set ES_JAVA_OPTS=!ES_JAVA_OPTS:Throw;;=Throw;!\r\necho %ES_JAVA_OPTS%', flags: 'g', byline: true) {
+                fileset(dir: "${ccPackageDir}/server/data/search-index/bin", includes: 'elasticsearch-service.bat')
+            }
+            copy {
+                from configurations.download.find { it.name == "pdp-plugin-manager-server-${versions.pdpPluginManager}.jar" }
+                into "${ccPackageDir}/server/plugins/jar"
+                rename "pdp-plugin-manager-server-${versions.pdpPluginManager}.jar", 'PDPPluginManager-Plugin-server.jar'
+            }
+            copy {
+                from configurations.download.find { it.name == "pdp-plugin-manager-server-properties-${versions.pdpPluginManager}.properties" }
+                into "${ccPackageDir}/server/plugins/config"
+                rename "pdp-plugin-manager-server-properties-${versions.pdpPluginManager}.properties", 'PDPPluginManagerServer.properties'
+            }
+            copy {
+                from configurations.download.find { it.name == "pdp-jwtsecrets-manager-server-${versions.jwtSecretsPluginManager}.jar" }
+                into "${ccPackageDir}/server/plugins/jar"
+                rename "pdp-jwtsecrets-manager-server-${versions.jwtSecretsPluginManager}.jar", 'JWTSecretsManager-Plugin-server.jar'
+            }
+            copy {
+                from configurations.download.find { it.name == "pdp-jwtsecrets-manager-server-properties-${versions.jwtSecretsPluginManager}.properties" }
+                into "${ccPackageDir}/server/plugins/config"
+                rename "pdp-jwtsecrets-manager-server-properties-${versions.jwtSecretsPluginManager}.properties", 'JWTSecretsManagerSever.properties'
+            }
+            copy {
+                from zipTree(configurations.download.find { it.name == "policy-validator-${version}.zip" })
+                into "${ccPackageDir}/tools"
+            }
+            file("${ccPackageDir}/tools/nextlabs-policy-validator-${ccVersion}").renameTo(file("${ccPackageDir}/tools/policy-validator"))
+        }
+
+        copy {
+            from zipTree(configurations.download.find { it.name == "certificates-${version}.zip" })
+            into "${ccPackageDir}/server/certificates"
+        }
+        copy {
+            from './src/main/resources/configuration'
+            into "${ccPackageDir}/server/configuration"
+            exclude "installation.properties"
+        }
+        copy {
+            from './src/main/resources/configuration'
+            into "${ccPackageDir}"
+            include "installation.properties"
+        }
+        copy {
+            from configurations.download.find { it.name == "license-${version}.jar" }
+            into "${ccPackageDir}/server/license"
+            rename "license-${version}.jar", 'license.jar'
+        }
+        copy {
+            from configurations.download.find { it.name == "license-${version}.jar" }
+            into "${ccPackageDir}/server/license-validator"
+            rename "license-${version}.jar", 'license.jar'
+        }
+        if (new File('./src/main/resources/license/license.dat')) {
+            copy {
+                from './src/main/resources/license'
+                into "${ccPackageDir}/server/license"
+                include 'license.dat'
+            }
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "tools-${version}.zip" })
+            into "${ccPackageDir}"
+            exclude 'tools/appdiscovery/**'
+            exclude 'tools/enrollmentPreview/**'
+            exclude 'tools/InstallService/**'
+            exclude 'tools/jbosscrypt/**'
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "seed-data-${version}.zip" })
+            into "${ccPackageDir}/tools/dbInit/pf"
+        }
+        file("${ccPackageDir}/tools/dbInit/dictionary/dictionary_template.cfg").renameTo(file("${ccPackageDir}/tools/dbInit/dictionary/dictionary.cfg"))
+        file("${ccPackageDir}/tools/dbInit/mgmt/mgmt_template.cfg").renameTo(file("${ccPackageDir}/tools/dbInit/mgmt/mgmt.cfg"))
+        file("${ccPackageDir}/tools/dbInit/pf/pf_template.cfg").renameTo(file("${ccPackageDir}/tools/dbInit/pf/pf.cfg"))
+
+        copy {
+            from "./src/main/resources/images"
+            into "${ccPackageDir}/server/images"
+        }
+        copy {
+            from configurations.download.find { it.name == "server-security-${version}.jar" }
+            into "${ccPackageDir}/server/tomcat/lib"
+            rename "server-security-${version}.jar", 'server-security.jar'
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("commons-logging-") }
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from configurations.download.find { it.name == "crypt-${version}.jar" }
+            into "${ccPackageDir}/server/tomcat/lib"
+            rename "crypt-${version}.jar", 'crypt.jar'
+        }
+        copy {
+            from configurations.download.find { it.name == "common-version-${version}.jar" }
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+            rename "common-version-${version}.jar", 'common-version.jar'
+        }
+        copy {
+            from configurations.download.find { it.name == "server-base-internal-${version}.jar" }
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+            rename "server-base-internal-${version}.jar", 'server-base-internal.jar'
+        }
+        copy {
+            from configurations.download.find { it.name == "server-base-${version}.jar" }
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+            rename "server-base-${version}.jar", 'server-base.jar'
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("c3p0-") }
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("mchange-commons-java-") }
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("jcc-") }
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("mssql-jdbc-") }
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("ojdbc") }
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from configurations.download.find { it.name.startsWith("postgresql-") }
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from './src/main/resources/docker'
+            into "${ccPackageDir}/../"
+            include "Dockerfile"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from './src/main/resources/license'
+            into "${ccPackageDir}/../"
+            include "licensing.txt"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        new File("${ccPackageDir}/version.txt")
+                .write(String.format("# NextLabs Control Center%snextlabs.cc.version=${ccVersion}%snextlabs.cc.build=${buildNumber}",
+                        System.lineSeparator(), System.lineSeparator()))
+        if (!project.hasProperty('containerBuild')) {
+            copy {
+                from configurations.download.find { it.name == "nextlabs-openaz-pep-resources-${version}.zip" }
+                into "${buildDir}/distributions"
+                rename "nextlabs-openaz-pep-resources-${version}.zip", "Nextlabs-OpenAZ-PEP-${ccVersion}-${buildNumber}.zip"
+            }
+        }
+    }
+}
+
+task buildLinuxPackage(type: Zip) {
+    doFirst {
+        delete "${ccPackageDir}/install.bat"
+        delete "${ccPackageDir}/service-start.bat"
+        delete "${ccPackageDir}/service-stop.bat"
+        delete "${ccPackageDir}/uninstall.bat"
+        delete "${ccPackageDir}/java/jre"
+        delete "${ccPackageDir}/tools/control-center.bat"
+        delete "${ccPackageDir}/tools/ResourcePathDiscovery.exe"
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}"
+            exclude "control-center.sh"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}/tools"
+            include 'control-center.sh'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+    }
+    archiveFileName = "ControlCenter-Linux-${ccVersion}-${buildNumber}.zip"
+    destinationDirectory = file("${buildDir}/distributions")
+    from("${buildDir}/distributions/control-center") {
+        include "${ccPackageName}/**"
+    }
+}
+
+task buildLinuxPpcPackage(type: Zip) {
+    doFirst {
+        delete "${ccPackageDir}/install.bat"
+        delete "${ccPackageDir}/service-start.bat"
+        delete "${ccPackageDir}/service-stop.bat"
+        delete "${ccPackageDir}/uninstall.bat"
+        delete "${ccPackageDir}/java/jre"
+        delete "${ccPackageDir}/tools/control-center.bat"
+        delete "${ccPackageDir}/tools/ResourcePathDiscovery.exe"
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-ppc64le-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}"
+            exclude "control-center.sh"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}/tools"
+            include 'control-center.sh'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        delete "${ccPackageDir}/tools/policy-validator/node"
+        copy {
+            from zipTree(configurations.download.find { it.name == "node-linux-ppc64le-${versions.node}.zip" })
+            into "${ccPackageDir}/tools/policy-validator"
+            include "node-linux-ppc64le-${versions.node}/bin/node"
+        }
+        copy {
+            from "${ccPackageDir}/tools/policy-validator/node-linux-ppc64le-${versions.node}/bin"
+            into "${ccPackageDir}/tools/policy-validator"
+        }
+        delete "${ccPackageDir}/tools/policy-validator/node-linux-ppc64le-${versions.node}"
+    }
+    archiveFileName = "ControlCenter-LinuxPPC-${ccVersion}-${buildNumber}.zip"
+    destinationDirectory = file("${buildDir}/distributions")
+    from("${buildDir}/distributions/control-center") {
+        include "${ccPackageName}/**"
+    }
+}
+
+task buildWindowsPackage(type: Zip) {
+    doFirst {
+        delete "${ccPackageDir}/install.sh"
+        delete "${ccPackageDir}/service-start.sh"
+        delete "${ccPackageDir}/service-stop.sh"
+        delete "${ccPackageDir}/uninstall.sh"
+        delete "${ccPackageDir}/java/jre"
+        delete "${ccPackageDir}/tools/control-center.sh"
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-windows-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        copy {
+            from configurations.download.find { it.name == "mssql-jdbc_auth-${versions.mssqlJdbcAuth}.dll" }
+            into "${ccPackageDir}/java/jre/bin"
+            rename "mssql-jdbc_auth-${versions.mssqlJdbcAuth}.dll", 'sqljdbc_auth.dll'
+        }
+        copy {
+            from configurations.download.find { it.name == "mssql-jdbc_auth-${versions.mssqlJdbcAuth}.dll" }
+            into "${ccPackageDir}/java/jre/bin"
+        }
+        copy {
+            from './src/main/resources/scripts/windows'
+            into "${ccPackageDir}"
+            exclude "control-center.bat"
+            exclude "service-start.bat"
+            exclude "service-stop.bat"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("dos"))
+        }
+        copy {
+            from './src/main/resources/scripts/windows'
+            into "${ccPackageDir}/tools"
+            include 'control-center.bat'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("dos"))
+        }
+    }
+    archiveFileName = "ControlCenter-Windows-${ccVersion}-${buildNumber}.zip"
+    destinationDirectory = file("${buildDir}/distributions")
+    from("${buildDir}/distributions/control-center") {
+        include "${ccPackageName}/**"
+    }
+}
+
+task buildContainerPackage {
+    doLast {
+        delete "${ccPackageDir}/install.bat"
+        delete "${ccPackageDir}/service-start.bat"
+        delete "${ccPackageDir}/service-stop.bat"
+        delete "${ccPackageDir}/uninstall.bat"
+        delete "${ccPackageDir}/java/jre"
+        delete "${ccPackageDir}/tools/control-center.bat"
+        delete "${ccPackageDir}/tools/ResourcePathDiscovery.exe"
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}"
+            exclude "control-center.sh"
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from './src/main/resources/scripts/linux'
+            into "${ccPackageDir}/tools"
+            include 'control-center.sh'
+            filter(FixCrLfFilter.class,
+                    eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+    }
+}
+
+def containerImageTag = String.format("%s${appName}:${appVersion}",
+        project.hasProperty('containerRegistryURL') ? "${containerRegistryURL}/" : "")
+
+task buildContainer(type: Exec) {
+    doFirst {
+        copy {
+            from './src/main/resources/scripts/start.sh'
+            into "${ccPackageDir}"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        copy {
+            from './src/main/resources/scripts/passwd.template'
+            into "${buildDir}/distributions/control-center"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        if(System.getProperty('os.name').startsWith('Linux')) {
+            exec {
+                commandLine 'sudo', 'chgrp', '-R', '0', "${ccPackageDir}"
+            }
+            exec {
+                commandLine 'sudo', 'chmod', '-R', 'g+rwX', "${ccPackageDir}"
+            }
+        }
+    }
+    workingDir "${buildDir}/distributions/control-center"
+    commandLine 'docker', 'build',
+            '--build-arg', "APP_DISPLAY_NAME=${appDisplayName}",
+            '--build-arg', "VERSION=${appVersion}",
+            '--build-arg', "BUILD_NUMBER=${buildNumber}",
+            '-f', "${projectDir}/Dockerfile",
+            '-t', "${containerImageTag}",
+            '.'
+}
+
+task publishContainer(type: Exec) {
+    commandLine 'docker', 'push', "${containerImageTag}"
+}
+
+def helmChartDir = "${buildDir}/helm-chart/"
+task packageHelmChart(type: Exec) {
+    doFirst {
+        mkdir helmChartDir
+        copy {
+            from "./helm-chart"
+            into "${helmChartDir}/helm-chart"
+        }
+        ant.replaceregexp(match: '\\$\\{appVersion\\}', replace: appVersion, flags: 'g', byline: true) {
+            fileset(dir: "${helmChartDir}/helm-chart", includes: 'Chart.yaml')
+        }
+    }
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'package', './helm-chart'
+}
+
+task publishHelmChart(type: Exec) {
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'push', "--username=${helmChartRepositoryUsername}",
+            "--password=${helmChartRepositoryPassword}", "${appName}-${appVersion}.tgz", "${helmChartRepositoryName}"
+}
+
+if (!project.hasProperty('containerBuild')) {
+    build.finalizedBy(buildPackage)
+    buildPackage.finalizedBy(buildWindowsPackage)
+    buildWindowsPackage.finalizedBy(buildLinuxPackage)
+    buildLinuxPackage.finalizedBy(buildLinuxPpcPackage)
+}

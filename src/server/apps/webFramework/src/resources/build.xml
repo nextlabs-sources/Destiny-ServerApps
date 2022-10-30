@@ -1,0 +1,33 @@
+<project name="Web Resources" default="build">
+
+    <property name="src.dir"      value="${basedir}"/>
+    <property name="bundle.src.dir"      value="${basedir}/bundle"/>   
+	<property name="resource.build.dest"   value="${web.framework.dir}/resources"/>
+	<property name="web.build.dest"   	   value="${web.framework.dir}/web"/>
+			
+	<target name="pre-build">
+		<mkdir dir="${web.build.dest}"/>
+	</target>
+			
+	<target name="compile" depends="pre-build">
+        <copy todir="${resource.build.dest}">
+            <fileset dir="${bundle.src.dir}">
+                <include name="**/*.properties"/>
+            </fileset>
+        </copy>
+        <copy todir="${web.build.dest}">
+			<fileset dir="${src.dir}/web"/>
+		</copy>
+	</target>
+	
+	<target name="jar" depends="compile">
+	<!--	<jar destfile="${build.root.dir}/web-framework-res.jar">
+			<fileset dir="${resource.build.dest}">
+				<include name="**/*.properties"/>
+			</fileset>
+		</jar> -->
+	</target>
+		
+	<target name="build" depends="jar">
+	</target>
+</project>

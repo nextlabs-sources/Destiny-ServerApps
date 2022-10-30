@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.nextlabs.authentication.CasApplication
+
+# Bootstrap components
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+com.nextlabs.authentication.config.PropertySourceLocatorConfig,\
+com.nextlabs.authentication.config.TextEncryptorConfig

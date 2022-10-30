@@ -1,0 +1,36 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="InquiryCenterMessages" var="bundle" />
+
+<d:form id="prmNavFrm" >
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+	<d:menu id="primaryNavMenu"  styleClass="tabs"  selectedItemStyleClass="current">
+		<d:menuItem id="primaryNavMenu-dashboard" viewIdPattern="/myDashboard" 
+		                   value="#{bundle.primary_nav_dashboard_menu_item_label}" 
+		                   action="myDashboard" immediate="true">
+		</d:menuItem>
+		
+        <d:menuItem id="primaryNavMenu-myReports" viewIdPattern="/myReports"
+                            value="#{bundle.primary_nav_myReports_menu_item_label}"
+                            action="myReports" immediate="true">
+            <f:param id="myRptBeansToResetMyReports"
+                         name="beansToReset"
+                         value="myReportsBean, reportExecutionBean" />
+            <f:actionListener type="com.bluejungle.destiny.webui.framework.faces.ResetBeanActionListener" />
+        </d:menuItem>
+
+        <c:if test="${sessionScope.reportNavigatorBean.hasMonitorAccess}">
+			<d:menuItem id="primaryNavMenu-monitors" viewIdPattern="/myAlerts"
+				value="#{bundle.primary_nav_monitors_menu_item_label}"
+				action="myAlerts" immediate="true">
+			</d:menuItem>
+		</c:if>	
+
+	</d:menu>
+</d:form>

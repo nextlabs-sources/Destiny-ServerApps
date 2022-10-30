@@ -1,0 +1,93 @@
+svg {
+  font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+sup, sub {
+  line-height: 0;
+}
+
+q:before {
+  content: "â€œ";
+}
+
+q:after {
+  content: "â€�?";
+}
+
+blockquote:before {
+  position: absolute;
+  left: 2em;
+}
+
+blockquote:after {
+  position: absolute;
+}
+
+#chart {
+  width: 960px;
+  height: 500px;
+/*  background: #bbb; */
+  background: white;
+}
+
+text {
+  pointer-events: none;
+}
+
+.grandparent text {
+  font-weight: bold;
+}
+
+rect {
+  /* fill: none; */
+  stroke: #fff;
+}
+
+rect.parent,
+.grandparent rect {
+  stroke-width: 2px;
+}
+
+rect.child{
+  stroke-width: 1px;
+}
+
+.grandparent rect {
+  fill: tan;
+}
+
+/*
+.grandparent:hover rect {
+  fill: #ee9700;
+}
+*/
+
+.grandparent:hover rect {
+  fill-opacity: 0.5;
+}
+
+.children rect.parent,
+.grandparent rect {
+  cursor: pointer;
+}
+
+rect.parent {
+  pointer-events: all;
+  cursor:pointer;
+}
+
+/*
+.children:hover rect.child {
+  fill: #aaa;
+}
+*/
+
+.children:hover rect.parent {
+  fill-opacity: 0.5;
+}

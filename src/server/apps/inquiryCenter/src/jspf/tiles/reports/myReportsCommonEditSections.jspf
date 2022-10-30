@@ -1,0 +1,170 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%> 
+          
+<%--
+        Report Definition - Event Information section + note:
+--%>        
+	<h:panelGroup id="rptDefCntGrp" >
+        <h:outputText id="rptDefCntSrchFldTxt" value="#{message.my_report_edit_form_report_definition_search_field}:"/>
+        <h:selectOneRadio styleClass="formtable" id="rptDefCntTgtDtaRdio" layout="pageDirection" value="#{myReportsBean.selectedReport.targetData}" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}">
+          <f:selectItems value="#{myReportsBean.selectedReport.targetDataChoices}"/>
+		  <a4j:support id="a4jSpptRdBtn" action="myReports" event="onclick" reRender="rptDefCntCmmnEdtGrp,rptDefFltPnlGrp" oncomplete="submitted_myReportsDefinitionSubview_contentSubview_rptQryFltrFrm = 0;"/>          
+        </h:selectOneRadio>
+    </h:panelGroup>      
+
+<h:panelGroup id="rptDefCntCmmnEdtGrp">
+    <f:verbatim><table id="rptDefCntTbl2"></f:verbatim>
+       <f:verbatim><td class="align_top"></f:verbatim>
+	   <f:verbatim><table id="rptDefCntTblRght" class="formtable"></f:verbatim>
+        <%--
+            "User" input:
+        --%>
+        <f:verbatim><tr id="rptDefCntInRw" ></f:verbatim>
+            <f:verbatim><td id="rptDefCntInLblRw" class="label"></f:verbatim>
+                <h:outputText id="rptDefCntInUsrFldTxt" value="#{message.my_report_edit_form_report_definition_user_field}:"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="rptDefCntInInCol" class="input"></f:verbatim>
+                <h:inputText id="rptDefCntInUsrTxt" styleClass="reportinput" value="#{myReportsBean.selectedReport.users}" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+            <f:verbatim></td></f:verbatim>
+            
+            <f:verbatim><td id="rptDefCntInLkpCol" class="lookup"></f:verbatim>
+                  <h:commandLink id="rptDefCntInUsrCmpLk" action="myReportEditBrowseUserComponents" rendered="#{myReportsBean.selectedReport.owned || myReportsBean.selectedReport.id == null}">
+                      <h:commandButton id="lookupUsrBtn" type="button" value="#{message.my_reports_lookup_button_label}" disabled="#{myReportsBean.selectedReport.owned == false&& myReportsBean.selectedReport.id != null}"/>
+                      <f:param id="rptDefCntInBnNm" name="selectableItemSourceBeanName" value="quickReportSelectableUserComponentItemSourceBean"/>
+                      <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+                  </h:commandLink>
+            <f:verbatim></td></f:verbatim>
+        <f:verbatim></tr></f:verbatim>
+        
+        <%--
+            "Host" input:
+        --%>
+        <%--
+        <f:verbatim><tr id="rptDefHstInRw" ></f:verbatim>
+            <f:verbatim><td id="rptDefHstInLblRw" class="label"></f:verbatim>
+                <h:outputText id="rptDefCntInHstFldTxt" value="#{message.my_report_edit_form_report_definition_host_field}:"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="rptDefHstInInCol" class="input"></f:verbatim>
+                <h:inputText id="rptDefCntInHstTxt" styleClass="reportinput" value="Any Computer" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+            <f:verbatim></td></f:verbatim>
+        <f:verbatim></tr></f:verbatim>
+        --%>
+
+        <%--
+            "Application" input:
+        --%>
+        <%--
+        <f:verbatim><tr id="rptDefAppInRw" ></f:verbatim>
+            <f:verbatim><td id="rptDefAppInLblRw" class="label"></f:verbatim>
+                <h:outputText id="rptDefCntInAppFldTxt" value="#{message.my_report_edit_form_report_definition_application_field}:"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="rptDefCntAppInCol" class="input"></f:verbatim>
+                <h:inputText id="rptDefCntInAppTxt" styleClass="reportinput" value="Any Application" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+            <f:verbatim></td></f:verbatim>
+        <f:verbatim></tr></f:verbatim> 
+		--%>
+
+        <%--
+            "Resource" input:
+        --%>
+        <f:verbatim><tr id="rscPlcyEnfTblRw" ></f:verbatim>
+            <f:verbatim><td id="rscPlcyEnfTblLblCol" class="label"></f:verbatim>
+                <h:outputText id="rscPlcyEnfTblRscOutTxt" value="#{message.my_report_edit_form_report_definition_resource_field}:"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim><td id="rscPlcyEnfTblInCol" class="input"></f:verbatim>
+                <h:inputText id="rscPlcyEnfTblRscInTxt" styleClass="reportinput" value="#{myReportsBean.selectedReport.resources}" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+            <f:verbatim></td></f:verbatim>
+        <f:verbatim></tr></f:verbatim>
+        
+    <%--
+        "Policy" input:
+    --%>
+		<d:showHide id="rscPlcyEnfTblPlcySelShHd" rendered="#{myReportsBean.selectedReport.policyActivitySelected}">
+			<f:verbatim><tr id="rscPlcyEnfTblPlcyVerRw" ></f:verbatim>
+			<f:verbatim><td id="rscPlcyEnfTblPlcyVerLblCol" class="label"></f:verbatim>
+				<h:outputText id="rscPlcyEnfTblPlcyFldTxt" value="#{message.my_report_edit_form_report_definition_policy_field}"/>
+				<h:outputText id="rscPlcyEnfTblPlcyRestTxt" value=":"/>
+			<f:verbatim></td></f:verbatim>
+			<f:verbatim><td id="rscPlcyEnfTblPlcyVerInCol" class="input"></f:verbatim>
+				<h:inputText id="rscPlcyEnfTblPlcyBnInTxt" styleClass="reportinput" value="#{myReportsBean.selectedReport.policies}" required="false" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+			<f:verbatim></td></f:verbatim>
+			<f:verbatim><td id="rscPlcyEnfTblPlcyLkpCol" class="lookup"></f:verbatim>
+			<h:commandLink id="rscPlcyEnfTblPlcyBrwsCompLnk" action="myReportEditBrowsePolicyComponents" rendered="#{myReportsBean.selectedReport.owned || myReportsBean.selectedReport.id == null}">
+  			 	<h:commandButton id="lookupPlcyBtn" type="button" value="#{message.my_reports_lookup_button_label}" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}"/>
+  			    <f:param id="rscPlcyEnfTblPlcyBn" name="selectableItemSourceBeanName" value="quickReportSelectablePolicyComponentItemSourceBean"/>
+			    <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+			</h:commandLink>
+			<f:verbatim></td></f:verbatim>
+			<f:verbatim></tr></f:verbatim>
+		</d:showHide>
+		
+	<%--
+        "Level" input:
+    --%>
+			<f:verbatim><tr id="rscPlcyEnfTblLvlLblRw" ></f:verbatim>
+			<f:verbatim><td id="rscPlcyEnfTblLvlLblCol" class="label"></f:verbatim>
+				<h:outputText id="rscPlcyEnfTblLvlFldTxt" value="#{message.my_report_edit_form_report_definition_level_field}"/>
+				<h:outputText id="rscPlcyEnfTblLvlRestTxt" value=":"/>
+			<f:verbatim></td></f:verbatim>
+			<f:verbatim><td id="rscPlcyEnfTblLvlMeuCol" class="input"></f:verbatim>
+            	<h:selectOneMenu id="rscPlcyEnfTblLvlMnu" styleClass="reportinput" value="#{myReportsBean.selectedReport.loggingLevel}" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}">
+                	<f:selectItems value="#{myReportsBean.selectedReport.loggingLevelChoices}"/>
+                </h:selectOneMenu>
+			<f:verbatim></td></f:verbatim>
+			<f:verbatim></tr></f:verbatim>
+			  	   <f:verbatim></table></f:verbatim>
+  	   <f:verbatim></td></f:verbatim>
+  	   
+  	    <f:verbatim><td class="align_top"></f:verbatim>
+  	   <f:verbatim><table id="rptDefCntTblLft" class="formtable"></f:verbatim>
+			
+		<%--
+            "Action" input:
+        --%>
+            <f:verbatim><tr id="rscTblActnLblRw" ></f:verbatim>
+            <f:verbatim><td id="actTblLblCol" class="label"></f:verbatim>
+                <h:outputText id="actTblActFldTxt" value="#{message.my_report_edit_form_report_definition_action_field}:"/>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim></tr></f:verbatim>
+            <f:verbatim><tr id="rscTblActnInptRw" ></f:verbatim>
+            <f:verbatim><td id="actTblInCol" class="input"></f:verbatim>
+       			<d:showHide id="actTblInPlcySelSwHd" rendered="#{myReportsBean.selectedReport.policyActivitySelected}">
+	                <h:selectManyListbox id="actTblInPlcySelLstBx" size="5" value="#{myReportsBean.selectedReport.actionsAsList}" styleClass="reportinput" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}">
+	                    <f:selectItems value="#{myReportsBean.selectedReport.policyActionChoices}"/>
+	                </h:selectManyListbox>
+           		</d:showHide>
+       			<d:showHide id="actTblInTrkSelSwHd" rendered="#{myReportsBean.selectedReport.trackingActivitySelected}">
+	                <h:selectManyListbox id="actTblInTrkSelLstBx" size="5" value="#{myReportsBean.selectedReport.actionsAsList}" styleClass="reportinput" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}">
+	                    <f:selectItems value="#{myReportsBean.selectedReport.trackingActionChoices}"/>
+	                </h:selectManyListbox>
+           		</d:showHide>
+            <f:verbatim></td></f:verbatim>
+            <f:verbatim></tr></f:verbatim>
+
+	<%--
+        "Enforcements" input:
+    --%>
+		<d:showHide id="rscPlcyEnfTblEnfShHd" rendered="#{myReportsBean.selectedReport.policyActivitySelected}">
+			<f:verbatim><tr id="rscPlcyEnfTblEnfLblRw" ></f:verbatim>
+				<f:verbatim><td id="rscPlcyEnfTblEnfLblCol" class="label"></f:verbatim>
+	            <h:outputText id="rscPlcyEnfTblEnfFldTxt" value="#{message.my_report_edit_form_report_definition_enforcements_field}"/>
+	            <h:outputText id="rscPlcyEnfTblEnfRestTxt" value=":"/>
+				<f:verbatim></td></f:verbatim>
+				<f:verbatim></tr></f:verbatim>
+   				<f:verbatim><tr id="rscPlcyEnfTblEnfVlRw" ></f:verbatim>
+				<f:verbatim><td id="rscPlcyEnfTblInCol" class="input" colspan="1"></f:verbatim>
+		            <h:selectOneRadio id="rscPlcyEnfTblInCkBx" layout="pageDirection" value="#{myReportsBean.selectedReport.enforcement}" disabled="#{myReportsBean.selectedReport.owned == false && myReportsBean.selectedReport.id != null}">
+		                <f:selectItems value="#{myReportsBean.selectedReport.enforcementChoices}"/>
+		            </h:selectOneRadio>
+	   			<f:verbatim></td></f:verbatim>
+			<f:verbatim></tr></f:verbatim>
+		</d:showHide>
+			
+    <f:verbatim></table></f:verbatim>
+  <f:verbatim></td></f:verbatim>
+<f:verbatim></table></f:verbatim>
+</h:panelGroup>

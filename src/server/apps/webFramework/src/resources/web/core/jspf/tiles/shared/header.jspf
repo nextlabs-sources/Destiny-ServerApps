@@ -1,0 +1,48 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="CommonMessages" var="commonBundle" />
+
+<script language="JavaScript">
+function openHelpWindow(helpURL) {
+    var helpWindow = window.open(helpURL, "help", 'toolbar=yes,menubar=yes,resizable=yes,scrollbars=yes,status=yes,height=540', false);
+    helpWindow.focus();
+}
+</script>
+
+<script type="text/javascript">
+    // IE9 fix
+    if(!window.console) {
+        console = {
+            log : function(){},
+            warn : function(){},
+            error : function(){},
+            time : function(){},
+            timeEnd : function(){}
+        }
+    }
+</script>
+
+<div id="version"><h:outputText id="versionTest" value="Build: #{installerVersionBean.version}" /></div>
+
+<div id="tools" style=" margin-right: 10px;">
+	<d:form id="usrInfoFrm">
+	    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+	    <h:outputText id="usrNmLbl" value="#{commonBundle.login_status_username_field_label}" /> 
+	    <h:outputText id="usrNmTxt" value="#{customAppContext.remoteUser.username}" />
+	    <h:outputText id="usernameSeperator" value="&nbsp;&nbsp;|&nbsp;&nbsp;" escape="false"/> 
+	    <h:commandLink id="lgoutLnk" styleClass="logout" value="#{commonBundle.login_status_nav_logout_menu_item_label}" action="#{loginManager.performLogout}" immediate="true"/> 
+	    <h:outputText id="userPrefsLinkSeperator" value="&nbsp;&nbsp;|&nbsp;&nbsp;" escape="false" rendered="#{customAppContext.remoteUser.passwordModifiable}"/>
+	    <h:commandLink id="userPrefsLink" value="#{commonBundle.login_status_nav_user_prefs_menu_item_label}" action="userPreferences" immediate="true" rendered="#{customAppContext.remoteUser.passwordModifiable}"/>
+	    <tiles:importAttribute name="helpURL" scope="request"/>
+	    <h:outputText id="usernameSeperator1" value="&nbsp;&nbsp;|&nbsp;&nbsp;" escape="false"/> 
+	    <h:outputLink styleClass="help" value="#{applicationScope.helpUrl}.#{applicationScope.helpUrlContentFormat}" onclick="openHelpWindow(this.href);return false;">
+	    	<h:outputText id="helpLinkText" value="#{commonBundle.login_status_nav_help_menu_item_label}"/>
+	    </h:outputLink>
+	</d:form>
+</div> 

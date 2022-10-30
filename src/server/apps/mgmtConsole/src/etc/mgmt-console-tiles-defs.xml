@@ -1,0 +1,29 @@
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config.dtd">
+<tiles-definitions>
+	<definition name="mgmtConsoleMainDefinition" extends="mainDefinition">
+		<put name="primaryNav" value="/WEB-INF/jspf/tiles/shared/primaryNav.jspf" />
+		<put name="applicationIcon" value="administratorIcon.gif" />
+	</definition>
+
+	<definition name="mgmtConsoleMainWithoutContentHeaderDefinition" extends="mainWithoutContentHeaderDefinition">
+		<put name="primaryNav" value="/WEB-INF/jspf/tiles/shared/primaryNav.jspf" />
+		<put name="applicationIcon" value="administratorIcon.gif" />
+	</definition>
+	
+	<definition name="mgmtConsoleBrowseDataPickerDefinition" extends="browseDataPickerDefinition">		
+		<put name="applicationIcon" value="administratorIcon.gif" />
+	</definition>
+		
+	<!-- Though, nothing is added to the following definitions, they provide a layer of indirection in case anything ever needs to be added --> 
+	<definition name="mgmtConsoleLoginDefinition" extends="loginDefinition">
+	</definition>	
+	
+	<definition name="mgmtConsoleErrorDisplayDefinition" extends="errorDisplayDefinition">
+	</definition>
+	
+	<definition name="mgmtConsoleLoginDefinition" extends="loginDefinition">
+	   	<put name="applicationWatermark" value="administratorWatermark.gif" />
+	</definition>
+</tiles-definitions>

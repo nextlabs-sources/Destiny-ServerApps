@@ -1,0 +1,232 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE project [
+	<!ENTITY classpaths SYSTEM "../etc/classpath.skel">
+	<!ENTITY taskdefs SYSTEM "../etc/build-tasks.skel">
+]>
+
+<project name="Destiny" default="build" basedir=".">
+
+	<!-- Notes: nlbuildroot must be defined before build-scripts/etc/build.properties and
+		build-scripts/etc/build_external.properties
+	-->
+	<property name="nlbuildroot" location="${basedir}/../../.." />
+
+	<property environment="env"/>
+	<property name="env.HOSTNAME" value="${env.COMPUTERNAME}"/>
+	<property name="junit.haltonfailure" value="false"/>
+	<property name="qa.patch.dir" value="${build.root.dir}/qa_patch"/>
+	<property file="${nlbuildroot}/src/build-scripts/etc/build.properties"/>
+	<property file="${nlbuildroot}/src/build-scripts/etc/build_external.properties"/>
+	<property name="std.edition.build.dir" value="${build.root.dir}/StandardEdition"/>
+	<property name="package.build.dir" value="C:/builds/package_QA"/>
+	<property environment="env"/>
+
+	&classpaths;
+	&taskdefs;
+
+	<property name="common.build.script.dir" value="${nlbuildroot}/build_scripts" />
+	<import file="${common.build.script.dir}/native_make_build.xml" />
+
+	<target name="generate-test-report">
+		<junitreport todir="${log.dir}/tests/" tofile="TESTS_Aggregation.xml">
+			<fileset dir="${log.dir}/tests">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<fileset dir="${build.root.dir}/report">
+				<include name="**/TEST-*.xml"/>
+			</fileset>
+			<report format="frames" todir="${log.dir}/tests/report"/>
+		</junitreport>
+	</target>
+
+	<target name="build-schema" description="Builds database schemas">
+		<ant dir="${src.root.dir}/server/tools/dbinit/src" target="build-schemas" inheritRefs="true"/>
+	</target>
+
+	<target name="build" depends="
+		pre-build
+		, build-apps
+		, build-webFramework
+		, build-mgmtConsole
+		, build-inquiryCenter
+		" description="Build all components"/>
+
+    <target name="copy-platform-artifacts" description="Copy the platform artifacts to build dir">
+    </target>
+    
+	<target name="build-inquiryCenter" description="Build the inquiry Center">
+		<ant dir="${src.root.dir}/server/apps/inquiryCenter/src" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="rebuild-inquiryCenter" description="Build the inquiry Center">
+		<ant dir="${src.root.dir}/server/apps/inquiryCenter/src" target="cleanup" inheritRefs="true"/>
+		<ant dir="${src.root.dir}/server/apps/inquiryCenter/src" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="build-custom-report-sdk">
+		<ant dir="${src.root.dir}/server/sdk/custom_report" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="build-mgmtConsole" description="Build the management console">
+		<ant dir="${src.root.dir}/server/apps/mgmtConsole/src" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="build-apps" description="Build the console, cas and config service">
+        <exec executable="sh" dir="${src.root.dir}/server/apps">
+            <arg line="gradlew clean build -x test"/>
+			<arg value="-PdeploymentLocation=${war.dir}"/>
+			<arg value="-PinternalDependencyLocation=${build.root.dir}/dependencies"/>
+			<arg value="-PexternalDependencyLocation=${xlib_jar_dir}/dependencies"/>
+			<arg value="-PincludeApiDocs=${includeApiDocs}"/>
+        </exec>
+	</target>
+	
+	<target name="build-cas-extension" description="Build the CAS extension">
+		<ant dir="${src.root.dir}/server/apps/cas-extension" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="build-webFramework" description="Build Web Framework">
+		<ant dir="${src.root.dir}/server/apps/webFramework/src" target="build" inheritRefs="true"/>
+	</target>
+
+	<target name="build-cas" depends="pre-build" description="Build the CAS application">
+		<mkdir dir="${build.root.dir}/run/server/apps/cas"/>
+		<copy todir="${build.root.dir}/run/server/apps/cas" verbose="true" failonerror="true">
+			<fileset dir="${external.dir}/cas-server/cas-server-4.1.5">
+				<include name="**/*"/>
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+		
+		<!-- copy nextlabs customizations -->
+		<copy todir="${build.root.dir}/run/server/apps/cas" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension">
+				<include name="*.ico"/>
+			</fileset>
+		</copy>
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF/lib" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension">
+				<include name="*.xml"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF/classes" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension">
+				<include name="messages.properties"/>
+			</fileset>
+		</copy>
+
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF/view/jsp" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension/view/jsp">
+				<include name="**/*"/>
+				<include name="**/*.jsp"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${build.root.dir}/run/server/apps/cas/css" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension/css">
+				<include name="**/*" />
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		
+		<copy todir="${build.root.dir}/run/server/apps/cas/images" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension/images">
+				<include name="**/*" />
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF/emailTemplate" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension/emailTemplate">
+				<include name="**/*" />
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build.root.dir}/run/server/apps/cas/WEB-INF/webflow" verbose="true" failonerror="true" overwrite="true">
+			<fileset dir="${build.root.dir}/cas_extension/webflow">
+				<include name="**/*" />
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+		
+
+		<war destfile="${build.root.dir}/run/server/apps/cas.war"
+			basedir="${build.root.dir}/run/server/apps/cas"
+			webxml="${build.root.dir}/run/server/apps/cas/WEB-INF/web.xml" duplicate="preserve">
+
+			<manifest>
+				<attribute name="Java-Version" value="${java.version}" />
+				<attribute name="Implementation-Vendor" value="Apereo" />
+				<attribute name="Implementation-Title" value="Apereo CAS Web Application" />
+				<attribute name="Implementation-Version" value="4.1.5" />
+				<attribute name="Built-Jdk" value="1.7.0_71" />
+				<attribute name="Built-By" value="Nextlabs Inc" />
+			</manifest>
+		</war>
+
+		<delete includeemptydirs="true" dir="${build.root.dir}/run/server/apps/cas" />
+	</target>
+	<target name="check-wsdl">
+		<!-- this is a wholesale check.  If even one xsd or wsdl is out of date with one of the wsld-jars, all wsdl gets rebuilt. -->
+		<uptodate property="wsdlBuild.notRequired" targetfile="${build.root.dir}/policy-services.jar">
+			<srcfiles dir="${nlbuildroot}/src" includes="**/*.xsd, **/*.wsdl"/>
+		</uptodate>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.root.dir}" verbose="false"/>
+	</target>
+
+	<target name="clean-java">
+		<delete includeEmptyDirs="true" verbose="false">
+			<fileset dir="${build.root.dir}" excludes="platform/**"/>
+		</delete>
+	</target>
+
+	<target name="pre-build">
+		<mkdir dir="${gen.dir}"/>
+		<mkdir dir="${public.gen.dir}"/>
+		<mkdir dir="${log.dir}/jcsc"/>
+		<mkdir dir="${log.dir}/tests"/>
+		<mkdir dir="${build.root.dir}/work"/>
+		<mkdir dir="${build.root.dir}/webapps"/>
+		<mkdir dir="${log.dir}/tomcat"/>
+		<mkdir dir="${javadocs.dir}"/>
+        <copy todir="${build.root.dir}">
+            <fileset dir="${xlib_platform_dir}"/>
+        </copy>
+	</target>
+
+
+
+		<target name="test-inquiryCenter" description="Tests the inquiry center">
+			<antfetch dir="${src.root.dir}/server/apps/inquiryCenter/src/java/test" target="tests" inheritRefs="true" return="junit.fail"/>
+		</target>
+
+		<target name="test-standalone-web-framework" description="Tests the web framework">
+			<antfetch dir="${src.root.dir}/server/apps/webFramework/src/java/test" target="tests" inheritRefs="true" return="junit.fail"/>
+		</target>
+
+		<target name="test-mgmt-console" description="Test management console">
+			<antfetch dir="${src.root.dir}/server/apps/mgmtConsole/src/java/test" target="tests" inheritRefs="true" return="junit.fail"/>
+		</target>
+
+	<target name="wsdl" depends="check-wsdl, pre-build" unless="wsdlBuild.notRequired">
+		<ant dir="${src.root.dir}/server/container/shared/src" target="wsdl-generate" inheritRefs="true"/>
+		<ant dir="${src.root.dir}/server/container/shared/src" target="wsdl-compile" inheritRefs="true"/>
+		<ant dir="${src.root.dir}/server/container/shared/src" target="wsdl-jar" inheritRefs="true"/>
+
+		<!-- copy the template WSDD file so that web service installation can be done -->
+		<copy todir="${wsdd.template.dir}" file="${src.root.dir}/server/wsgen/etc/server-config.wsdd"/>
+	</target>
+
+</project>

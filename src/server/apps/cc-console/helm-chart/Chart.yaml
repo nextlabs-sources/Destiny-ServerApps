@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nextlabs-control-center-console
+description: NextLabs Control Center Console Helm Chart for Kubernetes
+type: application
+version: "${appVersion}"
+appVersion: "${appVersion}"

@@ -1,0 +1,407 @@
+@import "./installer-theme.scss";
+@import "./style-constants";
+
+body {
+  top: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  height: 100%;
+  min-height: 100%;
+
+
+  font-family: 'Fira Sans', sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page-heading {
+  color: #FF6100;
+  font-size: x-large;
+  font-family: 'Fira Sans', sans-serif;
+  padding-top: 2rem;
+  line-height: 2rem;
+}
+
+.page-sub-heading {
+  font-family: 'Fira Sans', sans-serif;
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.187;
+  color: #000000;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+}
+
+.page-content {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  font-family: 'Fira Sans', sans-serif;
+  font-style: normal;
+  font-size: .875rem;
+  line-height: 1.562;
+  color: #000000;
+}
+
+.page-layout-wrapper {
+  margin-bottom: $footer-height;
+  height: $sidenav-content-max-height;
+  min-width: $sidenav-content-width;
+  width: $sidenav-content-width;
+  overflow-y: auto;
+}
+
+.footer-wrapper {
+  min-width: $sidenav-content-width;
+  width: $sidenav-content-width;
+}
+
+.cc-installer-checkbox-label {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  padding-top: 5px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+}
+
+/* Hide the browser's default checkbox */
+/* Create a custom checkbox */
+.cc-installer-checkbox {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  border: 1px solid #CCCCCC;
+  border-radius: 3px;
+}
+
+/* On mouse-over, add a grey background color */
+
+.cc-installer-checkbox-label {
+  &:hover input ~ .cc-installer-checkbox {
+    background-color: #ccc;
+  }
+
+  input:checked ~ .cc-installer-checkbox {
+    background: #333333;
+  }
+}
+
+/* When the checkbox is checked, add a blue background */
+
+/* Create the checkmark/indicator (hidden when not checked) */
+
+.cc-installer-checkbox:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+
+.cc-installer-checkbox-label {
+  input:checked ~ .cc-installer-checkbox:after {
+    display: block;
+  }
+
+  .cc-installer-checkbox:after {
+    left: 6px;
+    top: 2px;
+    width: 7px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+}
+
+/* Style the checkmark/indicator */
+
+.flex-center {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.check-container {
+  display: block;
+  position: relative;
+
+  /*padding: 3px;*/
+  width: 20px;
+  height: 20px;
+  background: #FF6100;
+  border-radius: 50%;
+  margin: 8px;
+}
+
+.empty-check-container {
+  display: block;
+  position: relative;
+
+  /*padding: 3px;*/
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  margin: 8px;
+}
+
+.check {
+  display: inline-block;
+  transform: rotate(45deg);
+  height: 12px;
+  width: 6px;
+  border-bottom: 2px solid #FFFFFF;
+  border-right: 2px solid #FFFFFF;
+  margin-left: 7px;
+}
+
+.logo-title {
+  font-family: Fira Sans, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 1.5rem;
+  line-height: 1.42rem;
+  color: #FF6800;
+}
+
+.logo-title-subtext {
+  @extend .logo-title;
+  font-size: .9rem;
+}
+
+.installer-logo {
+  height: 10%;
+}
+
+.form-control {
+  border-radius: 3px;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+
+  word-break: break-word;
+
+  &:focus {
+    //border: 1px solid #FF6800;
+    //box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 104, 0, 0.3);
+    border: 1px solid #CCCCCC;
+    box-shadow: 0 0 5px #FF6100;
+  }
+
+  &[disabled] {
+    background: #F6F6F6;
+  }
+}
+
+.installer-form-label {
+  text-align: right;
+  padding-right: 2rem !important;
+
+  &.faded {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+a[mat-button], button[mat-button] {
+  border: 1px solid #CCCCCC;
+  box-sizing: border-box;
+  border-radius: 3px;
+  font-family: Fira Sans, sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: .8125rem;
+
+  &.primary {
+    background: #FF6100;
+    color: #FFFFFF;
+
+    &[disabled] {
+      background: #FFC099;
+      color: #FFFFFF;
+    }
+  }
+
+  &.accent {
+    background: #FFFFFF;
+  }
+
+  &:focus {
+    border: 1px solid #CCCCCC;
+    box-shadow: 0 0 5px #FF6100;
+  }
+}
+
+.mat-radio-button {
+  font-family: Fira Sans, sans-serif;
+  font-style: normal;
+}
+
+mat-button-toggle-group {
+  border: 1px solid #CCCCCC !important;
+  padding: 0 !important;
+}
+
+mat-button-toggle {
+  font-family: Fira Sans, sans-serif !important;
+  font-style: normal !important;
+  // bootstrap form control height
+  height: calc(1.5em + .75rem + 2px);
+
+  &.mat-button-toggle-split-2 {
+    min-width: 50%;
+  }
+
+  .mat-button-toggle-button {
+
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    //.mat-button-toggle-label-content {
+    //  height: 100%;
+    //}
+  }
+
+}
+
+.mat-button-toggle {
+  background-color: #FFFFFF;
+
+  &.mat-button-toggle-checked {
+    background-color: #FFDFCC;
+    color: #FF6100;
+    box-sizing: border-box;
+    border: 1px solid #FF6100;
+    border-radius: 3px 0 0 3px;
+  }
+}
+
+.installer-error {
+  color: red;
+  font-size: .84rem;
+  padding-top: .2rem;
+
+  .error-item {
+    padding: 0;
+  }
+}
+
+.form-control-error {
+  border: 1px solid red;
+}
+
+.port-field {
+  width: 4.5rem;
+}
+
+// IE11 support
+@media all and (-ms-high-contrast:none)
+{
+  .col-12, .col-10, .col-lg-8 {
+    flex: 0 0 auto !important;
+  }
+
+  .tasks {
+    min-height: 200px;
+  }
+
+  .ie-wrapper {
+    width: 776px;
+  }
+}
+
+/* #############################################
+			Fira Sans - Font Family
+############################################## */
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-Light.eot');
+  src: local('Fira Sans Light'),
+  url('assets/font/eot/FiraSans-Light.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-Light.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-Regular.eot');
+  src: local('Fira Sans Regular'),
+  url('assets/font/eot/FiraSans-Regular.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-Regular.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-Italic.eot');
+  src: local('Fira Sans Regular Italic'),
+  url('assets/font/eot/FiraSans-Italic.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-Italic.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-Medium.eot');
+  src: local('Fira Sans Medium'),
+  url('assets/font/eot/FiraSans-Medium.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-Medium.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-SemiBold.eot');
+  src: local('Fira Sans SemiBold'),
+  url('assets/font/eot/FiraSans-SemiBold.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-SemiBold.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('assets/font/eot/FiraSans-Bold.eot');
+  src: local('Fira Sans Bold'),
+  url('assets/font/eot/FiraSans-Bold.eot') format('embedded-opentype'),
+  url('assets/font/woff/FiraSans-Bold.woff') format('woff'),
+  url('assets/font/ttf/FiraSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}

@@ -1,0 +1,25 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle" />
+
+<!-- Note that unlike other secondar nav intances, we have bean resets.  This is due to the relationship between the users and groups views.  
+     Changes in one can easily affect the other.  In the future, a smaller scoped update mechanism should be added for performance reasons.  -->
+<d:form id="usrsRolsSecNvFrm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+  <d:menu id="usersAndRolesSecondaryNavMenu" selectedItemStyleClass="current">
+    <d:menuItem id="usersAndRolesSecondaryNavMenu-Users" viewIdPattern="/usersandroles/users" value="#{bundle.users_and_roles_secondary_nav_users_menu_item_label}" action="usersAndRolesUsers" immediate="true" >
+      <f:param id="usrsBnsToRstPrm" name="beansToReset" value="usersViewBean" />
+      <f:actionListener type="com.bluejungle.destiny.webui.framework.faces.ResetBeanActionListener" />
+    </d:menuItem>
+    <d:menuItem id="usersAndRolesSecondaryNavMenu-Groups" viewIdPattern="/usersandroles/userGroups" value="#{bundle.users_and_roles_secondary_nav_user_groups_menu_item_label}" action="usersAndRolesUserGroups" immediate="true" >
+      <f:param id="grpsBnsToRstPrm" name="beansToReset" value="userGroupsViewBean" />
+      <f:actionListener type="com.bluejungle.destiny.webui.framework.faces.ResetBeanActionListener" />
+    </d:menuItem>
+    <d:menuItem id="usersAndRolesSecondaryNavMenu-Roles" viewIdPattern="/usersandroles/roles" value="#{bundle.users_and_roles_secondary_nav_roles_menu_item_label}" action="usersAndRolesRoles" immediate="true"/>
+  </d:menu>
+</d:form>

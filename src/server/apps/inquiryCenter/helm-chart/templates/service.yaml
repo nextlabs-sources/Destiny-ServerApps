@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "reporter.fullname" . }}
+  labels:
+    {{- include "reporter.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 8080
+      protocol: TCP
+      name: http-{{ .Release.Name }}-app
+    - port: 8443
+      protocol: TCP
+      name: https-{{ .Release.Name }}-web
+  selector:
+    {{- include "reporter.selectorLabels" . | nindent 4 }}

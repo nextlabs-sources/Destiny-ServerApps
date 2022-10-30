@@ -1,0 +1,19 @@
+<div class="footer">
+  <div class="h-100">
+    <div class="d-flex flex-column align-items-center w-100 h-100 footer-wrapper">
+      <div class="col-12 col-xl-6 footer-content ie-wrapper">
+        <div class="d-flex flex-row justify-content-start align-items-center h-100">
+          <div class="col-lg-2 col-3 mr-auto">
+            <button id="nav-cancel" mat-button class="accent btn btn-block" (click)="exit()" type="button" *ngIf="showExitButton">{{exitButtonText}}</button>
+          </div>
+          <div class="col-lg-2 col-3">
+            <button *ngIf="showBackButton" id="nav-back" mat-button class="accent btn btn-block" type="button" (click)="navigateBack()">BACK</button>
+          </div>
+          <div class="submit-button submit-button-col-lg-2 submit-button-col-3" *ngIf="showSubmitButton">
+            <button id="nav-next" mat-button class="primary btn btn-block" (click)="submit()" type="submit" [disabled]="disableSubmitButton">{{submitButtonText}}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "console.fullname" . }}
+  labels:
+    {{- include "console.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "console.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "console.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if or .Values.global.image.imagePullSecret .Values.image.imagePullSecret }}
+      imagePullSecrets:
+      {{- if .Values.global.image.imagePullSecret }}
+      - name: {{ .Values.global.image.imagePullSecret }}
+      {{- else }}
+      - name: {{ .Values.image.imagePullSecret }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+      {{- if .Values.global.securityContext.runAsUser }}
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- else }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
+      initContainers:
+      - name: {{ .Release.Name }}-nextlabs-cc-console-wait-for-service
+        image: {{ .Values.global.image.repository }}/nextlabs-control-center-wait-for-service:2020.9
+        {{- if .Values.global.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        {{- else }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        env:
+        - name: NEXTLABS_CC_WAITFOR_URL_0
+          value: http://{{ .Release.Name }}-nextlabs-control-center-config-service:7443/config-service/status
+        - name: NEXTLABS_CC_WAITFOR_URL_1
+          value: http://{{ .Release.Name }}-nextlabs-control-center-console-elasticsearch:9200/_cluster/health
+      containers:
+      - name: {{ .Chart.Name }}
+        {{- if .Values.global.image.repository }}
+        image: "{{ .Values.global.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- else }}
+        image: "{{ .Values.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- end }}
+        {{- if .Values.global.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        {{- else }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        ports:
+        - name: http-{{ .Release.Name }}-app
+          containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /console/status
+            port: 8080
+          {{- if .Values.global.statusCheck.initialDelay }}
+          initialDelaySeconds: {{ .Values.global.statusCheck.initialDelay }}
+          {{- else }}
+          initialDelaySeconds: {{ .Values.statusCheck.initialDelay | default 180 }}
+          {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /console/status
+            port: 8080
+          {{- if .Values.global.statusCheck.initialDelay }}
+          initialDelaySeconds: {{ .Values.global.statusCheck.initialDelay }}
+          {{- else }}
+          initialDelaySeconds: {{ .Values.statusCheck.initialDelay | default 180 }}
+          {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        - name: license
+          mountPath: /opt/nextlabs/control-center/server/license/license.dat
+          subPath: license.dat
+          readOnly: true
+        - name: bootstrap-properties
+          mountPath: "/opt/nextlabs/control-center/server/configuration/bootstrap.properties"
+          subPath: "bootstrap.properties"
+          readOnly: true
+        {{- if or .Values.global.nextlabs.cc.enrolledDataVolumeClaimName .Values.nextlabs.cc.enrolledDataVolumeClaimName }}
+        - name: enrollment-data
+          mountPath: /opt/nextlabs/control-center/tools/enrollment/data
+        {{- end }}
+        {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+        - name: logs
+          mountPath: /opt/nextlabs/control-center/server/logs
+        {{- end }}
+      volumes:
+      - name: license
+        secret:
+          secretName: {{ .Release.Name }}-nextlabs-control-center-license
+      - name: bootstrap-properties
+        secret:
+          secretName: {{ .Release.Name }}-nextlabs-control-center-bootstrap-properties
+      {{- if or .Values.global.nextlabs.cc.enrolledDataVolumeClaimName .Values.nextlabs.cc.enrolledDataVolumeClaimName }}
+      - name: enrollment-data
+        persistentVolumeClaim:
+          {{- if .Values.global.nextlabs.cc.enrolledDataVolumeClaimName }}
+          claimName: {{ .Values.global.nextlabs.cc.enrolledDataVolumeClaimName }}
+          {{- else }}
+          claimName: {{ .Values.nextlabs.cc.enrolledDataVolumeClaimName }}
+          {{- end }}
+      {{- end }}
+      {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+      - name: logs
+        persistentVolumeClaim:
+          {{- if .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          claimName: {{ .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          {{- else }}
+          claimName: {{ .Values.nextlabs.cc.logsVolumeClaimName }}
+          {{- end }}
+      {{- end }}

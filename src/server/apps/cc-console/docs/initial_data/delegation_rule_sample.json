@@ -1,0 +1,31 @@
+{
+    "id": null,
+    "name": "Policy Studio - Access control",
+    "shortName": "POLICY_STUDIO_ABAC",
+    "description": "Policy Studio delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View Policy",
+            "shortName": "VIEW_POLICY"
+        },
+        {
+            "id": null,
+            "name": "Edit Policy",
+            "shortName": "EDIT_POLICY"
+        }, {
+            "id": null,
+            "name": "Deploy Policy",
+            "shortName": "DEPLOY_POLICY"
+        }, {
+            "id": null,
+            "name": "Delete Policy",
+            "shortName": "DELETE_POLICY"
+        }
+    ],
+    "obligations": []
+}

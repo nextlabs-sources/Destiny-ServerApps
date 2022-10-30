@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>loginProviders Fragment</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag" />
+</head>
+<body>
+<main role="main" class="container mt-3 mb-3">
+    <div th:fragment="loginProviders" th:remove="tag">
+        <div th:if="${delegatedAuthenticationProviderConfigurations}" id="list-providers">
+            <div id="loginProviderDividerLine">
+                <hr>
+                <div class="other-login-title">or login with</div>
+            </div>
+
+            <!--Show list of login provider-->
+            <div id="loginProviderList" class="loginProviderDetails">
+                <table id="delegateLoginProvider" class="loginProvider">
+                    <tr class="login-provider-row" th:each="entry: ${delegatedAuthenticationProviderConfigurations}">
+                        <td class="login-image-cell" th:id="@{${entry.type}}">
+                            <a th:href="@{${entry.redirectUrl}}"
+                               th:attr="autoredirect=${entry.autoRedirect}"
+                               th:inline="text">
+                                <img class="login-image" src="../../static/images/azuread.png" th:src="@{${'/images/' + entry.type + '.png'}}"/>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <script>
+            var redirectTo = $( "a[autoRedirect=true]" ).attr("href");
+            if (redirectTo != null && redirectTo != undefined) {
+                window.location.href = redirectTo;
+            }
+        </script>
+    </div>
+</main>
+</body>
+</html>

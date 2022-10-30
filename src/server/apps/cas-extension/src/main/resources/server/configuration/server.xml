@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+
+<Server shutdown="SHUTDOWN" port="${NEXTLABS_CC_PORT_SERVERSHUTDOWNPORT}">
+
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <GlobalNamingResources>
+    </GlobalNamingResources>
+
+    <Service name="CE-Apps">
+        <Connector connectionTimeout="60000"
+                   enableLookups="false"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecureHttp11NioProtocol"
+                   maxHttpHeaderSize="65536"
+                   port="${NEXTLABS_CC_PORT_APPSERVICEPORT}"
+                   secure="true">
+        </Connector>
+        <Engine name="CE-Apps" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false">
+                <Valve className="org.apache.catalina.valves.RemoteIpValve" protocolHeader="x-forwarded-proto" />
+                <Context path="/cas" reloadable="false" docBase="${catalina.home}/../apps/cas.war"
+                        workDir="${catalina.home}/work/cas">
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+
+</Server>

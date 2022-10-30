@@ -1,0 +1,351 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+apply plugin: 'war'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/java/main'
+        }
+    }
+}
+
+configurations {
+    apps
+    download
+    tomcatLib
+    tomcatSharedLib
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion "${versions.springWeb}"
+            } else if (details.requested.group == 'org.apache.logging.log4j') {
+                details.useVersion "${versions.log4j}"
+            }
+        }
+    }
+}
+
+dependencies {
+    providedCompile "com.nextlabs.cc.base:server-base:${version}"
+    providedCompile "javax.servlet:javax.servlet-api:${versions.javaxServletApi}"
+    implementation "antlr:antlr:${versions.antlr}"
+    implementation "cglib:cglib-full:${versions.cglibFull}"
+    implementation "com.auth0:java-jwt:${versions.javaJwt}"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
+    implementation "com.microsoft.azure:msal4j:${versions.msal4j}"
+    implementation "com.nextlabs.cc.base:agent-types:${version}"
+    implementation "com.nextlabs.cc.base:app-framework:${version}"
+    implementation "com.nextlabs.cc.base:client-security-config:${version}"
+    implementation "com.nextlabs.cc.base:common-dictionary:${version}"
+    implementation "com.nextlabs.cc.base:common-domain-types:${version}"
+    implementation "com.nextlabs.cc.base:common-domain:${version}"
+    implementation "com.nextlabs.cc.base:common-framework-types:${version}"
+    implementation "com.nextlabs.cc.base:common-framework:${version}"
+    implementation "com.nextlabs.cc.base:common-pf:${version}"
+    implementation "com.nextlabs.cc.base:common-res:${version}"
+    implementation "com.nextlabs.cc.base:crypt:${version}"
+    implementation "com.nextlabs.cc.base:dabs-dcc-services:${version}"
+    implementation "com.nextlabs.cc.base:dcsf-types:${version}"
+    implementation "com.nextlabs.cc.base:deployment-types:${version}"
+    implementation "com.nextlabs.cc.base:dms-services:${version}"
+    implementation "com.nextlabs.cc.base:inquiry-manager-shared:${version}"
+    implementation "com.nextlabs.cc.base:log-types:${version}"
+    implementation "com.nextlabs.cc.base:management-types:${version}"
+    implementation "com.nextlabs.cc.base:policy-services:${version}"
+    implementation "com.nextlabs.cc.base:policy-types:${version}"
+    implementation "com.nextlabs.cc.base:server-axis-security:${version}"
+    implementation "com.nextlabs.cc.base:server-datasource:${version}"
+    implementation "com.nextlabs.cc.base:server-dcsf:${version}"
+    implementation "com.nextlabs.cc.base:server-dictionary:${version}"
+    implementation "com.nextlabs.cc.base:server-framework:${version}"
+    implementation "com.nextlabs.cc.base:server-pf:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-applicationusers:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-services:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-types:${version}"
+    implementation "com.nextlabs.cc.base:storedResults-shared:${version}"
+    implementation "com.nextlabs.cc.base:version-types:${version}"
+    implementation "com.nextlabs.cc.base:version:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "com.nextlabs.common:config-client:${version}"
+    implementation "com.nextlabs.common:log-manager:${version}"
+    implementation "com.novell.ldap:jldap:${versions.jldap}"
+    implementation "commons-beanutils:commons-beanutils:${versions.commonsBeanutils}"
+    implementation "commons-codec:commons-codec:${versions.commonsCodec}"
+    implementation "commons-digester:commons-digester:${versions.commonsDigester}"
+    implementation "commons-logging:commons-logging:${versions.commonsLogging}"
+    implementation "javax.faces:jsf-api:${versions.jsf}"
+    implementation "javax.faces:jsf-impl:${versions.jsf}"
+    implementation "javax.transaction:jta:${versions.jta}"
+    implementation "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:${versions.jstlApi}"
+    implementation "myfaces:myfaces-extensions:${versions.myfacesExtensions}"
+    implementation "net.minidev:json-smart:${versions.jsonSmart}"
+    implementation "net.sf.ehcache:ehcache:${versions.ehcache}"
+    implementation "net.sf.hibernate:hibernate:${versions.hibernate}"
+    implementation "odmg:odmg:${versions.odmg}"
+    implementation "org.apache.axis2:axis2-adb:${versions.axis}"
+    implementation "org.apache.axis2:axis2-jaxws:${versions.axis}"
+    implementation "org.apache.axis2:axis2-kernel:${versions.axis}"
+    implementation "org.apache.axis2:axis2-transport-http:${versions.axis}"
+    implementation "org.apache.axis2:axis2-transport-local:${versions.axis}"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "org.apache.logging.log4j:log4j-jcl:${versions.log4j}"
+    implementation "org.apache.struts:tiles:1.1.0"
+    implementation "org.apache.taglibs:taglibs-standard-impl:${versions.taglibsStandardImpl}"
+    implementation "org.bouncycastle:bcpkix-jdk15on:${versions.bcpkixJdk15on}"
+    implementation "org.bouncycastle:bcprov-jdk15on:${versions.bcprovJdk15on}"
+    implementation("org.dom4j:dom4j:${versions.dom4j}") {
+        exclude group: 'pull-parser', module: 'pull-parser'
+    }
+    implementation "org.jasig.cas.client:cas-client-core:${versions.casClientCore}"
+    implementation "org.json:json:${versions.json}"
+    implementation "org.springframework:spring-web:${versions.springWeb}"
+    implementation "org.springframework.security:spring-security-core:${versions.springSecurity}"
+    implementation "xalan:xalan:${versions.xalan}"
+
+    implementation project(':common-web-framework')
+    apps "com.nextlabs.cc.apps:dcsf:${version}@war"
+    download "com.nextlabs.cc.java.openjdk:jre-linux:${versions.java}@zip"
+    download "com.nextlabs.cc:apache-tomcat:${versions.tomcat}@zip"
+    tomcatLib "com.ibm.db2:jcc:${versions.db2Jdbc}"
+    tomcatLib "com.microsoft.sqlserver:mssql-jdbc:${versions.mssqlJdbc}"
+    tomcatLib "com.nextlabs.cc.base:crypt:${version}"
+    tomcatLib "com.nextlabs.cc.base:server-security:${version}"
+    tomcatLib "com.oracle.database.jdbc:ojdbc11:${versions.ojdbc}"
+    tomcatLib "commons-logging:commons-logging:${versions.commonsLogging}"
+    tomcatLib "org.postgresql:postgresql:${versions.postgresql}"
+    tomcatSharedLib "com.mchange:c3p0:${versions.c3p0}"
+    tomcatSharedLib "com.nextlabs.cc.base:common-version:${version}"
+    tomcatSharedLib "com.nextlabs.cc.base:server-base-internal:${version}"
+    tomcatSharedLib "com.nextlabs.cc.base:server-base:${version}"
+}
+
+war {
+    archiveFileName = packageName
+    rootSpec.exclude('**/servlet-api-*.jar', '**/asm-*.jar')
+    from('./src/etc/') {
+        include 'common.repository.properties'
+        into 'WEB-INF/conf'
+    }
+    from('./src/etc/') {
+        include 'web.xml'
+        include 'faces-config.xml'
+        include 'mgmt-console-tiles-defs.xml'
+        include 'log4j2.xml'
+        into 'WEB-INF'
+    }
+    from('./src/hibernate/') {
+        into 'WEB-INF/conf'
+    }
+    from('./src/bundles/') {
+        include 'MgmtConsoleMessages.properties'
+        into 'WEB-INF/classes'
+    }
+    from('./src/jsp/') {
+        into ''
+    }
+    from('./src/jspf/') {
+        into 'WEB-INF/jspf'
+    }
+    from('../webFramework/src/') {
+        include 'core-tiles-defs.xml'
+        into 'WEB-INF'
+    }
+    from('../webFramework/src/etc/') {
+        include 'core-tiles-defs.xml'
+        include 'tags.tld'
+        into 'WEB-INF'
+    }
+    from('../webFramework/src/etc/') {
+        include 'c.tld'
+        into 'WEB-INF/tld'
+    }
+    from('../webFramework/src/resources/web') {
+        exclude '**/jspf/**'
+    }
+    from('../webFramework/src/resources/web/core/jspf') {
+        into 'WEB-INF/jspf/core'
+    }
+    from('../webFramework/src/resources/web/core/css') {
+        include 'login.css'
+        into 'login/css'
+    }
+    from('../webFramework/src/resources/web/core/images') {
+        include 'Bar_right_administrator.jpg'
+        into 'core/images'
+        rename 'Bar_right_administrator.jpg', 'Bar_right.jpg'
+    }
+    from('../webFramework/src/resources/web/core/images') {
+        include 'login_administrator.jpg'
+        into 'login/images'
+        rename 'login_administrator.jpg', 'login.jpg'
+    }
+    from('../webFramework/src/resources/web/core/javascript') {
+        include 'core.js'
+        into 'login/javascript'
+    }
+    doLast {
+        println('Building ' + archiveFileName.get() + ' completed at ' + new Date())
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+task deploy {
+    doLast {
+        if (project.hasProperty('deploymentDeleteDir')) {
+            delete deploymentDeleteDir
+            println('Deleted: ' + deploymentDeleteDir)
+        }
+        copy {
+            from war.archiveFile.get()
+            into deploymentLocation
+        }
+        println('Copied ' + packageName + ' from: ' + war.archiveFile.get() + ' into: ' + deploymentLocation)
+    }
+    onlyIf {
+        project.hasProperty('deploymentLocation')
+    }
+}
+
+def ccPackageDir = "${buildDir}/distributions/control-center"
+
+task buildPackage {
+    doLast {
+        copy {
+            from zipTree(configurations.download.find { it.name == "jre-linux-${versions.java}.zip" })
+            into "${ccPackageDir}/java"
+            exclude 'jre/lib/security/cacerts'
+        }
+        ant.replaceregexp(match: 'keystore.type=pkcs12', replace: 'keystore.type=jks', flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/java/jre/conf/security", includes: 'java.security')
+        }
+        copy {
+            from zipTree(configurations.download.find { it.name == "apache-tomcat-${versions.tomcat}.zip" })
+            into "${ccPackageDir}/server"
+            exclude "*/webapps/"
+        }
+        file("${ccPackageDir}/server/apache-tomcat-${versions.tomcat}").renameTo(file("${ccPackageDir}/server/tomcat"))
+
+        copy {
+            from './src/resources/server'
+            into "${ccPackageDir}/server"
+        }
+        copy {
+            from './src/resources/server/tomcat/bin/setenv.sh'
+            into "${ccPackageDir}/server/tomcat/bin"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
+        }
+        copy {
+            from configurations.tomcatLib
+            into "${ccPackageDir}/server/tomcat/lib"
+        }
+        copy {
+            from configurations.tomcatSharedLib
+            into "${ccPackageDir}/server/tomcat/shared/lib"
+        }
+        ant.replaceregexp(match: 'shared\\.loader=',
+                replace: 'shared.loader="${catalina.home}/shared/lib", "${catalina.home}/shared/lib/*.jar"',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        ant.replaceregexp(match: 'tomcat\\.util\\.scan\\.StandardJarScanFilter\\.jarsToSkip=',
+                replace: 'tomcat.util.scan.StandardJarScanFilter.jarsToSkip=common-*.jar, crypt.jar, osdt_*.jar, policy-*.jar, secure-session.jar, server-*.jar, pdq.jar, ',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'catalina.properties')
+        }
+        ant.replaceregexp(match: '<url-pattern>\\*.jspx</url-pattern>',
+                replace: '<url-pattern>*.jspx</url-pattern>\r\n        <url-pattern>*.jspf</url-pattern>',
+                flags: 'g', byline: true) {
+            fileset(dir: "${ccPackageDir}/server/tomcat/conf", includes: 'web.xml')
+        }
+        mkdir "${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util"
+        new File("${ccPackageDir}/server/tomcat/lib/org/apache/catalina/util/ServerInfo.properties").text = 'server.info=Apache Tomcat'
+        copy {
+            from configurations.apps
+            into "${ccPackageDir}/server/apps"
+            rename "(.+)-${version}(.+)", '$1$2'
+        }
+        mkdir "${ccPackageDir}/server/certificates/cacerts"
+        copy {
+            from "${buildDir}/libs/mgmtConsole.war"
+            into "${ccPackageDir}/server/apps"
+        }
+    }
+}
+
+def containerImageTag = String.format("%s${appName}:${appVersion}",
+        project.hasProperty('containerRegistryURL') ? "${containerRegistryURL}/" : "")
+
+task buildContainer(type: Exec) {
+    doFirst {
+        copy {
+            from './src/resources/scripts/start.sh'
+            into "${ccPackageDir}"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        copy {
+            from './src/resources/scripts/passwd.template'
+            into "${buildDir}/distributions"
+            filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance('unix'))
+        }
+        if(System.getProperty('os.name').startsWith('Linux')) {
+            exec {
+                commandLine 'sudo', 'chgrp', '-R', '0', "${ccPackageDir}"
+            }
+            exec {
+                commandLine 'sudo', 'chmod', '-R', 'g+rwX', "${ccPackageDir}"
+            }
+        }
+    }
+    workingDir "${buildDir}/distributions"
+    commandLine 'docker', 'build',
+            '--build-arg', "APP_DISPLAY_NAME=${appDisplayName}",
+            '--build-arg', "VERSION=${appVersion}",
+            '--build-arg', "BUILD_NUMBER=${buildNumber}",
+            '-f', "${projectDir}/Dockerfile",
+            '-t', "${containerImageTag}",
+            '.'
+}
+
+task publishContainer(type: Exec) {
+    commandLine 'docker', 'push', "${containerImageTag}"
+}
+
+def helmChartDir = "${buildDir}/helm-chart/"
+task packageHelmChart(type: Exec) {
+    doFirst {
+        mkdir helmChartDir
+        copy {
+            from "./helm-chart"
+            into "${helmChartDir}/helm-chart"
+        }
+        ant.replaceregexp(match: '\\$\\{appVersion\\}', replace: appVersion, flags: 'g', byline: true) {
+            fileset(dir: "${helmChartDir}/helm-chart", includes: 'Chart.yaml')
+        }
+    }
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'package', './helm-chart'
+}
+
+task publishHelmChart(type: Exec) {
+    workingDir helmChartDir
+    commandLine "${helmLocation}helm", 'push', "--username=${helmChartRepositoryUsername}",
+            "--password=${helmChartRepositoryPassword}", "${appName}-${appVersion}.tgz", "${helmChartRepositoryName}"
+}
+
+build.finalizedBy(deploy)

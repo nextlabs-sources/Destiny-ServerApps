@@ -1,0 +1,35 @@
+.close-dialog {
+  font-size: 48px;
+  &:hover {
+    font-size: 52px;
+    cursor: default;
+  }
+}
+
+::ng-deep .mat-horizontal-stepper-header-container {
+  display: none !important;
+}
+
+::ng-deep .mat-horizontal-content-container {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+.additional-info {
+  font-size: .9rem;
+  color: #666666;
+}
+
+.page-content {
+  padding-top: 1rem !important;
+}
+
+.page-heading {
+  padding-top: .5rem !important;
+}
+
+mat-horizontal-stepper, .manual-step {
+  min-height: 400px;
+  height: 400px;
+  width: 703px;
+}

@@ -1,0 +1,92 @@
+<form [formGroup]="installationDirectoryForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div>
+        <div class="text-center">
+          <div class="page-heading">Installation Directory</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading" *ngIf="!isUpgrade()">
+            Control Center will be installed in the default directory.
+            If you wish to change the default directory, specify the directory.
+          </div>
+          <div class="page-sub-heading" *ngIf="isUpgrade()">
+            Control Center will be upgraded in the current install directory.
+            If you wish to change the upgrade directory, select the <strong>New directory</strong> option and specify the directory.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center" *ngIf="isUpgrade()">
+            <mat-radio-group id="installationDirectoryConfig" aria-label="Select an option"
+                             formControlName="installationDirectoryConfig" class="col-12">
+              <div class="d-flex flex-column flex-wrap">
+                <div>
+                  <mat-radio-button value="default" id="default">
+                    <span><strong>Current install directory</strong></span>
+                  </mat-radio-button>
+                  <div class="row  install-directory-field">
+                    <input type="text" class="form-control" id="defaultInstallDirectory"
+                           formControlName="defaultInstallDirectory">
+                  </div>
+                </div>
+                <div class="pt-4">
+                  <mat-radio-button value="custom" id="custom">
+                    <span> <strong>New directory</strong> </span>
+                  </mat-radio-button>
+                  <div class="row install-directory-field">
+                    <label for="customInstallDirectory" id="customUpgradeDirectoryLabel">
+                      Enter or copy the directory
+                    </label>
+
+                    <div class="input-group">
+                      <input type="text" class="form-control col-12" id="customUpgradeDirectory" formControlName="customInstallDirectory">
+                      <div class="input-group-append" *ngIf="installPathUpdated()">
+                      <span class="input-group-text" (click)="resetInstallPath()">
+                        <i class="fa fa-undo" aria-hidden="true"></i>
+                      </span>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="installationDirectoryForm.get('customInstallDirectory').invalid && (installationDirectoryForm.get('customInstallDirectory').dirty || installationDirectoryForm.get('customInstallDirectory').touched)"
+                      class="row col-12 installer-error">
+                      <div class="error-item" id="customUpgradeDirectoryError"
+                           *ngIf="installationDirectoryForm.get('customInstallDirectory').errors.pathError">
+                        Invalid installation directory.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-radio-group>
+          </div>
+          <div class="d-flex flex-column align-items-center" *ngIf="!isUpgrade()">
+            <div class="row col-12">
+              <label for="customInstallDirectory" id="customInstallDirectoryLabel">
+                Enter or copy the directory
+              </label>
+
+              <div class="input-group">
+                <input type="text" class="form-control" id="customInstallDirectory" formControlName="customInstallDirectory">
+                <div class="input-group-append" *ngIf="installPathUpdated()">
+                      <span class="input-group-text" (click)="resetInstallPath()">
+                        <i class="fa fa-undo" aria-hidden="true"></i>
+                      </span>
+                </div>
+              </div>
+              <div
+                *ngIf="installationDirectoryForm.get('customInstallDirectory').invalid && (installationDirectoryForm.get('customInstallDirectory').dirty || installationDirectoryForm.get('customInstallDirectory').touched)"
+                class="row col-12 installer-error">
+                <div class="error-item" id="customInstallDirectoryError"
+                     *ngIf="installationDirectoryForm.get('customInstallDirectory').errors.pathError">
+                  Invalid installation directory.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="installationDirectoryForm"></app-bottom-nav>
+</form>

@@ -1,0 +1,30 @@
+<%@ page buffer="none" errorPage="/error"%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d"%>
+<%@ taglib uri="https://ajax4jsf.dev.java.net/ajax" prefix="a4j"%>
+
+ 
+<f:verbatim>
+<div>
+   <!-- Refer my Report query criteria for async data loading -->
+	<div id="myReportsTableDiv">
+		<table class="display" id="myReportsTable"  style="width:100%;" >
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Report Name</th>
+				</tr>
+			</thead>
+			<tbody> 
+				<!-- data goes here -->
+	        </tbody>
+		</table>
+	</div>
+</div>
+</f:verbatim>
+
+
+
+

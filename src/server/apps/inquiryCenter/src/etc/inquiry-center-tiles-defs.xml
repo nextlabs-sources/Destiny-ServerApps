@@ -1,0 +1,37 @@
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config.dtd">
+<tiles-definitions>
+	<definition name="inquiryCenterMainDefinition" extends="mainDefinition_reporter">
+		<put name="primaryNav" value="/WEB-INF/jspf/tiles/shared/primaryNav.jspf" />
+   		<put name="applicationIcon" value="reporterIcon.gif" />
+	</definition>
+	
+	<definition name="inquiryCenterMainWithoutContentHeaderDefinition" extends="mainWithoutContentHeaderDefinition_reporter">
+		<put name="primaryNav" value="/WEB-INF/jspf/tiles/shared/primaryNav.jspf" />
+   		<put name="applicationIcon" value="reporterIcon.gif" />
+	</definition>
+	
+	<definition name="inquiryCenterBrowseDataPickerDefinition" extends="browseDataPickerDefinition">
+   		<put name="applicationIcon" value="reporterIcon.gif" />	
+	</definition>
+
+	<!-- Though, nothing is added to the following definitions, they provide a layer of indirection in case anything ever needs to be added --> 	
+	<definition name="inquiryCenterLoginDefinition" extends="loginDefinition">
+	</definition>
+
+	<definition name="inquiryCenterErrorDisplayDefinition" extends="errorDisplayDefinition">
+	</definition>
+	
+	<definition name="inquiryCenterPopupDefinition" extends="popupDefinition">
+	   	<put name="applicationIcon" value="reporterIcon.gif" />
+	</definition>
+	
+	<definition name="inquiryCenterPopupWithoutContentHeaderDefinition" extends="popupWithoutContentHeaderDefinition">
+	   	<put name="applicationIcon" value="reporterIcon.gif" />
+	</definition>
+
+	<definition name="inquiryCenterLoginDefinition" extends="loginDefinition">
+	   	<put name="applicationWatermark" value="reporterWatermark.gif" />
+	</definition>	
+</tiles-definitions>

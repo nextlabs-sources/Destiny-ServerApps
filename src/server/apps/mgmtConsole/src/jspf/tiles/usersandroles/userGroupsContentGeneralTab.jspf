@@ -1,0 +1,21 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<f:verbatim><div id="edtHdrDv" class="sectionheader"></f:verbatim>
+  <h:outputText id="edtHdr" value="#{bundle.users_and_roles_user_groups_groups_section_header_label}" />
+<f:verbatim></div><div id="genCtntDv" class="sectioncontent">
+</f:verbatim>
+  <h:panelGrid id="edtGrd" styleClass="usergroupdetails" columns="2" columnClasses="label, input">
+    <h:outputText id="ttleLbl" value="#{bundle.users_and_roles_user_groups_title_text_field_label}" />
+    <h:inputText id="ttleIn" size="35" value="#{userGroupsViewBean.selectedUserGroup.userGroupTitle}" required="true"/>
+    <h:outputText id="dscrLbl" value="#{bundle.users_and_roles_user_groups_description_text_area_label}" />
+    <h:inputTextarea id="dscrIn" style="overflow: hidden" rows="4" cols="50" value="#{userGroupsViewBean.selectedUserGroup.userGroupDescription}" />
+    <h:outputText id="extLnkLbl" value="#{bundle.users_and_roles_user_groups_external_link_text_label}" rendered="#{userGroupsViewBean.selectedUserGroup.externallyManaged}" />
+    <h:outputText id="extLnkTxt" value="#{userGroupsViewBean.selectedUserGroup.userGroupQualifiedExternalName}" rendered="#{userGroupsViewBean.selectedUserGroup.externallyManaged}" />
+  </h:panelGrid>
+<f:verbatim></div></f:verbatim>

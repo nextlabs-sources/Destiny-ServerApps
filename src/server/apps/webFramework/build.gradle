@@ -1,0 +1,114 @@
+buildscript {
+    dependencies {
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.24.20'
+    }
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'org.sonarqube'
+apply plugin: 'org.owasp.dependencycheck'
+
+repositories {
+    maven {
+        url artifactoryContextUrl + (version.endsWith('SNAPSHOT') ? '/libs-snapshot' : '/libs-release')
+        allowInsecureProtocol true
+        credentials {
+            username = artifactoryUser
+            password = artifactoryPassword
+        }
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
+    mavenLocal()
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
+artifactory {
+    contextUrl = artifactoryContextUrl
+    publish {
+        repository {
+            repoKey = version.endsWith('SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'
+            allowInsecureProtocol true
+            username = artifactoryUser
+            password = artifactoryPassword
+        }
+        defaults {
+            publications('webFramework')
+        }
+    }
+}
+
+publishing {
+    publications {
+        webFramework(MavenPublication) {
+            artifactId 'web-framework'
+            from components.java
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/java/main'
+        }
+    }
+}
+
+dependencies {
+    compileOnly "com.nextlabs.cc.base:common-version:${version}"
+    compileOnly "com.nextlabs.cc.base:server-base:${version}"
+    compileOnly "javax.servlet.jsp:javax.servlet.jsp-api:${versions.jspApi}"
+    compileOnly "javax.servlet:javax.servlet-api:${versions.javaxServletApi}"
+    implementation "com.nextlabs.cc.base:app-framework:${version}"
+    implementation "com.nextlabs.cc.base:client-security-config:${version}"
+    implementation "com.nextlabs.cc.base:common-domain:${version}"
+    implementation "com.nextlabs.cc.base:common-framework:${version}"
+    implementation "com.nextlabs.cc.base:common-version-impl:${version}"
+    implementation "com.nextlabs.cc.base:server-framework:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-applicationusers:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-services:${version}"
+    implementation "com.nextlabs.cc.base:server-shared-types:${version}"
+    implementation "com.nextlabs.common:cc-common:${version}"
+    implementation "commons-logging:commons-logging:${versions.commonsLogging}"
+    implementation "javax.faces:jsf-api:${versions.jsf}"
+    implementation "javax.faces:jsf-impl:${versions.jsf}"
+    implementation "javax.xml.bind:jaxb-api:${versions.jaxb}"
+    implementation "myfaces:myfaces-extensions:${versions.myfacesExtensions}"
+    implementation "org.apache.axis2:axis2-adb:${versions.axis}"
+    implementation "org.apache.axis2:axis2-transport-http:${versions.axis}"
+    implementation "org.apache.commons:commons-lang3:${versions.commonsLang3}"
+    implementation "org.springframework.security:spring-security-core:${versions.springSecurity}"
+    implementation "com.nextlabs.common:config-client:${version}"
+}
+
+jar {
+    archiveBaseName = packageBaseName
+    from('./src/etc/') {
+        include 'faces-config.xml'
+        into 'META-INF/'
+    }
+    from('./src/etc/') {
+        include 'com.bluejungle.destiny.appsecurity.axis.SecureSessionVault'
+        into 'META-INF/services/'
+    }
+}
+
+dependencyCheck {
+    format = 'ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.reportPath', 'build/reports/dependency-check-report.xml'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+        properties['sonar.sources'] += 'build.gradle'
+    }
+}
+
+build.finalizedBy('artifactoryPublish')

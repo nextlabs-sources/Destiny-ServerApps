@@ -1,0 +1,146 @@
+<form (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div class="col-12">
+        <div class="text-center">
+          <div class="page-heading">Preinstallation Summary</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading">
+            Verify the configuration parameters. To go to the previous screen,
+            click the <strong>Back</strong> button or use the navigation pane.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center w-100">
+            <div class="summary-section">
+              <div class="summary-heading row col-8 offset-2">Installation Type</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Type:</div>
+                <div id="type" class="col-6">{{typeDesc}}</div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="!isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">Control Center License</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">License Filename:</div>
+                <div id="license" class="col-6">{{config.licenseFile && config.licenseFile.name}}</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="summary-heading row col-8 offset-2">Installation Directory</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Path:</div>
+                <div id="installDirectory" class="col-6">{{isUpgrade() && config.upgradeExisting? config.previousHome : config.installationPath || config.home}}</div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="!isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">SSL Certificates</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Certificate Filename(s):</div>
+                <div id="certificates" class="col-6 d-flex flex-column">
+                  <div *ngFor="let file of config && config.sslCertFiles" class="w-100">
+                    {{ file.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="!isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">Database Configuration</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Database server:</div>
+                <div id="dbServer" class="col-6">{{dbConfig.dbType}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Hostname:</div>
+                <div id="hostname" class="col-6">{{dbConfig.host}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Port:</div>
+                <div id="port" class="col-6">{{dbConfig.port}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Database name/SID:</div>
+                <div id="dbSid" class="col-6">{{dbConfig.databaseName}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Authentication:</div>
+                <div id="authType" class="col-6">{{dbConfig.osAuthentication? 'OS': 'Native'}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!dbConfig.osAuthentication">
+                <div class="col-6">Username:</div>
+                <div id="dbUsername" class="col-6">{{dbConfig.username}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!dbConfig.osAuthentication">
+                <div class="col-6">Password:</div>
+                <div class="col-6">**********</div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="!isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">Superuser Credentials</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Username:</div>
+                <div id="superUserName" class="col-6">Administrator</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Password:</div>
+                <div class="col-6">**********</div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">Management Server Connection Details</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Host:</div>
+                <div class="col-6">{{managementServerConfig.host}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Management service port number:</div>
+                <div class="col-6">{{managementServerConfig.webServicePort}}</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Configuration service port number:</div>
+                <div class="col-6">{{managementServerConfig.configServicePort}}</div>
+              </div>
+            </div>
+            <div class="summary-section">
+              <div class="summary-heading row col-8 offset-2">Port Configuration</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Web service port number:</div>
+                <div id="webServicePort" class="col-6">{{portConfig.webServicePort}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!isIceNetInstall()">
+                <div class="col-6">Web application port number:</div>
+                <div id="appServicePort" class="col-6">{{portConfig.appServicePort}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!isIceNetInstall()">
+                <div class="col-6">Policy validator port number:</div>
+                <div id="policyValidatorPort" class="col-6">{{portConfig.policyValidatorPort}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!isIceNetInstall()">
+                <div class="col-6">Configuration service port number:</div>
+                <div id="configServicePort" class="col-6">{{portConfig.configServicePort}}</div>
+              </div>
+              <div class="row col-8 offset-2" *ngIf="!isIceNetInstall()">
+                <div class="col-6">Message service port number:</div>
+                <div id="activeMqPort" class="col-6">{{portConfig.activeMqPort}}</div>
+              </div>
+            </div>
+            <div class="summary-section" *ngIf="!isIceNetInstall()">
+              <div class="summary-heading row col-8 offset-2">Keystore &amp; Truststore</div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Keystore password:</div>
+                <div class="col-6">**********</div>
+              </div>
+              <div class="row col-8 offset-2">
+                <div class="col-6">Truststore password:</div>
+                <div class="col-6">**********</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [submitButtonText]="'INSTALL'"></app-bottom-nav>
+</form>

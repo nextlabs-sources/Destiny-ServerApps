@@ -1,0 +1,33 @@
+<form [formGroup]="licenseForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div>
+        <div class="text-center">
+          <div class="page-heading">Control Center License</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading">
+            Select the Control Center license file.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center">
+            <div class="license-file w-75">
+              <app-file-drag-drop id="license" class="h-100" [fileLabel]="'license'"
+                                  formControlName="license" (onFileDelete)="onDelete()"></app-file-drag-drop>
+            </div>
+            <div
+              *ngIf="(licenseForm.get('license').invalid && !licenseForm.get('license').errors.required) && (licenseForm.get('license').dirty || licenseForm.get('license').touched)"
+              class="installer-error">
+              <div *ngIf="licenseForm.get('license').errors.invalidLicense">
+                Invalid license file.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="licenseForm"></app-bottom-nav>
+</form>

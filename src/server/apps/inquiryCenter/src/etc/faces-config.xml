@@ -1,0 +1,546 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<!-- =========== FULL CONFIGURATION FILE ================================== -->
+
+<faces-config>
+	<application>
+		<locale-config>
+	      <default-locale>en_US</default-locale>
+		</locale-config>
+		<message-bundle>InquiryCenterMessages</message-bundle>
+		<default-render-kit-id>HTML_BASIC</default-render-kit-id>
+	</application>
+	
+	<managed-bean>
+		<description>Managed Bean containing pre-render actions associated with particular views</description>
+		<managed-bean-name>PrerenderActionManagerBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.faces.PrerenderActionManagerBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<description>Map of viewid to pre-render actions</description>
+			<property-name>prerenderActions</property-name>
+			<map-entries>
+				<map-entry>
+					<key>/login/login.jsp</key>
+					<value>loginManager.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myDashboard.jsp</key>
+					<value>reportNavigatorBean.load</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReports.jsp</key>
+					<value>myReportsBean.load</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportsQuickReportExecute.jsp</key>
+					<value>myReportsBean.load</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportsInsert.jsp</key>
+					<value>myReportsBean.load</value>
+				</map-entry>				
+				<map-entry>
+					<key>/reports/myReportEdit.jsp</key>
+					<value>myReportsBean.load</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportsExecute.jsp</key>
+					<value>myReportsBean.load</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportEditBrowseUserComponents.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportEditBrowsePolicyComponents.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/myReportEditBrowseResourceClassComponents.jsp</key>
+					<value>browsableDataPickerBean.prerender</value>
+				</map-entry>
+				<map-entry>
+					<key>/reports/auditLogReports.jsp</key>
+					<value>auditLogBean.load</value>
+				</map-entry>
+			</map-entries>
+		</managed-property>
+		<managed-property>
+			<description>Error page to display if a prerender action throws an exception</description>
+			<property-name>errorViewId</property-name>
+			<value>/error/errorDisplay.jsp</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>envLookup</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.faces.EnvLookupBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<property-name>keyName</property-name>
+			<value>DACLocation</value>
+		</managed-property>		
+	</managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>changePasswordBean</managed-bean-name>
+        <managed-bean-class>com.nextlabs.destiny.inquirycenter.report.defaultimpl.ChangePasswordBeanImpl</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>        
+    </managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>reportComponentQueryBrokerBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.ReportComponentQueryBroker</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>myReportsBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.MyReportsPageBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Location of the service to fetch the reports</description>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>
+		<managed-property>
+			<description>Report execution bean to invoke</description>
+			<property-name>reportExecutor</property-name>
+			<value>#{reportExecutionBean}</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>sharePointReportsBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.SharePointReportPageBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+        <managed-bean-name>reportNavigatorBean</managed-bean-name>
+        <managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.ReportNavigatorBeanImpl</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>customReportsBean</managed-bean-name>
+        <managed-bean-class>com.nextlabs.destiny.inquirycenter.report.defaultimpl.CustomReportsBeanImpl</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+	<managed-bean>
+		<managed-bean-name>submitReportBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.SubmitReportBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>myReportBean</property-name>
+			<value>#{myReportsBean}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>reportInsertionInfoBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.ReportInsertionInfoBeanImpl</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>reportExecutionBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.ReportExecutorImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Location of the service to fetch the reports results</description>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>
+		<managed-property>
+			<description>Number of report results to pre-fetch</description>
+			<property-name>fetchSize</property-name>
+			<property-class>java.lang.Integer</property-class>
+			<value>50</value>
+		</managed-property>
+		<managed-property>
+			<description>Maximum number of results to be displayed in one query (across all pages)</description>
+			<property-name>maxDisplayResults</property-name>
+			<property-class>java.lang.Integer</property-class>
+			<value>200</value>
+		</managed-property>
+		<managed-property>
+			<description>Maximum number of results displayed per page</description>
+			<property-name>pageSize</property-name>
+			<property-class>java.lang.Integer</property-class>
+			<value>20</value>
+		</managed-property>
+		<managed-property>
+			<description>Maximum number of results to display on the printable results page</description>
+			<property-name>printSize</property-name>
+			<property-class>java.lang.Integer</property-class>
+			<value>10000</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>auditLogBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.AuditLogPageBeanImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Location of the service to fetch the reports</description>
+			<property-name>dataLocation</property-name>
+			<value>#{envLookup.value}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>resultFlipper</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.webui.framework.flip.DataFlipperImpl</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>dataModel</property-name>
+			<property-class>javax.faces.model.DataModel</property-class>
+			<value>#{reportExecutionBean.results}</value>			
+		</managed-property>
+		<managed-property>
+			<property-name>rowCount</property-name>
+			<property-class>java.lang.Integer</property-class>
+			<value>1</value>			
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Selectable User Component Item Source Bean</description>
+		<managed-bean-name>selectableUserComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.user.SelectableUserComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReportEdit</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Selectable Policy Item Source Bean</description>
+		<managed-bean-name>selectablePolicyComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.policy.SelectablePolicyComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReportEdit</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Selectable Resource Class Item Source Bean</description>
+		<managed-bean-name>selectableResourceClassComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.resource.SelectableResourceComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReportEdit</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+
+    <managed-bean>
+		<description>Selectable User Component Item Source Bean for Quick Reports</description>
+		<managed-bean-name>quickReportSelectableUserComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.user.SelectableUserComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReports</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<description>Selectable Policy Item Source Bean for Quick Reports</description>
+		<managed-bean-name>quickReportSelectablePolicyComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.policy.SelectablePolicyComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReports</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Selectable Resource Class Item Source Bean for Quick Reports</description>
+		<managed-bean-name>quickReportSelectableResourceClassComponentItemSourceBean</managed-bean-name>
+		<managed-bean-class>com.bluejungle.destiny.inquirycenter.report.defaultimpl.datapickers.resource.SelectableResourceComponentItemSourceImpl</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>
+				The return action to take once the data selection process is complete
+			</description>
+			<property-name>returnAction</property-name>
+			<value>myReports</value>
+		</managed-property>
+		<managed-property>
+			<description>Expression to retrieve selected report</description>
+			<property-name>currentReportBinding</property-name>
+			<value>myReportsBean.selectedReport</value>
+		</managed-property>
+		<managed-property>
+			<description>
+				The broker-bean for report component lookup
+			</description>
+			<property-name>reportComponentQueryBroker</property-name>
+			<value>#{reportComponentQueryBrokerBean}</value>
+		</managed-property>
+	</managed-bean>
+	
+	<navigation-rule>
+		<navigation-case>
+			<description>Navigates to the my reports page</description>
+			<from-outcome>myReports</from-outcome>
+			<to-view-id>/reports/myReports.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the SharePoint reports page</description>
+			<from-outcome>sharePointReports</from-outcome>
+			<to-view-id>/reports/multiReports.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+            <description>Navigates to the multireports page</description>
+            <from-outcome>multiReports</from-outcome>
+            <to-view-id>/reports/multiReports.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+		<navigation-case>
+			<from-outcome>myDashboard</from-outcome>
+			<to-view-id>/reports/myDashboard.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>	
+		<navigation-case>
+			<description>Navigates to the my reports quick report execute page</description>
+			<from-outcome>myReportsQuickReportExecute</from-outcome>
+			<to-view-id>/reports/myReportsQuickReportExecute.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the my reports insert page</description>
+			<from-outcome>myReportsInsert</from-outcome>
+			<to-view-id>/reports/myReportsInsert.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>		
+		<navigation-case>
+			<description>Navigates to the my reports execute page</description>
+			<from-outcome>myReportsExecute</from-outcome>
+			<to-view-id>/reports/myReports.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the SharePoint reports execute page</description>
+			<from-outcome>sharePointReportsExecute</from-outcome>
+			<to-view-id>/reports/multiReports.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+        <navigation-case>
+			<description>Navigates to the Custom External reports execute page</description>
+			<from-outcome>executeCustomReports</from-outcome>
+			<to-view-id>/reports/multiReports.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the my report edit page</description>
+			<from-outcome>myReportEdit</from-outcome>
+			<to-view-id>/reports/myReportEdit.jsf</to-view-id>			
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the browse user-components page</description>
+			<from-outcome>myReportEditBrowseUserComponents</from-outcome>
+			<to-view-id>/reports/myReportEditBrowseUserComponents.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the browse user-components page</description>
+			<from-outcome>myReportEditBrowsePolicyComponents</from-outcome>
+			<to-view-id>/reports/myReportEditBrowsePolicyComponents.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the browse resource-class-components page</description>
+			<from-outcome>myReportEditBrowseResourceClassComponents</from-outcome>
+			<to-view-id>/reports/myReportEditBrowseResourceClassComponents.jsf</to-view-id>
+		</navigation-case>	
+		<navigation-case>
+			<description>Navigates to the printable view for the detail results</description>
+			<from-outcome>printDetailResults</from-outcome>
+			<to-view-id>/reports/reportDetailPrintResults.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report result grouped by day</description>
+			<from-outcome>dayGroupingResults</from-outcome>
+			<to-view-id>/reports/reportResultsGroupedByDay.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report result grouped by month</description>
+			<from-outcome>monthGroupingResults</from-outcome>
+			<to-view-id>/reports/reportResultsGroupedByMonth.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report results grouped by policy name</description>
+			<from-outcome>policyGroupingResults</from-outcome>
+			<to-view-id>/reports/reportResultsGroupedByPolicy.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report results grouped by resource name</description>
+			<from-outcome>resourceGroupingResults</from-outcome>
+			<to-view-id>/reports/reportResultsGroupedByResource.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report results grouped by user</description>
+			<from-outcome>userGroupingResults</from-outcome>
+			<to-view-id>/reports/reportResultsGroupedByUser.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the report results grouped by user</description>
+			<from-outcome>singleLogResult</from-outcome>
+			<to-view-id>/reports/singleLogDetailResult.jsf</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<description>Navigates to the error page</description>
+			<from-outcome>error</from-outcome>
+			<to-view-id>/error/errorDisplay.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+        <navigation-case>
+            <description>Navigates to change password page </description>
+            <from-outcome>userPreferences</from-outcome>
+            <to-view-id>/userpreferences/changePassword.jsf</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <description>Navigates home</description>
+            <from-outcome>changePasswordDone</from-outcome>
+            <to-view-id>/reports/myDashboard.jsf</to-view-id>
+        </navigation-case>
+   		<navigation-case>
+			<from-outcome>login</from-outcome>
+			<to-view-id>/login/login.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>	
+		<navigation-case>
+            <description>Navigates to Monitors page </description>
+            <from-outcome>myMonitors</from-outcome>
+            <to-view-id>/monitors/myMonitors.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+			<from-outcome>myAlerts</from-outcome>
+			<to-view-id>/monitors/myAlerts.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+        <navigation-case>
+            <description>Navigates to Add monitor page </description>
+            <from-outcome>add-monitor</from-outcome>
+            <to-view-id>/monitors/add-monitor.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <description>Navigates to Audit Logs page </description>
+            <from-outcome>auditLogReports</from-outcome>
+            <to-view-id>/reports/auditLogReports.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+	</navigation-rule>
+	
+	<!-- navigation rules from the login-->
+	<navigation-rule>
+		<from-view-id>/login/login.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>Success</from-outcome>
+			<to-view-id>/reports/myDashboard.jsf</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Failure</from-outcome>
+			<to-view-id>/login/login.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+</faces-config>

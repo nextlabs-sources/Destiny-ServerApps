@@ -1,0 +1,38 @@
+
+.main-container {
+  background-color: #EEEEEE;
+  background-image:url("../../assets/images/wheels_bg.svg");
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:center;
+  height: 100vh;
+  min-width: 40rem;
+}
+
+.installer-welcome-logo {
+  background: url("../../assets/images/cc-icon-large.png") no-repeat right center;
+  height: 5rem;
+  width: 5rem;
+  display: inline-block;
+}
+
+.logo-container {
+  min-height: 5rem;
+  padding-left: .5rem;
+}
+
+.logo-title {
+  font-size: 3rem;
+  line-height: 3rem;
+}
+
+.logo-title-subtext {
+  font-size: 1.2rem;
+}
+
+.installer-welcome-nextlabs-logo {
+  background: url("../../assets/images/NextLabs_Icon_Black.png") no-repeat right center;
+  height: 2rem;
+  width: 125px;
+  display: inline-block;
+}

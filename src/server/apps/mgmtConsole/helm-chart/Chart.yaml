@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nextlabs-control-center-administrator
+description: NextLabs Control Center Administrator Service Helm Chart for Kubernetes
+type: application
+version: "${appVersion}"
+appVersion: "${appVersion}"

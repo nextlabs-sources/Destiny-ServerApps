@@ -1,0 +1,97 @@
+<project name="Inquiry Center Main Build" default="build">
+
+	<property name="src.dir" 	value="${basedir}"/>
+	<property name="build.dest" value="${build.root.dir}/server/apps/inquiryCenter/WEB-INF/classes"/>
+	<property name="doc.dest" 	value="${build.root.dir}/server/apps/inquiryCenter/doc"/>
+	
+	<path id="compile.inquirycenter.classpath">
+		<path refid="compile.classpath"/>
+		<pathelement path="${build.dest}"/>
+		<pathelement location="${xlib_jar_dir}/jsf-api.jar"/>
+		<pathelement location="${xlib_jar_dir}/commons-digester.jar"/>
+		<pathelement location="${xlib_jar_dir}/commons-lang-2.6.jar"/>
+		<pathelement location="${xlib_jar_dir}/commons-logging-1.2.jar"/>
+		<pathelement location="${xlib_jar_dir}/richfaces-3.0.1.jar"/>
+		<pathelement location="${xlib_jar_dir}/ehcache-2.10.6.jar"/>
+		<pathelement location="${xlib_jar_dir}/poi-4.1.0.jar"/>
+		<fileset dir="${xlib_jar_dir}/dependencies">
+			<include name="adal4j-*.jar"/>
+			<include name="jackson-core-*.jar"/>
+			<include name="jackson-databind-*.jar"/>
+			<include name="json-*.jar"/>
+			<include name="nimbus-jose-jwt-*.jar"/>
+			<include name="oauth2-oidc-sdk-*.jar"/>
+			<include name="spring-web-*.RELEASE.jar"/>
+		</fileset>
+		<fileset dir="${build.root.dir}">
+			<include name="common-domain.jar"/>
+			<include name="common-dictionary.jar"/>
+			<include name="dac-types.jar"/>
+			<include name="dac-services.jar"/>
+			<include name="dac-dataSync.jar"/>
+			<include name="batchdeployer.jar"/>
+			<include name="app-framework.jar"/>
+			<include name="web-framework.jar"/> 
+			<include name="common-framework.jar"/>
+			<include name="common-framework-types.jar"/>
+			<include name="dms-services.jar"/>
+			<include name="management-types.jar"/>
+			<include name="policy-types.jar"/>
+			<include name="server-framework.jar"/>
+			<include name="server-shared-customapps.jar"/>
+			<include name="server-shared-applicationusers.jar"/>
+			<include name="server-datasource.jar"/>
+			<include name="server-dictionary.jar"/>
+			<include name="server-shared-types.jar"/>
+			<include name="server-shared-enrollment.jar"/>
+			<include name="server-base.jar"/>
+			<include name="server-dcsf.jar"/>
+			<include name="common-pf.jar"/>
+			<include name="server-pf.jar"/>
+			<include name="inquiry-manager-shared.jar"/>
+			<include name="common-domain.jar"/>
+			<include name="crypt.jar"/>
+			<include name="dependencies/config-client-*.jar"/>
+		</fileset>
+		<fileset dir="${birt.app}/WEB-INF/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${birt.plugins}">
+			<!--
+		  <include name="org.eclipse.datatools.connectivity.oda_3.1.1.200710011.jar"/>
+	   	  <include name="org.eclipse.birt.report.data.oda.jdbc_2.2.1.r22x_v20070919/oda-jdbc.jar"/>
+	   	  -->
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement path="${xlib_jar_dir}/hibernate2.jar"/>
+	</path>
+		
+	<target name="pre-build">
+		<mkdir dir="${build.dest}"/>
+	</target>
+	
+	<target name="doc">
+		<mkdir dir="${doc.dest}"/>
+		<javadoc sourcepath="${src.dir}" destdir="${doc.dest}" linksource="yes" 
+			classpathref="compile.inquirycenter.classpath" source="${compile.source}">
+			<packageset dir="${src.dir}" defaultexcludes="yes">
+				<include name="**"/>
+			</packageset>
+		</javadoc>
+	</target>
+	
+	<target name="compile">
+		<javac srcdir="${src.dir}" destdir="${build.dest}" debug="${compile.debug}" verbose="${compile.verbose}" source="${compile.source}" target="${compile.target}" bootclasspath="${compile.bootclasspath}">
+			<classpath refid="compile.inquirycenter.classpath"/>
+		</javac>
+		<!-- Copy all the hibernate mapping files into the build directory as well-->
+		<copy todir="${build.dest}" failonerror="true" verbose="true">
+			<fileset dir="${src.dir}">
+				<include name="**/*.hbm.xml"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="build" depends="pre-build, compile">
+	</target>
+</project>

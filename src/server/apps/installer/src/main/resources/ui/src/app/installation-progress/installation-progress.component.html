@@ -1,0 +1,45 @@
+<div>
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div class="text-center">
+        <div class="page-heading">Installation</div>
+      </div>
+      <div class="text-center">
+        <div class="page-sub-heading">
+          Do not close this window while the installation is in progress.
+        </div>
+      </div>
+
+      <div class="page-content w-100">
+        <div class="d-flex flex-column align-items-center col-12">
+          <div [ngClass]="{'hide': !(taskInProgress && taskInProgress.progress)}" #progressPercentage
+               class="progress-percentage">{{taskInProgress && taskInProgress.progress}}&#37;
+          </div>
+          <div [ngClass]="{'hide': !(taskInProgress && taskInProgress.progress)}" class="progress-div row col-8">
+            <div class="progress w-100">
+              <div #progressBar class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                   aria-valuemax="100" [style.width.%]="this.taskInProgress && this.taskInProgress.progress"></div>
+            </div>
+          </div>
+          <div class="col-8 mt-4 row d-flex flex-row justify-content-center tasks">
+            <div class="col-12">
+              <div class="row" *ngFor="let task of trackTaskGroups" id="task-item">
+                <div class="offset-1 col-8 {{task.status}}">{{task.name}}</div>
+                <div class="col-3 task-check" *ngIf="task.status=='completed'">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="col-3 task-error" *ngIf="task.status=='error'">
+                  <i class="fas fa-times"></i><a href="/installation/log">&nbsp;Details</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-bottom-nav (installerFormSubmit)="success()" [showExitButton]="isInstallError() || isInstallCompleted()"
+                [exitButtonText]="'EXIT'"
+                [showBackButton]="false" [submitButtonText]="'START SERVICE'"
+                [showSubmitButton]="isInstallCompleted()"></app-bottom-nav>

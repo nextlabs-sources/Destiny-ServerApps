@@ -1,0 +1,151 @@
+<form [formGroup]="portConfigForm" (ngSubmit)="formSubmit()">
+  <div class="d-flex flex-column align-items-center page-layout-wrapper">
+    <div class="col-12 col-xl-6 pt-5 ie-wrapper">
+      <div>
+        <div class="text-center">
+          <div class="page-heading">Port Configuration</div>
+        </div>
+        <div class="text-center">
+          <div class="page-sub-heading">
+            The port numbers are set to a default value. To change, type the new port numbers.
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="d-flex flex-column align-items-center">
+            <div class="form-group col-12">
+              <div class="row d-flex flex-row justify-content-center align-items-center">
+                <label for="webServicePort" class="col-form-label installer-form-label col-6">Web service
+                  port number</label>
+                <div class="col-6 pl-0">
+                  <input type="number" class="form-control port-field" id="webServicePort"
+                         formControlName="webServicePort">
+                </div>
+              </div>
+              <div
+                *ngIf="portConfigForm.get('webServicePort').invalid && (portConfigForm.get('webServicePort').dirty || portConfigForm.get('webServicePort').touched)"
+                class="row installer-error">
+                <div class="offset-6 col-6 error-item" id="webServicePortError"
+                     *ngIf="portConfigForm.get('webServicePort').errors.portError">
+                  {{errors['webServicePort']}}
+                </div>
+                <div class="offset-6 col-6 error-item" id="webServicePortMinError"
+                     *ngIf="portConfigForm.get('webServicePort').errors.min">
+                  Minimum allowed value for port is 1.
+                </div>
+                <div class="offset-6 col-6 error-item" id="webServicePortMaxError"
+                     *ngIf="portConfigForm.get('webServicePort').errors.max">
+                  Maximum allowed value for port is 65535.
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-12" *ngIf="!iceNetInstall">
+              <div class="row d-flex flex-row justify-content-center align-items-center">
+                <label for="appServicePort" class="col-form-label installer-form-label col-6">Web application
+                  port number</label>
+                <div class="col-6 pl-0">
+                  <input type="number" class="form-control port-field" id="appServicePort"
+                         formControlName="appServicePort">
+                </div>
+              </div>
+              <div
+                *ngIf="portConfigForm.get('appServicePort').invalid && (portConfigForm.get('appServicePort').dirty || portConfigForm.get('appServicePort').touched)"
+                class="row installer-error">
+                <div class="offset-6 col-6 error-item" id="appServicePortError"
+                     *ngIf="portConfigForm.get('appServicePort').errors.portError">
+                  {{errors['appServicePort']}}
+                </div>
+                <div class="offset-6 col-6 error-item" id="appServicePortMinError"
+                     *ngIf="portConfigForm.get('appServicePort').errors.min">
+                  Minimum allowed value for port is 1.
+                </div>
+                <div class="offset-6 col-6 error-item" id="appServicePortMaxError"
+                     *ngIf="portConfigForm.get('appServicePort').errors.max">
+                  Maximum allowed value for port is 65535.
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-12" *ngIf="!iceNetInstall">
+              <div class="row d-flex flex-row justify-content-center align-items-center">
+                <label for="policyValidatorPort" class="col-form-label installer-form-label col-6">Policy validator port number</label>
+                <div class="col-6 pl-0">
+                  <input type="number" class="form-control port-field" id="policyValidatorPort"
+                         formControlName="policyValidatorPort">
+                </div>
+              </div>
+              <div
+                *ngIf="portConfigForm.get('policyValidatorPort').invalid && (portConfigForm.get('policyValidatorPort').dirty || portConfigForm.get('policyValidatorPort').touched)"
+                class="row installer-error">
+                <div class="offset-6 col-6 error-item" id="policyValidatorPortError"
+                     *ngIf="portConfigForm.get('policyValidatorPort').errors.portError">
+                  {{errors['policyValidatorPort']}}
+                </div>
+                <div class="offset-6 col-6 error-item" id="policyValidatorPortMinError"
+                     *ngIf="portConfigForm.get('policyValidatorPort').errors.min">
+                  Minimum allowed value for port is 1.
+                </div>
+                <div class="offset-6 col-6 error-item" id="policyValidatorPortMaxError"
+                     *ngIf="portConfigForm.get('policyValidatorPort').errors.max">
+                  Maximum allowed value for port is 65535.
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-12" *ngIf="!iceNetInstall">
+              <div class="row d-flex flex-row justify-content-center align-items-center">
+                <label for="configServicePort" class="col-form-label installer-form-label col-6">Configuration
+                  service port number</label>
+                <div class="col-6 pl-0">
+                  <input type="number" class="form-control port-field" id="configServicePort"
+                         formControlName="configServicePort">
+                </div>
+              </div>
+              <div
+                *ngIf="portConfigForm.get('configServicePort').invalid && (portConfigForm.get('configServicePort').dirty || portConfigForm.get('configServicePort').touched)"
+                class="row installer-error">
+                <div class="offset-6 col-6 error-item" id="configServicePortError"
+                     *ngIf="portConfigForm.get('configServicePort').errors.portError">
+                  {{errors['configServicePort']}}
+                </div>
+                <div class="offset-6 col-6 error-item" id="configServicePortMinError"
+                     *ngIf="portConfigForm.get('configServicePort').errors.min">
+                  Minimum allowed value for port is 1.
+                </div>
+                <div class="offset-6 col-6 error-item" id="configServicePortMaxError"
+                     *ngIf="portConfigForm.get('configServicePort').errors.max">
+                  Maximum allowed value for port is 65535.
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-12" *ngIf="!iceNetInstall">
+              <div class="row d-flex flex-row justify-content-center align-items-center">
+                <label for="activeMqPort" class="col-form-label installer-form-label col-6">Message
+                  service port number</label>
+                <div class="col-6 pl-0">
+                  <input type="number" class="form-control port-field" id="activeMqPort"
+                         formControlName="activeMqPort">
+                </div>
+              </div>
+              <div
+                *ngIf="portConfigForm.get('activeMqPort').invalid && (portConfigForm.get('activeMqPort').dirty || portConfigForm.get('activeMqPort').touched)"
+                class="row installer-error">
+                <div class="offset-6 col-6 error-item" id="activeMqPortError"
+                     *ngIf="portConfigForm.get('activeMqPort').errors.portError">
+                  {{errors['activeMqPort']}}
+                </div>
+                <div class="offset-6 col-6 error-item" id="activeMqPortMinError"
+                     *ngIf="portConfigForm.get('activeMqPort').errors.min">
+                  Minimum allowed value for port is 1.
+                </div>
+                <div class="offset-6 col-6 error-item" id="activeMqPortMaxError"
+                     *ngIf="portConfigForm.get('activeMqPort').errors.max">
+                  Maximum allowed value for port is 65535.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-bottom-nav [parentForm]="portConfigForm"></app-bottom-nav>
+</form>

@@ -1,0 +1,21 @@
+.connection-popup {
+  background-repeat:no-repeat;
+  height: 40px;
+  &.popup-success {
+    background-image:url("../../assets/images/check.png");
+  }
+  &.popup-error {
+    background-image:url("../../assets/images/cross.png");
+  }
+  &.popup-inprogress {
+    background-image:url("../../assets/images/clock.png");
+  }
+}
+
+.message {
+  font-family: 'Fira Sans', sans-serif;
+  font-style: normal;
+  font-size: .875rem;
+  line-height: 1.562;
+  color: #000000;
+}

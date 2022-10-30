@@ -1,0 +1,24 @@
+<div class="container-fluid main-container">
+  <div class="d-flex flex-column align-items-center justify-content-center flex-wrap h-100">
+    <div>
+      <div class="d-flex flex-column">
+        <div class="d-flex flex-row justify-content-start align-items-center">
+          <div>Welcome to</div>
+          <div class="installer-welcome-nextlabs-logo ml-2"></div>
+        </div>
+        <div>
+          <div class="row d-flex flex-row align-items-center h-100">
+            <div class="installer-welcome-logo"></div>
+            <div class="logo-container d-flex flex-column justify-content-center h-100">
+              <div class="logo-title">Control Center</div>
+              <div *ngIf="showSubText" class="logo-title-subtext">Installation Wizard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

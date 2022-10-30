@@ -1,0 +1,84 @@
+<?xml version="1.0" ?>
+
+<Server shutdown="SHUTDOWN" port="${NEXTLABS_CC_PORT_SERVERSHUTDOWNPORT}">
+
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <GlobalNamingResources>
+    </GlobalNamingResources>
+
+    <Service name="CE-Core">
+        <Connector enableLookups="false"
+                   sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+                   protocol="com.bluejungle.destiny.server.security.secureConnector.SecureHttp11NioProtocol"
+                   scheme="https"
+                   sslProtocol="TLS"
+                   secure="true"
+                   acceptCount="100"
+                   SSLEnabled="true"
+                   sslEnabledProtocols="TLSv1.1+TLSv1.2+SSLv2Hello"
+                   connectionTimeout="60000"
+                   keystoreFile="${catalina.base}/../certificates/dcc-keystore.p12"
+                   keystoreType="PKCS12"
+                   keyAlias="dcc"
+                   truststoreType="PKCS12"
+                   truststoreFile="${catalina.base}/../certificates/dcc-truststore.p12"
+                   clientAuth="true" port="${NEXTLABS_CC_PORT_WEBSERVICEPORT}">
+        </Connector>
+        <Engine name="CE-Core" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false"
+                  unpackWARs="true"
+                  appBase="${catalina.base}/apps/core">
+                <Context
+                        path="/dcsf" reloadable="false" docBase="${catalina.base}/../apps/dcsf.war"
+                        workDir="${catalina.base}/work/dcsf">
+                    <Parameter name="ComponentName" value="${NEXTLABS_CC_SERVICE_NAME}_dcsf"/>
+                    <Parameter name="Location"
+                               value="https://${NEXTLABS_CC_SERVICE_NAME}:${NEXTLABS_CC_PORT_WEBSERVICEPORT}/dcsf"/>
+                    <Parameter name="DMSLocation"
+                               value="https://${NEXTLABS_CC_MANAGEMENTSERVER_HOST}:${NEXTLABS_CC_MANAGEMENTSERVER_WEBSERVICEPORT}/dms"/>
+                    <Parameter name="InstallHome" value="${NEXTLABS_CC_HOME}/server"/>
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+
+    <Service name="CE-Apps">
+        <Connector connectionTimeout="60000"
+                   enableLookups="false"
+                   protocol="HTTP/1.1"
+                   port="${NEXTLABS_CC_PORT_APPSERVICEPORT}">
+        </Connector>
+
+        <Engine name="CE-Apps" defaultHost="localhost">
+            <Host name="localhost"
+                  autoDeploy="false">
+                <Context
+                        path="/administrator" reloadable="false" docBase="${catalina.home}/../apps/mgmtConsole.war"
+                        workDir="${catalina.home}/work/administrator">
+                    <Parameter name="ComponentName" value="${NEXTLABS_CC_SERVICE_NAME}_mgmt"/>
+                    <Parameter name="Location" value="http://${NEXTLABS_CC_SERVICE_NAME}:${NEXTLABS_CC_PORT_APPSERVICEPORT}/mgmt"/>
+                    <Parameter name="DMSLocation" value="https://${NEXTLABS_CC_MANAGEMENTSERVER_HOST}:${NEXTLABS_CC_MANAGEMENTSERVER_WEBSERVICEPORT}/dms"/>
+                    <Parameter name="InstallHome" value="${NEXTLABS_CC_HOME}/server"/>
+                </Context>
+            </Host>
+        </Engine>
+    </Service>
+
+    <Service name="CE-Status">
+        <Connector port="8081" protocol="HTTP/1.1"
+                   enableLookups="false"
+                   connectionTimeout="2000"/>
+        <Engine name="CE-Status" defaultHost="localhost">
+            <Host name="localhost"
+                  appBase="${catalina.base}/apps/status"
+                  autoDeploy="false">
+            </Host>
+        </Engine>
+    </Service>
+
+</Server>

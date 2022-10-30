@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title th:text="#{cas.login.pagetitle}">CAS Acceptable Use Policy View</title>
+    <link href="../static/css/cas.css" rel="stylesheet" th:remove="tag"/>
+
+</head>
+
+<body class="login">
+<main role="main">
+    <div layout:fragment="content">
+
+        <div class="login-details">
+
+            <!--Login Image-->
+            <img class="cc-login-logo" src="../static/images/cc-login-logo.png" th:src="@{/images/cc-login-logo.png}">
+
+            <!--Login Details input container-->
+            <div>
+                <div class="login-title">
+                    Login to account
+                </div>
+                <div class="input-field-container">
+                    <form method="post" id="fm1" th:object="${credential}" action="login">
+
+                        <!--Field error message-->
+                        <div id="msg" class="errors" th:if="${#fields.hasErrors('*')}">
+                            <span th:each="err : ${#fields.errors('*')}" th:utext="${err}">Example error</span>
+                        </div>
+
+                        <div class="input-container">
+                            <!--Username Field-->
+                            <input type="text" placeholder="Username" th:class="${#fields.hasErrors('username')} ? 'required input-field error-input-field ': 'required input-field'"  id="username" size="25" tabindex="1"
+                                autocomplete="off" th:disabled="${guaEnabled}" th:field="*{username}"
+                                th:accesskey="#{screen.welcome.label.netid.accesskey}"/>
+                            <div th:if="${#fields.hasErrors('username')}" class="input-error-msg">Please enter username</div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <!--Password-->
+                            <input type="password" placeholder="Password" th:class="${#fields.hasErrors('password')} ? 'required input-field error-input-field' : 'required input-field'" id="password" size="25" tabindex="2"
+                                autocomplete="off" th:field="*{password}" th:accesskey="#{screen.welcome.label.password.accesskey}"/>
+                            <div th:if="${#fields.hasErrors('password')}" class="input-error-msg">Please enter password</div>
+                        </div>
+
+                        <div id="capslock-on" style="display:none;">
+                            <img src="images/warning.png" valign="top">
+                            <span th:text="#{screen.capslock.on}"/>
+                        </div>
+
+                        <input id="fm1CsrfToken" type="hidden" name="csrfToken" th:value="${@csrfProtectionService.getCsrfToken()}"/>
+                        <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                        <input type="hidden" name="_eventId" value="submit"/>
+                        <input type="hidden" name="geolocation"/>
+                        <div class="login-btn-container">
+                            <input name="submit" class="submit login-button" accesskey="l"
+                                value="LOGIN" th:value="#{screen.welcome.button.login}" tabindex="6" id="login-button" type="submit"/>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Enabled username or password -->
+                <form method="post" id="passwordManagementForm">
+                    <input id="passwordManagementFormCsrfToken" type="hidden" name="csrfToken" th:value="${@csrfProtectionService.getCsrfToken()}"/>
+                    <input type="hidden" name="execution" th:value="${flowExecutionKey}"/>
+                    <input type="hidden" name="_eventId" value="resetPassword"/>
+                    <span class="fa fa-unlock"></span>
+
+                    <div class="forget-password-container">
+                        Forgot <span th:if="${passwordManagementEnabled} and  ${not #strings.isEmpty(@environment.getProperty('spring.mail.host'))}" class="enabled-forget-password" onclick="$('#passwordManagementForm').submit();">username or password</span> <span th:unless="${passwordManagementEnabled} and  ${not #strings.isEmpty(@environment.getProperty('spring.mail.host'))}" class="disabled-forget-password">username or password</span>
+                    </div>
+                </form>
+
+                <!--Get list of login provider inside loginProviders.html-->
+                <div th:replace="fragments/loginProviders :: loginProviders">
+                    <a href="fragments/loginProviders.html">loginProviders</a>
+                    Login providers
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            jQuery('#unable-to-access').click(function() {
+                jQuery('#msg-contactadmin').fadeIn(100);
+            });
+            jQuery('#msg-contactadmin-close').click(function() {
+                jQuery('#msg-contactadmin').fadeOut(50);
+            });
+            jQuery('#username').blur(function(){
+                $( "#username" ).val(function( index, value ) {
+                    return value.trim();
+                });
+            });
+            setTimeout(function() {
+                location.reload();
+            }, 600000);
+        </script>
+    </div>
+</main>
+</body>
+</html>

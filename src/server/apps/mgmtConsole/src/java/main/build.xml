@@ -1,0 +1,80 @@
+<project name="Management Console Main Build" default="build">
+
+	<property name="src.dir"      value="${basedir}"/>
+	<property name="doc.dest"   value="${build.root.dir}/server/apps/mgmtConsole/doc"/>
+    <property name="build.dest"   value="${build.root.dir}/server/apps/mgmtConsole/WEB-INF/classes"/>      
+	
+	<fileset id="destiny.jars" dir="${build.root.dir}">
+		 <include name="app-framework.jar"/>       
+	     <include name="web-framework.jar"/> 
+	     <include name="common-framework.jar"/>       
+		 <include name="common-framework-types.jar"/>       
+		 <include name="common-pf.jar"/>       		
+	     <include name="server-framework.jar"/> 
+	     <include name="dcsf-types.jar"/>
+	     <include name="dms-services.jar"/>
+	     <include name="management-types.jar"/>
+	     <include name="server-base.jar"/>
+	     <include name="server-dcsf.jar"/>       
+	     <include name="inquiry-manager-shared.jar" />      
+	     <include name="server-shared-applicationusers.jar"/>
+	     <include name="server-datasource.jar" />            
+	     <include name="policy-services.jar" />                  
+	     <include name="policy-types.jar" />                  
+	     <include name="common-domain-types.jar" />                        
+	     <include name="common-domain.jar" />                              
+	     <include name="common-dictionary.jar" /> 
+	     <include name="server-dictionary.jar" /> 
+	     <include name="server-pf.jar" />                              
+		 <include name="dabs-dcc-services.jar" />	
+		 <include name="crypt.jar" />
+		 <include name="dependencies/config-client-*.jar"/>
+	</fileset>
+	<path id="compile.mgmtconsole.classpath">
+		<path refid="compile.classpath"/>
+        <pathelement location="${xlib_jar_dir}/jsf-api.jar"/>
+		<pathelement location="${xlib_jar_dir}/commons-logging-1.2.jar"/>
+		<fileset dir="${xlib_jar_dir}/dependencies">
+			<include name="adal4j-*.jar"/>
+			<include name="commons-codec-*.jar"/>
+			<include name="jackson-core-*.jar"/>
+			<include name="jackson-databind-*.jar"/>
+			<include name="json-*.jar"/>
+			<include name="nimbus-jose-jwt-*.jar"/>
+			<include name="oauth2-oidc-sdk-*.jar"/>
+			<include name="spring-web-*.RELEASE.jar"/>
+		</fileset>
+        <fileset refid="destiny.jars"/>
+	</path>
+		
+	<target name="pre-build">
+		<mkdir dir="${build.dest}"/>
+	</target>
+	
+    <target name="doc">
+		<mkdir dir="${doc.dest}"/>
+    	<javadoc sourcepath="${src.dir}" destdir="${doc.dest}" linksource="yes" 
+    		classpathref="compile.mgmtconsole.classpath" source="${compile.source}">
+    		<packageset dir="${src.dir}" defaultexcludes="yes">
+    			<include name="**"/>
+    		</packageset>
+    	</javadoc>
+    </target>
+	
+	<target name="depend">
+			<depend srcDir="${src.dir}" destDir="${build.dest}" cache="${build.root.dir}/server/mgmtConsole/depcache">
+				<classpath>
+					<fileset refid="destiny.jars" />
+				</classpath>
+			</depend>
+	</target>	
+
+	<target name="compile" depends="depend">
+		<javac srcdir="${src.dir}" destdir="${build.dest}" debug="${compile.debug}" verbose="${compile.verbose}" source="${compile.source}" target="${compile.target}" bootclasspath="${compile.bootclasspath}">
+			<classpath refid="compile.mgmtconsole.classpath"/>
+        </javac>
+	</target>
+	
+	<target name="build" depends="pre-build, compile">
+	</target>
+</project>

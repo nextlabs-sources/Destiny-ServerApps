@@ -1,0 +1,21 @@
+<%@ page buffer="none" errorPage="/error" %>  
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<h:panelGroup id="SlctdRptDtlsPgGrp">
+	<f:verbatim><div id="ExDtlsCntDv"></f:verbatim>
+	<f:verbatim><table id="CntTbl" class="formtable"></f:verbatim>
+	<f:verbatim><tr id="CntTblUsrRw" ></f:verbatim>
+	<f:verbatim><td id="UsrRwLblCol" class="label"></f:verbatim>
+		<h:outputText id="UsrLblTxt" value="#{customReportsBean.selectedReportTitle}"/>
+	<f:verbatim></td></f:verbatim>
+	<f:verbatim></tr></f:verbatim>
+	<f:verbatim><tr id="CntTblActnRw"></f:verbatim>
+	<f:verbatim><td id="ActnRwLblCol" class="inputvalue"></f:verbatim>
+		<h:outputText id="ActnLblTxt" value="#{customReportsBean.selectedReportDescription}"/>
+	<f:verbatim></td></f:verbatim>
+	<f:verbatim></tr></f:verbatim>
+	<f:verbatim></table></f:verbatim>    
+	<f:verbatim></div></f:verbatim> 
+</h:panelGroup> 

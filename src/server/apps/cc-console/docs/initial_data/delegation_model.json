@@ -1,0 +1,296 @@
+----------------------------------------------------------------------------------------------------------------------------
+ Subject Type
+----------------------------------------------------------------------------------------------------------------------------
+
+{
+    "id": null,
+    "name": "DA_USER",
+    "shortName": "DA_USER",
+    "description": "DA Subject delegation model",
+    "type": "DA_SUBJECT",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [
+        {
+            "id": null,
+            "name": "seniority",
+            "shortName": "exp",
+            "dataType": "NUMBER",
+            "operatorConfigs": [
+                {
+                    "id": 104,
+                    "key": ">=",
+                    "label": ">=",
+                    "dataType": "NUMBER"
+                },
+                {
+                    "id": 105,
+                    "key": "=",
+                    "label": "=",
+                    "dataType": "NUMBER"
+                }
+            ],
+            "regExPattern": null
+        },
+        {
+            "id": null,
+            "name": "email",
+            "shortName": "email",
+            "dataType": "STRING",
+            "operatorConfigs": [
+                {
+                    "id": 99,
+                    "key": "=",
+                    "label": "is",
+                    "dataType": "STRING"
+                }
+            ],
+            "regExPattern": null
+        },
+        {
+            "id": null,
+            "name": "name",
+            "shortName": "name",
+            "dataType": "STRING",
+            "operatorConfigs": [
+                {
+                    "id": 100,
+                    "key": "includes",
+                    "label": "includes",
+                    "dataType": "STRING"
+                },
+                {
+                    "id": 99,
+                    "key": "=",
+                    "label": "is",
+                    "dataType": "STRING"
+                }
+            ],
+            "regExPattern": null
+        },
+        {
+            "id": null,
+            "name": "state",
+            "shortName": "st",
+            "dataType": "STRING",
+            "operatorConfigs": [
+                {
+                    "id": 101,
+                    "key": "!=",
+                    "label": "is not",
+                    "dataType": "STRING"
+                },
+                {
+                    "id": 100,
+                    "key": "includes",
+                    "label": "includes",
+                    "dataType": "STRING"
+                },
+                {
+                    "id": 99,
+                    "key": "=",
+                    "label": "is",
+                    "dataType": "STRING"
+                }
+            ],
+            "regExPattern": null
+        },
+        {
+            "id": null,
+            "name": "speciality",
+            "shortName": "spl",
+            "dataType": "STRING",
+            "operatorConfigs": [
+                {
+                    "id": 101,
+                    "key": "!=",
+                    "label": "is not",
+                    "dataType": "STRING"
+                },
+                {
+                    "id": 100,
+                    "key": "includes",
+                    "label": "includes",
+                    "dataType": "STRING"
+                },
+                {
+                    "id": 99,
+                    "key": "=",
+                    "label": "is",
+                    "dataType": "STRING"
+                }
+            ],
+            "regExPattern": null
+        },
+        {
+            "id": null,
+            "name": "department",
+            "shortName": "dep",
+            "dataType": "STRING",
+            "operatorConfigs": [
+                {
+                    "id": 99,
+                    "key": "=",
+                    "label": "is",
+                    "dataType": "STRING"
+                }
+            ],
+            "regExPattern": null
+        }
+    ],
+    "actions": [],
+    "obligations": []
+}
+
+
+
+----------------------------------------------------------------------------------------------------------------------------
+ Resource Types
+----------------------------------------------------------------------------------------------------------------------------
+
+
+{
+    "id": null,
+    "name": "Policy Studio",
+    "shortName": "POLICY_STUDIO",
+    "description": "Policy Studio delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View Policy",
+            "shortName": "VIEW_POLICY"
+        },
+        {
+            "id": null,
+            "name": "Edit Policy",
+            "shortName": "EDIT_POLICY"
+        }, {
+            "id": null,
+            "name": "Deploy Policy",
+            "shortName": "DEPLOY_POLICY"
+        }, {
+            "id": null,
+            "name": "Delete Policy",
+            "shortName": "DELETE_POLICY"
+        }
+    ],
+    "obligations": []
+}
+
+{
+    "id": null,
+    "name": "Administrator",
+    "shortName": "ADMINISTRATOR",
+    "description": "Administrator delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View",
+            "shortName": "VIEW"
+        },
+        {
+            "id": null,
+            "name": "Edit",
+            "shortName": "EDIT"
+        }, {
+            "id": null,
+            "name": "Delete",
+            "shortName": "DELETE"
+        }
+    ],
+    "obligations": []
+}
+
+{
+    "id": null,
+    "name": "Reporter",
+    "shortName": "REPORTER",
+    "description": "Reporter delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View",
+            "shortName": "VIEW"
+        },
+        {
+            "id": null,
+            "name": "Edit",
+            "shortName": "EDIT"
+        }, {
+            "id": null,
+            "name": "Delete",
+            "shortName": "DELETE"
+        }
+    ],
+    "obligations": []
+}
+
+
+{
+    "id": null,
+    "name": "Alert",
+    "shortName": "ALERT",
+    "description": "Alert delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View",
+            "shortName": "VIEW"
+        },
+        {
+            "id": null,
+            "name": "Edit",
+            "shortName": "EDIT"
+        }, {
+            "id": null,
+            "name": "Delete",
+            "shortName": "DELETE"
+        }
+    ],
+    "obligations": []
+}
+
+
+{
+    "id": null,
+    "name": "Monitor",
+    "shortName": "MONITOR",
+    "description": "Monitor delegation model",
+    "type": "DA_RESOURCE",
+    "status": "ACTIVE",
+    "tags": [],
+    "attributes": [],
+    "actions": [
+        {
+            "id": null,
+            "name": "View",
+            "shortName": "VIEW"
+        },
+        {
+            "id": null,
+            "name": "Edit",
+            "shortName": "EDIT"
+        }, {
+            "id": null,
+            "name": "Delete",
+            "shortName": "DELETE"
+        }
+    ],
+    "obligations": []
+}

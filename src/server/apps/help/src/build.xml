@@ -1,0 +1,41 @@
+<project name="Help" default="build">
+
+    <property name="src.etc"     value="${basedir}/etc"/> 
+	<property name="src.genhelpfiles"     value="${src.root.dir}/cdrom/Common/Help"/> 
+    <property name="build.webapp" value="${build.root.dir}/server/apps/help"/>
+    <property name="build.webinf" value="${build.webapp}/WEB-INF"/>
+	
+	<target name="setup-webapp" >
+        <!-- Copy configuration files -->
+        <copy file="${src.etc}/web.xml" todir="${build.webinf}" failonerror="true"/>
+
+		<!-- Copy generated help files -->
+		<copy todir="${build.webapp}" failonerror="true">
+			<fileset dir="${src.genhelpfiles}" >
+			  <include name="Admin/**/*" />
+			  <include name="PA/**/*" />
+			  <include name="Rep/**/*" /> 
+			  <include name="T_Shooter/**/*" /> 
+			  <include name="Tutorial/**/*" /> 
+			</fileset>
+			<mapper>
+			  <mapper type="regexp" from="^PA\\(.*)" to="policyauthor\\\1"/>
+			  <mapper type="regexp" from="^Admin\\(.*)" to="admin\\\1"/>
+			  <mapper type="regexp" from="^Rep\\(.*)" to="reporter\\\1"/>
+			  <mapper type="regexp" from="^T_Shooter\\(.*)" to="T_Shooter\\\1"/>
+			  <mapper type="regexp" from="^Tutorial\\(.*)" to="tutorial\\\1"/>
+			</mapper>
+		</copy>		
+	</target>
+		
+	<target name="setup-war" depends="setup-webapp">
+		<war destfile="${build.webapp}/help.war" basedir="${build.webapp}" webxml="${build.webinf}/web.xml" excludes="help.war"/>
+	</target>
+		
+	<target name="deploy">
+		<copy file="${build.webapp}/help.war" todir="${war.dir}"/>
+	</target>
+	
+	<target name="build" depends="setup-war, deploy">
+	</target>
+</project>

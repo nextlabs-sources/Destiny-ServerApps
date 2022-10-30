@@ -1,0 +1,601 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee web-app_3_0.xsd"
+	version="3.0">
+
+	<display-name>Control Center Reporter</display-name>
+	<description>Control Center Reporter</description>
+
+	<!-- Default locale setting -->
+	<context-param>
+		<param-name>BIRT_VIEWER_LOCALE</param-name>
+		<param-value>en-US</param-value>
+	</context-param>
+
+	<!-- Default timezone setting. -->
+	<context-param>
+		<param-name>BIRT_VIEWER_TIMEZONE</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Report resources directory for preview. Defaults to ${birt home} -->
+	<context-param>
+		<param-name>BIRT_VIEWER_WORKING_FOLDER</param-name>
+		<param-value>/content/birt</param-value>
+	</context-param>
+
+	<!-- Temporary document files directory. Defaults to ${birt home}/documents -->
+	<context-param>
+		<param-name>BIRT_VIEWER_DOCUMENT_FOLDER</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Flag whether the report resources can only be accessed under the working 
+		folder. Defaults to true -->
+	<context-param>
+		<param-name>WORKING_FOLDER_ACCESS_ONLY</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<!-- Temporary image/chart directory. Defaults to ${birt home}/report/images -->
+	<context-param>
+		<param-name>BIRT_VIEWER_IMAGE_DIR</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Engine log directory. Defaults to ${birt home}/logs -->
+	<context-param>
+		<param-name>BIRT_VIEWER_LOG_DIR</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Report engine log level -->
+	<context-param>
+		<param-name>BIRT_VIEWER_LOG_LEVEL</param-name>
+		<param-value>FINEST</param-value>
+	</context-param>
+
+	<!-- Directory where to store all the birt report script libraries (JARs). 
+		Defaults to ${birt home}/scriptlib -->
+	<context-param>
+		<param-name>BIRT_VIEWER_SCRIPTLIB_DIR</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Resource location directory. Defaults to ${birt home} -->
+	<context-param>
+		<param-name>BIRT_RESOURCE_PATH</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Preview report rows limit. An empty value means no limit. -->
+	<context-param>
+		<param-name>BIRT_VIEWER_MAX_ROWS</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Max cube fetch levels limit for report preview (Only used when previewing 
+		a report design file using the preview pattern) -->
+	<context-param>
+		<param-name>BIRT_VIEWER_MAX_CUBE_ROWLEVELS</param-name>
+		<param-value></param-value>
+	</context-param>
+	<context-param>
+		<param-name>BIRT_VIEWER_MAX_CUBE_COLUMNLEVELS</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Memory size in MB for creating a cube. -->
+	<context-param>
+		<param-name>BIRT_VIEWER_CUBE_MEMORY_SIZE</param-name>
+		<param-value></param-value>
+	</context-param>
+
+	<!-- Defines the BIRT viewer configuration file -->
+	<context-param>
+		<param-name>BIRT_VIEWER_CONFIG_FILE</param-name>
+		<param-value>WEB-INF/viewer.properties</param-value>
+	</context-param>
+
+	<!-- Flag whether to allow server-side printing. Possible values are "ON" 
+		and "OFF". Defaults to "ON". -->
+	<context-param>
+		<param-name>BIRT_VIEWER_PRINT_SERVERSIDE</param-name>
+		<param-value>OFF</param-value>
+	</context-param>
+
+	<!-- Flag whether to force browser-optimized HTML output. Defaults to true -->
+	<context-param>
+		<param-name>HTML_ENABLE_AGENTSTYLE_ENGINE</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<!-- Filename generator class/factory to use for the exported reports. -->
+	<context-param>
+		<param-name>BIRT_FILENAME_GENERATOR_CLASS</param-name>
+		<param-value>org.eclipse.birt.report.utility.filename.DefaultFilenameGenerator
+		</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>ComponentClass</param-name>
+		<param-value>com.nextlabs.destiny.inquirycenter.InquiryCenterComponentImpl
+		</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>server</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>com.sun.faces.validateXml</param-name>
+		<param-value>true</param-value>
+		<description>
+			Set this flag to true if you want the JavaServer Faces
+			Reference Impleme ntation to validate the XML in your
+			faces-config.xml resources against the DTD. Default
+			value is false.
+		</description>
+	</context-param>
+
+	<!-- PENDING: set to false because demo-components.jar has components that 
+		can only be created in the context of a current request. -->
+	<context-param>
+		<param-name>com.sun.faces.verifyObjects</param-name>
+		<param-value>false</param-value>
+		<description>
+			Set this flag to true if you want the JavaServer Faces
+			Reference Implementation to verify that all of the application
+			objects you have configured (components, converters,
+			renderers, and validators) can be successfully created.
+			Default value is false.
+		</description>
+	</context-param>
+
+	<!-- ajax4jsf skin -->
+	<context-param>
+		<param-name>org.ajax4jsf.SKIN</param-name>
+		<param-value>ruby</param-value>
+	</context-param>
+
+	<!-- Viewer Filter used to set the request character encoding to UTF-8. -->
+	<filter>
+		<filter-name>ViewerFilter</filter-name>
+		<filter-class>org.eclipse.birt.report.filter.ViewerFilter
+		</filter-class>
+	</filter>
+
+	<filter>
+		<display-name>Ajax4jsf Filter</display-name>
+		<filter-name>ajax4jsf</filter-name>
+		<filter-class>org.ajax4jsf.Filter</filter-class>
+	</filter>
+
+	<listener>
+		<listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+		</listener-class>
+	</listener>
+	
+	<filter>
+		<filter-name>Logout Filter</filter-name>
+		<filter-class>com.bluejungle.destiny.webui.framework.filters.LogoutFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>Meta Tags Appending Filter</filter-name>
+		<filter-class>com.bluejungle.destiny.webui.framework.filters.MetaTagsAppendingFilterImpl
+		</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CAS Single Sign Out Filter</filter-name>
+		<filter-class>org.jasig.cas.client.session.SingleSignOutFilter
+		</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CAS Authentication Filter</filter-name>
+		<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter
+		</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CAS Validation Filter</filter-name>
+		<filter-class>org.jasig.cas.client.validation.Cas30ProxyReceivingTicketValidationFilter
+		</filter-class>
+		<init-param>
+			<param-name>redirectAfterValidation</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>useSession</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>CAS httpervletRequest Wrapper Filter</filter-name>
+		<filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter
+		</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CAS Assertion Thread Local Filter</filter-name>
+		<filter-class>org.jasig.cas.client.util.AssertionThreadLocalFilter
+		</filter-class>
+	</filter>
+	
+	<filter>
+		<filter-name>App user details filter</filter-name>
+		<filter-class>com.nextlabs.destiny.inquirycenter.web.filter.ApplicationUserDetailsFilter
+		</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CsrfTokenBindingFilter</filter-name>
+		<filter-class>com.nextlabs.destiny.inquirycenter.web.security.CsrfTokenBindingFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CsrfTokenValidationFilter</filter-name>
+		<filter-class>com.nextlabs.destiny.inquirycenter.web.security.CsrfTokenValidationFilter</filter-class>
+	</filter>
+	
+	<filter>
+		<filter-name>XFrameFilter</filter-name>
+		<filter-class>com.nextlabs.destiny.inquirycenter.web.security.XFrameFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>Logout Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>Meta Tags Appending Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CAS Single Sign Out Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CAS Authentication Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CAS Validation Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CAS httpervletRequest Wrapper Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CAS Assertion Thread Local Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>App user details filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<filter-mapping>
+		<filter-name>ViewerFilter</filter-name>
+		<servlet-name>ViewerServlet</servlet-name>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>ViewerFilter</filter-name>
+		<servlet-name>EngineServlet</servlet-name>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>ajax4jsf</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CsrfTokenBindingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>XFrameFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CsrfTokenValidationFilter</filter-name>
+		<url-pattern>/dashboard</url-pattern>
+		<url-pattern>/newDashboardServlet</url-pattern>
+		<url-pattern>/reportServlet</url-pattern>
+		<url-pattern>/auditReportServlet</url-pattern>
+		<url-pattern>/monitorServlet</url-pattern>
+		<url-pattern>/userpreferences/changePassword.jsf</url-pattern>
+		<url-pattern>/reports/myDashboard.jsf</url-pattern>
+		<url-pattern>/reports/myReports.jsf</url-pattern>
+		<url-pattern>/reports/multiReports.jsf</url-pattern>
+		<url-pattern>/reports/auditLogReports.jsf</url-pattern>
+		<url-pattern>/monitors/myAlerts.jsf</url-pattern>
+		<url-pattern>/monitors/myMonitors.jsf</url-pattern>
+	</filter-mapping>
+
+	<!-- Viewer Servlet Context Listener -->
+	<listener>
+		<listener-class>com.bluejungle.destiny.inquirycenter.InquiryCenterContextListener
+		</listener-class>
+	</listener>
+
+	<!-- Viewer HttpSession Listener -->
+	<listener>
+		<listener-class>org.eclipse.birt.report.listener.ViewerHttpSessionListener
+		</listener-class>
+	</listener>
+
+	<!-- Work Around for Tomcat 5.5/JSF Implementation issue -->
+	<listener>
+		<listener-class>com.sun.faces.config.ConfigureListener
+		</listener-class>
+	</listener>
+
+	<!-- Viewer Servlet, Supports SOAP -->
+	<servlet>
+		<servlet-name>ViewerServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.report.birt.NewReportViewerServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- Engine Serlvet -->
+	<servlet>
+		<servlet-name>EngineServlet</servlet-name>
+		<servlet-class>org.eclipse.birt.report.servlet.BirtEngineServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- Extract Data Servlet -->
+	<!-- We use this to hook into the extract CSV data process of BIRT -->
+	<servlet>
+		<servlet-name>DataExtractServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.report.birt.DataExtractionServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>migrationServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.migration.MigrationServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>monitorServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.monitor.MonitorServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>newDashboard</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.dashboard.NewDashboardServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>reportServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.report.ReportServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>auditReportServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.report.AuditReportServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup> 1 </load-on-startup>
+	</servlet>
+
+	<!-- Tiles Servlet Definition -->
+	<servlet>
+		<servlet-name>Tiles Servlet</servlet-name>
+		<servlet-class>org.apache.struts.tiles.TilesServlet</servlet-class>
+		<init-param>
+			<param-name>definitions-config</param-name>
+			<param-value>/WEB-INF/core-tiles-defs.xml,
+				/WEB-INF/inquiry-center-tiles-defs.xml</param-value>
+		</init-param>
+		<!-- Tiles Definitions Factory parameter. Specify if the definition factory 
+			is struts 1.1 module aware. This option is only meaningful with Struts1.1 
+			If true, there will be one factory per Struts module. If false, there will 
+			be one common factory shared by all modules. true : one factory per struts 
+			module false : one common factory for all modules -->
+		<init-param>
+			<param-name>moduleAware</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<!-- Tiles Definitions Factory parameter Specify if xml parser should validate 
+			the Tiles configuration file. true : validate. DTD should be specified in 
+			file header. false : no validation -->
+		<init-param>
+			<param-name>definitions-parser-validate</param-name>
+			<param-value>true</param-value>
+		</init-param>
+
+		<!-- If set, specify the debug details level. 0 means no debug information 
+			is outputted. This parameter is taken into account by DefinitionUtil.createDefinitionsFactory. -->
+		<!-- <init-param> <param-name> definitions-debug </param-name> <param-value>integer</param-value> 
+			</init-param> -->
+
+		<!-- Specify level of detail outputted by parser (digester). Default is 
+			0, meaning no details. This parameter is taken into account by xmlDefinition.I18nFactorySet. -->
+		<!-- <init-param> <param-name> definitions-parser-details </param-name> 
+			<param-value>int</param-value> </init-param> -->
+
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>ErrorServlet</servlet-name>
+		<servlet-class>com.bluejungle.destiny.servlet.ErrorServlet
+		</servlet-class>
+		<init-param>
+			<param-name>errorDisplayURI</param-name>
+			<param-value>/error/errorDisplay.jsp</param-value>
+		</init-param>
+	</servlet>
+
+	<!-- Dashboard Serlvet -->
+	<servlet>
+		<servlet-name>DashboardServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.report.DashboardServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>CsrfTokenServlet</servlet-name>
+		<servlet-class>com.nextlabs.destiny.inquirycenter.web.security.CsrfTokenServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ViewerServlet</servlet-name>
+		<url-pattern>/frameset</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ViewerServlet</servlet-name>
+		<url-pattern>/run</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EngineServlet</servlet-name>
+		<url-pattern>/preview</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EngineServlet</servlet-name>
+		<url-pattern>/download</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EngineServlet</servlet-name>
+		<url-pattern>/parameter</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EngineServlet</servlet-name>
+		<url-pattern>/document</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>EngineServlet</servlet-name>
+		<url-pattern>/output</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DataExtractServlet</servlet-name>
+		<url-pattern>/extract</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ErrorServlet</servlet-name>
+		<url-pattern>/error</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DashboardServlet</servlet-name>
+		<url-pattern>/dashboard</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>migrationServlet</servlet-name>
+		<url-pattern>/migrationServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>monitorServlet</servlet-name>
+		<url-pattern>/monitorServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>reportServlet</servlet-name>
+		<url-pattern>/reportServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>auditReportServlet</servlet-name>
+		<url-pattern>/auditReportServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>newDashboard</servlet-name>
+		<url-pattern>/newDashboardServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>CsrfTokenServlet</servlet-name>
+		<url-pattern>/csrfTokenServlet</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list id="WelcomeFileList">
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/error</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/error</location>
+	</error-page>
+
+	<!-- JSTL taglib -->
+	<jsp-config>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+		</taglib>
+
+		<!-- Destiny Tag Library for Destiny specific controls -->
+		<taglib>
+			<taglib-uri>http://bluejungle.com/destiny/1.0</taglib-uri>
+			<taglib-location>/WEB-INF/tags.tld</taglib-location>
+		</taglib>
+
+		<taglib>
+			<taglib-uri>/birt.tld</taglib-uri>
+			<taglib-location>/WEB-INF/tlds/birt.tld</taglib-location>
+		</taglib>
+	</jsp-config>
+
+	<!-- Timeout for the web session -->
+	<session-config>
+		<cookie-config>
+			<http-only>true</http-only>
+			<secure>true</secure>
+		</cookie-config>
+		<session-timeout>20</session-timeout>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
+</web-app>

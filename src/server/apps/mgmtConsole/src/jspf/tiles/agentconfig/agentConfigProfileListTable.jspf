@@ -1,0 +1,22 @@
+<%@ page buffer="none" errorPage="/error" %>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<d:form id="lstTblFrm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+  <div id="lstTblDv" class=listtable>
+  <d:dataTable id="profilelist" value="#{agentConfigurationBean.profiles}" var="profileItem">
+    <d:row id="slctdPrfRw" styleClass="selected" rendered="#{agentConfigurationBean.selectedProfile == profileItem}"/>
+    <h:column id="profileTitleColumn">  
+      <h:commandLink id="slcrdPrfLnk" action="#{agentConfigurationBean.handleSelectProfileActionEvent}" immediate="true" value="#{profileItem.profileTitle}" rendered="#{not profileItem.new}">
+        <f:param id="slctdPrfPrm" name="selectedProfileId" value="#{profileItem.profileId}" />
+      </h:commandLink>  
+      <h:outputLink id="nwPrfTtleLnk" value="#{bundle.agent_config_profile_list_nav_new_profile_item_title}" onclick="return false;" rendered="#{profileItem.new}">
+        <h:outputText id="nwPrfTtleTxt" value="#{bundle.agent_config_profile_list_nav_new_profile_item_title}" />
+      </h:outputLink>  
+    </h:column>
+   </d:dataTable> 
+  </div>
+</d:form>

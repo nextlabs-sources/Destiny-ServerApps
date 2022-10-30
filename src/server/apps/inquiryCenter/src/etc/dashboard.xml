@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-4" id="target_12">
+			<properties>
+				<property>
+					<name>id</name>
+					<value>1</value>
+				</property>
+				<property>
+					<name>type</name>
+					<value>SAVED_REPORT</value>
+				</property>
+				<property>
+					<name>cssStyle</name>
+					<value>test style</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_12</value>
+				</property>
+				<property>
+					<name>content</name>
+					<value>Dummy Content</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+			</properties>
+
+		</div>
+		<div class="col-md-4" id="target_11">
+			<properties>
+				<property>
+					<name>id</name>
+					<value>5</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_11</value>
+				</property>
+				<property>
+					<name>type</name>
+					<value>SAVED_REPORT</value>
+				</property>
+				<property>
+					<name>cssStyle</name>
+					<value>test style</value>
+				</property>
+				<property>
+					<name>content</name>
+					<value>Dummy Content</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+			</properties>
+
+		</div>
+		<div class="col-md-4">
+			<div class="row">
+				<div class="col-md-12" id="target_21">
+					<properties>
+						<property>
+							<name>id</name>
+							<value>2</value>
+						</property>
+						<property>
+							<name>targetId</name>
+							<value>target_21</value>
+						</property>
+						<property>
+							<name>type</name>
+							<value>SAVED_REPORT</value>
+						</property>
+						<property>
+							<name>cssStyle</name>
+							<value>test style</value>
+						</property>
+						<property>
+							<name>content</name>
+							<value>Dummy Content</value>
+						</property>
+						<property>
+							<name>height</name>
+							<value>150</value>
+						</property>
+						<property>
+							<name>color</name>
+							<value>#F585C5</value>
+						</property>
+					</properties>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12" id="target_22">
+					<properties>
+						<property>
+							<name>id</name>
+							<value>3</value>
+						</property>
+						<property>
+							<name>targetId</name>
+							<value>target_22</value>
+						</property>
+						<property>
+							<name>type</name>
+							<value>SAVED_REPORT</value>
+						</property>
+						<property>
+							<name>cssStyle</name>
+							<value>test style</value>
+						</property>
+						<property>
+							<name>content</name>
+							<value>Dummy Content</value>
+						</property>
+						<property>
+							<name>height</name>
+							<value>150</value>
+						</property>
+						<property>
+							<name>color</name>
+							<value>#D5F585</value>
+						</property>
+					</properties>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12" id="target_31">
+			<properties>
+				<property>
+					<name>id</name>
+					<value>4</value>
+				</property>
+				<property>
+					<name>type</name>
+					<value>SAVED_REPORT</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>250</value>
+				</property>
+				<property>
+					<name>content</name>
+					<value>Dummy Content</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_31</value>
+				</property>
+			</properties>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6  target" id="target_32">
+			<properties>
+				<property>
+					<name>id</name>
+					<value>7</value>
+				</property>
+				<property>
+					<name>type</name>
+					<value>SAVED_REPORT</value>
+				</property>
+				<property>
+					<name>cssStyle</name>
+					<value>test style</value>
+				</property>
+				<property>
+					<name>content</name>
+					<value>LOADING</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_32</value>
+				</property>
+				<property>
+					<name>oddRowStyle</name>
+					<value>{"backgroundColor":"#E3F8E1"}</value>
+				</property>
+				<property>
+					<name>evenRowStyle</name>
+					<value>{"backgroundColor":"#FFFFFF"}</value>
+				</property>
+			</properties>
+		</div>
+		<div class="col-md-6 target" id="target_33">
+			<properties>
+				<property>
+					<name>id</name>
+					<value>6</value>
+				</property>
+				<property>
+					<name>type</name>
+					<value>SAVED_REPORT</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+				<property>
+					<name>oddRowStyle</name>
+					<value>{"backgroundColor":"#E9D7DB"}</value>
+				</property>
+				<property>
+					<name>evenRowStyle</name>
+					<value>{"backgroundColor":"#FFFFFF"}</value>
+				</property>
+				<property>
+					<name>content</name>
+					<value>LOADING</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_33</value>
+				</property>
+			</properties>
+		</div>
+	</div>
+	<div class="row"  id="monitoringSection">
+		<div class="col-md-6  target" id="target_42">
+			<properties>
+				<property>
+					<name>type</name>
+					<value>MONITORING</value>
+				</property>
+				<property>
+					<name>title</name>
+					<value>Today&apos;s Alerts: Group by Tags</value>
+				</property>
+				<property>
+					<name>query</name>
+					<value>{"date_criteria":{"mode":"Relative","date_window":"today"},"report_type":"group_by_tags","filters":[]}</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_42</value>
+				</property>
+			</properties>
+		</div>
+		<div class="col-md-6 target" id="target_43">
+			<properties>
+				<property>
+					<name>type</name>
+					<value>MONITORING</value>
+				</property>
+				<property>
+					<name>title</name>
+					<value>Today&apos;s Alerts: Details</value>
+				</property>
+				<property>
+					<name>height</name>
+					<value>400</value>
+				</property>
+				<property>
+					<name>query</name>
+					<value>{"date_criteria":{"mode":"Relative","date_window":"today"},"report_type":"alerts_details","filters":[]}</value>
+				</property>
+				<property>
+					<name>targetId</name>
+					<value>target_43</value>
+				</property>
+			</properties>
+		</div>
+	</div>
+</div>

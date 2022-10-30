@@ -1,0 +1,86 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="InquiryCenterMessages" var="message"/>
+<d:includeJS location="/core/javascript/stripe.js"/>
+
+<d:displayMessages/>		
+
+<div id="dateRsltTblDv" class="dateresulttable">
+  <div id="rptDatesDv" class="reportdates">
+    <h:outputFormat id="datesBgnBnFmt" value="{0, date, medium}" rendered="#{reportExecutionBean.lastExecutedReport != null}">
+	  <f:param id="beginDateTime" value="#{reportExecutionBean.lastExecutedReport.beginDate.time}" />
+    </h:outputFormat>
+
+    <h:outputText id="grpTimeRsltTxt" value="#{message.reports_grouped_time_results_to}"/> 
+
+    <h:outputFormat id="datesEndBnFmt" value="{0, date, medium}" rendered="#{reportExecutionBean.lastExecutedReport != null}">
+	  <f:param id="endDateTime" value="#{reportExecutionBean.lastExecutedReport.endDate.time}" />
+    </h:outputFormat>
+</div>
+
+<BR><BR>
+<d:form id="grpRsltFrm" method="get">
+    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+	<d:dataTable id="timeResults" 
+			 value="#{resultFlipper.rowResults}" 
+			 var="currentRow"
+			 headerClass = "bars"
+			 rowClasses = "dateRow"
+			 preserveDataModel="true"
+			 rows="31">
+		<h:column id="grpTimeEvntCol" >
+			<h:outputText id="grpTimeEvntTxt" value=""/>
+			<f:facet name="footer">
+				<h:outputText id="grpTimeEvntLblTxt" value="#{message.reports_grouped_time_events_label}"/>
+			</f:facet>
+		</h:column>
+		<d:columns id="columns" value="#{resultFlipper.columnResults}" 
+				   var="currentColumn" footerClass="groupByTimeCount">
+			<f:facet name="header">
+				<d:barItem 
+						id="bar"	
+						containerClassName="barcontainer" 
+						barClassName="bar" 
+						value="#{currentColumn.count}"
+						maxBarSize="50" 
+						maxRange="#{reportExecutionBean.resultsStatistics.maxCount}" 
+						orientation="Vertical">
+					<h:commandLink id="barlink" styleClass="barlink" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToRecordDetails}">
+						<f:param id="barlinkGrpVal" name="groupedValue" value="#{currentColumn.value}"/>
+						<f:param id="barlinkGrpTyp" name="groupedType" value="#{groupingType}"/>
+					</h:commandLink>		
+				</d:barItem>
+			</f:facet>
+			<h:outputText id="valueOutput" value="#{currentColumn.displayValue}">
+				<f:convertDateTime pattern="#{datePattern}"/>
+			</h:outputText>
+			<f:facet name="footer">
+				<h:commandLink id="groupLink" styleClass="timeLink" value="#{currentColumn.count}" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToRecordDetails}">
+					<f:param id="groupLinkGrpVal" name="groupedValue" value="#{currentColumn.value}"/>
+					<f:param id="groupLinkGrpTyp" name="groupedType" value="#{groupingType}"/>
+				</h:commandLink>
+			</f:facet>		
+		</d:columns>
+		<h:column id="grpTimeTtlCol" >
+			<h:outputText id="grpTimeTtlLblTxt" value="#{message.reports_grouped_time_total_label}"/>
+			<f:facet name="footer">
+				<h:outputText id="grpTimeSumCntTxt" value="#{reportExecutionBean.resultsStatistics.totalSummaryCount}"/>
+			</f:facet>		
+		</h:column>
+		<h:column id="grpEvntLnk" >
+			<h:outputText id="grpEvntLnkTxt" value=""/>
+			<f:facet name="footer">
+				<h:commandLink id="allEventLink" action="#{reportExecutionBean.executeReport}" actionListener="#{reportExecutionBean.navigateToAllDetails}" value="#{message.reports_grouped_time_view_all_events_label}">
+					<f:param id="allEvntLnkGrpVal" name="groupedValue" value="#{currentColumn.value}"/>
+					<f:param id="allEvntLnkGrpTyp" name="groupedType" value="#{groupingType}"/>
+				</h:commandLink>
+			</f:facet>
+		</h:column>
+	</d:dataTable>
+</d:form>
+</div>
+<BR>

@@ -1,0 +1,5 @@
+def versions = [:]
+
+versions.hibernate = '2.1.8'
+
+ext.versions = ext.versions + versions

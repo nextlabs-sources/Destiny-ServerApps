@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nextlabs-control-center-cas
+description: NextLabs Control Center CAS Helm Chart for Kubernetes
+type: application
+version: "${appVersion}"
+appVersion: "${appVersion}"

@@ -1,0 +1,50 @@
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config.dtd">
+<tiles-definitions>
+	<definition name="mainDefinition" page="/WEB-INF/jspf/core/layout/mainLayout.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/header.jspf" />
+		<put name="contentHeader" value="/WEB-INF/jspf/core/tiles/shared/contentHeader.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />
+	</definition>
+	
+	<!-- Hack for the Reporter because the Reporter has a new look and feel before the Administrator -->
+	<definition name="mainDefinition_reporter" page="/WEB-INF/jspf/core/layout/mainLayout_reporter.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/header.jspf" />
+		<put name="contentHeader" value="/WEB-INF/jspf/core/tiles/shared/contentHeader.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />
+	</definition>
+
+	<definition name="mainWithoutContentHeaderDefinition" page="/WEB-INF/jspf/core/layout/mainLayout.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/header.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />
+	</definition>
+	
+	<!-- Hack for the Reporter because the Reporter has a new look and feel before the Administrator -->
+	<definition name="mainWithoutContentHeaderDefinition_reporter" page="/WEB-INF/jspf/core/layout/mainLayout_reporter.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/header.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />
+	</definition>
+
+	<definition name="browseDataPickerDefinition" page="/WEB-INF/jspf/core/layout/browseDataSelectorLayout.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/header.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />		
+	</definition>		
+	
+	<definition name="loginDefinition" page="/WEB-INF/jspf/core/layout/loginLayout.jspf">
+	</definition>
+
+	<definition name="errorDisplayDefinition" page="/WEB-INF/jspf/core/layout/errorDisplayLayout.jspf">
+	</definition>
+	
+	<definition name="popupDefinition" page="/WEB-INF/jspf/core/layout/popupLayout.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/popupHeader.jspf" />
+		<put name="contentHeader" value="/WEB-INF/jspf/core/tiles/shared/contentHeader.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />		
+	</definition>
+	
+	<definition name="popupWithoutContentHeaderDefinition" page="/WEB-INF/jspf/core/layout/popupLayout.jspf">
+		<put name="header" value="/WEB-INF/jspf/core/tiles/shared/popupHeader.jspf" />
+		<put name="footer" value="/WEB-INF/jspf/core/tiles/shared/footer.jspf" />		
+	</definition>
+</tiles-definitions>

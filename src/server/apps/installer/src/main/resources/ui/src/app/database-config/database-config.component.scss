@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+::ng-deep .mat-button {
+  white-space: normal;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type=number] {
+  -moz-appearance:textfield;
+}
+
+.serverCert {
+  height: 14rem;
+}
+
+.jdbcUrlInput {
+  resize: none;
+  height: 15rem;
+}

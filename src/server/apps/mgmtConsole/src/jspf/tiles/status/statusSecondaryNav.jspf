@@ -1,0 +1,16 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle" />
+
+<d:form id="stsSecNavFrm">
+  <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+  <d:menu id="statusSecondaryNavMenu" selectedItemStyleClass="current">
+    <d:menuItem id="statusSecondaryNavMenu-statusOverview" viewIdPattern="/statusOverview" value="#{bundle.status_secondary_nav_status_overview_menu_item_label}" action="statusOverview" immediate="true" />
+    <d:menuItem id="statusSecondaryNavMenu-statusByHost" viewIdPattern="/statusByHost" value="#{bundle.status_secondary_nav_status_by_host_menu_item_label}" action="statusByHost" immediate="true"/>
+  </d:menu>
+</d:form>

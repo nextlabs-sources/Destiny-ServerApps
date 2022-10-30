@@ -1,0 +1,58 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://richfaces.ajax4jsf.org/rich" prefix="rich"%>
+
+<d:includeJS location="/calendar/popcalendar.js"/>
+
+<style>
+.dr-pnl-h {
+	background-color: #f5f5f5;
+	border-color: white;
+	font-size: 16px;
+	color: black;
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	background-image: none;
+	height:40px;
+}
+.panelTitle {
+	font-family: Arial,Helvetica,Sans-Serif;
+	padding: 10px;
+}
+</style>
+
+
+<rich:panel id="svdRptsLstTblPnl" styleClass="panelBar green_border" headerClass="panelTitle" bodyClass="panelContent">
+	<f:facet>
+		<h:outputText value="#{message.panel_saved_reports_label}"/>
+	</f:facet>
+	<%@ include file="myReportsReportsListTable.jspf" %>
+	<h:panelGroup id="rptNewDeleteBtnsGrp">
+	<f:verbatim><div id="cntNvLstBtnDv" class="listbuttons"></f:verbatim>
+	<d:form id="cntNvLstBtnFrm" method="GET">
+	    <h:inputHidden value = "#{csrfToken}" id = "csrfToken" />
+		<h:commandLink id="newReportButton" action="#{myReportsBean.getNavigateAction}" immediate="true" styleClass="reportButtons">
+			<h:commandButton id="lstBtnRptBtn" type="button" value="#{message.my_reports_new_report_label}" />
+			<f:param id="lstBtnRptBtnBnNm" name="reportPageBeanName" value="myReportsBean"/>
+			<f:actionListener type="com.bluejungle.destiny.inquirycenter.report.NewReportActionListener"/>
+		</h:commandLink>
+		<h:commandLink id="deleteReportButton" rendered="#{myReportsBean.selectedReport.owned == true && myReportsBean.selectedReport.id != null}">
+			<h:commandButton id="cnfDelBtn" type="button" value="#{message.my_reports_delete_confirm_button_label}"/>
+			<f:actionListener type="com.bluejungle.destiny.inquirycenter.report.ReportDeleteActionListener"/>
+			<f:param id="LstBtnDltBtnPgBnNm" name="reportPageBeanName" value="myReportsBean"/>
+		</h:commandLink>
+	</d:form>
+	<f:verbatim></div></f:verbatim>
+	</h:panelGroup>
+</rich:panel>  
+	
+<f:verbatim>&nbsp;</f:verbatim>
+	
+<rich:panel id="slctdRptDtlsPnl" headerClass="panelTitle green_background" styleClass="panelBar green_border" rendered="#{myReportsBean.reportResultsSelected}">
+	<f:facet name="header">
+		<h:outputText id="slctdRptDtlsPnlTxt" value="#{message.panel_selected_reports_details_label}"/>
+	</f:facet>
+	<%@ include file="myReportsSelectedReportDetails.jspf" %> 
+</rich:panel>

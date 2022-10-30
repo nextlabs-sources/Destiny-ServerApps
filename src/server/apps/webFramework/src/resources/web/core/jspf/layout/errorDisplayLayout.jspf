@@ -1,0 +1,46 @@
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<%-- Note that in order to function properly, this page cannot contain JSF tags --%>
+
+<fmt:setBundle basename="CommonMessages" var="messages" />
+<fmt:setBundle basename="CustomizationMessages" var="customizedBundle" />
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<%-- Include CSS --%>
+<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() + "/core/css/core.css" %>" /> 
+    <!--[if IE]>
+<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() + "/core/css/ie.css" %>" /> 
+    <![endif]-->
+
+    <title id="appTtle">
+<fmt:message key="product_title" bundle="${customizedBundle}" /> <tiles:getAsString name="applicationTitle" />: <fmt:message key="error_page_title" bundle="${messages}" />
+    </title>
+  </head>
+
+  <body id="errPgDv" class="errorpage">
+
+  <div id="errBxDv" class="errorbox">
+    <div id="errHdrDv" class="header">
+      <img id="errImg" src="<%= request.getContextPath() + "/login/images/CE_logotypeLogin.gif" %>" />
+    </div>
+    
+    <div id="errPgTtleDv" class=title><fmt:message key="error_page_title" bundle="${messages}" /></div>      
+
+    <div id="errTxtDv" class="row">
+      <fmt:message key="error_page_general_error_message" bundle="${messages}" />
+    </div>
+  </div>
+  
+  <div id="techDetDv" class="hidden">
+    <%-- Technical details can be added here in future --%>
+  </div>
+
+  </body>
+</html>
+

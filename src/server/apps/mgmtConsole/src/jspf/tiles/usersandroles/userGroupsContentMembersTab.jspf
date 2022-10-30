@@ -1,0 +1,47 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+
+<f:loadBundle basename="MgmtConsoleMessages" var="bundle"/>
+
+<d:dataTable id="memberstable" styleClass="memberstable" columnClasses="hungrycolumn,hungrycolumn," value="#{userGroupsViewBean.selectedUserGroup.members}" var="memberItem">
+  <h:column id="locUsrNmCol" rendered="#{not userGroupsViewBean.selectedUserGroup.externallyManaged}"> 
+    <f:facet name="header">
+      <h:outputText id="locUsrNmHdr" value="#{bundle.users_and_roles_user_groups_members_tab_name_header_label}" />
+    </f:facet>
+    <h:panelGroup id="locUsrSlctPnl">
+      <f:verbatim><input id="locUsrSlctChk" type="checkbox" name="remove_member_</f:verbatim><h:outputText value="#{memberItem.memberId}" /><f:verbatim>"></f:verbatim>
+      <h:outputText id="locUsrNmTxt" value="#{memberItem.displayName}" />
+    </h:panelGroup>
+  </h:column>
+
+  <h:column id="extUsrNmCol" rendered="#{userGroupsViewBean.selectedUserGroup.externallyManaged}"> 
+    <f:facet name="header">
+      <h:outputText id="extUsrNmHdr" value="#{bundle.users_and_roles_user_groups_members_tab_name_header_label}" />
+    </f:facet>
+    <h:outputText id="extUsrNmTxt" value="#{memberItem.displayName}" />
+  </h:column>
+
+  <h:column id="upnCol"> 
+    <f:facet name="header">
+      <h:outputText id="upnLbl" value="#{bundle.users_and_roles_user_groups_members_tab_user_id_header_label}" />
+    </f:facet>
+    <h:outputText id="upnTxt" value="#{memberItem.memberUniqueName}" />
+  </h:column>
+</d:dataTable>
+
+<f:verbatim><div id="actnBtnsDv" class="buttonsright"></f:verbatim>
+<h:commandLink id="addMemLnk" action="usersAndRolesUserGroupsBrowsePotentialGroupMembers" immediate="true" rendered="#{not userGroupsViewBean.selectedUserGroup.externallyManaged}">
+  <h:commandButton id="addMemBtn" type="button" value="#{bundle.users_and_roles_user_groups_members_tab_add_button_label}" />
+  <f:param id="srcBnNm" name="selectableItemSourceBeanName" value="potentialMembersSelectableItemSourceBean"/>
+  <f:actionListener type="com.bluejungle.destiny.webui.browsabledatapicker.defaultimpl.OpenBrowsableDataPickerViewListener"/>
+</h:commandLink>
+<f:verbatim>&nbsp;</f:verbatim>
+<h:commandLink id="delMemLnk" rendered="#{not userGroupsViewBean.selectedUserGroup.externallyManaged}">
+  <h:commandButton id="delMemBtn" type="button" value="#{bundle.users_and_roles_user_groups_members_tab_delete_button_label}" />
+  <f:param id="grpBnNm" name="userGroupsViewBeanName" value="userGroupsViewBean"/>
+  <f:actionListener type="com.bluejungle.destiny.mgmtconsole.usersandroles.groups.RemoveSelectedMembersActionListener"/>
+</h:commandLink>
+<f:verbatim></div></f:verbatim>

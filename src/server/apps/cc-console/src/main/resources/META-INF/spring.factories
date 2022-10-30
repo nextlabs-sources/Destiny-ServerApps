@@ -1,0 +1,10 @@
+# Bootstrap components
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+com.nextlabs.destiny.console.config.PropertySourceLocatorConfig,\
+com.nextlabs.destiny.console.config.LocalPropertySourceLocator,\
+com.nextlabs.destiny.console.config.TextEncryptorConfig
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.nextlabs.serverapps.common.config.SecurePasswordEncoderConfig,\
+com.nextlabs.serverapps.common.config.WebConfig,\
+com.nextlabs.destiny.console.config.swagger.SwaggerConfig

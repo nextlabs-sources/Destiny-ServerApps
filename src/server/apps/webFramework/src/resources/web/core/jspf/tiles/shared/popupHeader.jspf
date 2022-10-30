@@ -1,0 +1,20 @@
+<%@ page buffer="none" errorPage="/error" %>  <%-- No buffer required to included JSF pages.  Alternative to verbatim tags --%>
+<%@ taglib uri="http://jakarta.apache.org/struts/tags-tiles-1.1" prefix="tiles" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://bluejungle.com/destiny/1.0" prefix="d" %>
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+
+<%-- Load Resource Bundles --%>
+<f:loadBundle basename="CommonMessages" var="commonBundle" />
+
+<script language="JavaScript">
+function openHelpWindow(helpURL) {
+    var helpWindow = window.open(helpURL, "help", 'toolbar=yes,menubar=yes,resizable=yes,scrollbars=yes,status=yes,height=540', false);
+    helpWindow.focus();
+}
+</script>
+
+<div id="version"><h:outputText id="versionTest" value="Build: #{installerVersionBean.version}" /></div>
+<div id="logoDv" class=logo><h:graphicImage id="logoImg" url="/core/images/CE_logotype.gif" /></div>
+<h1 id="appHdr"><img id="appIconImg" src='<%= request.getContextPath() %>/core/images/<tiles:getAsString name="applicationIcon"/>' align="top" /><tiles:getAsString name="applicationTitle"/></h1>

@@ -1,0 +1,194 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "installer.fullname" . }}
+  labels:
+    {{- include "installer.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation, hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "installer.selectorLabels" . | nindent 8 }}
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      {{- if or .Values.global.image.imagePullSecret .Values.image.imagePullSecret }}
+      imagePullSecrets:
+      {{- if .Values.global.image.imagePullSecret }}
+      - name: {{ .Values.global.image.imagePullSecret }}
+      {{- else }}
+      - name: {{ .Values.image.imagePullSecret }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+      {{- if .Values.global.securityContext.runAsUser }}
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- else }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{ end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        {{- if .Values.global.image.repository }}
+        image: "{{ .Values.global.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- else }}
+        image: "{{ .Values.image.repository }}/{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+        {{- end }}
+        {{- if .Values.global.image.pullPolicy }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        {{- else }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- end }}
+        env:
+        - name: NEXTLABS_CC_ENVIRONMENT
+          value: CONTAINER
+        - name: NEXTLABS_CC_PORT_APPSERVICEPORT
+          value: "8080"
+        - name: NEXTLABS_CC_PORT_EXTERNALPORT
+          {{- if .Values.global.nextlabs.cc.port.externalPort }}
+          value: {{ .Values.global.nextlabs.cc.port.externalPort | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.port.externalPort | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_ADMINPASSWORD
+          {{- if .Values.global.nextlabs.cc.adminPassword }}
+          value: {{ .Values.global.nextlabs.cc.adminPassword | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.adminPassword | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_COMMPROFILE_DABSLOCATION
+          value: https://{{ .Release.Name }}-nextlabs-control-center-icenet:8443/dabs
+        - name: NEXTLABS_CC_COMMPROFILE_HEARTBEATFREQTIME
+          {{- if .Values.global.nextlabs.cc.commProfile.heartBeatFreqTime }}
+          value: {{ .Values.global.nextlabs.cc.commProfile.heartBeatFreqTime | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.commProfile.heartBeatFreqTime | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_COMMPROFILE_HEARTBEATFREQTIMEUNIT
+          {{- if .Values.global.nextlabs.cc.commProfile.heartBeatFreqTimeUnit }}
+          value: {{ .Values.global.nextlabs.cc.commProfile.heartBeatFreqTimeUnit | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.commProfile.heartBeatFreqTimeUnit | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_DB_URL
+          {{- if .Values.global.nextlabs.cc.db.url }}
+          value: {{ .Values.global.nextlabs.cc.db.url | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.db.url | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_DB_USERNAME
+          {{- if .Values.global.nextlabs.cc.db.username }}
+          value: {{ .Values.global.nextlabs.cc.db.username | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.db.username | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_DB_PASSWORD
+          {{- if .Values.global.nextlabs.cc.db.password }}
+          value: {{ .Values.global.nextlabs.cc.db.password | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.db.password | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_DB_RETRYATTEMPTS
+          {{- if .Values.global.nextlabs.cc.db.retryAttempts }}
+          value: {{ .Values.global.nextlabs.cc.db.retryAttempts | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.db.retryAttempts | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_DNSNAME
+          {{- if .Values.global.nextlabs.cc.dnsName }}
+          value: {{ ternary .Values.global.nextlabs.cc.dnsName (printf "%s.%s" .Values.global.nextlabs.cc.subDomain .Values.global.nextlabs.cc.dnsName) (empty .Values.global.nextlabs.cc.subDomain) | quote }}
+          {{- else }}
+          value: {{ ternary .Values.nextlabs.cc.dnsName (printf "%s.%s" .Values.nextlabs.cc.subDomain .Values.nextlabs.cc.dnsName) (empty .Values.nextlabs.cc.subDomain) | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_SERVICENAME
+          value: {{ .Release.Name }}-nextlabs-control-center-management-server
+        - name: NEXTLABS_CC_MANAGEMENTSERVER_PASSWORD
+          {{- if .Values.global.nextlabs.cc.configService.password }}
+          value: {{ .Values.global.nextlabs.cc.configService.password | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.configService.password | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_SSL_KEYSTORE_PASSWORD
+          {{- if .Values.global.nextlabs.cc.ssl.keystore.password }}
+          value: {{ .Values.global.nextlabs.cc.ssl.keystore.password | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.ssl.keystore.password | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_SSL_TRUSTSTORE_PASSWORD
+          {{- if .Values.global.nextlabs.cc.ssl.truststore.password }}
+          value: {{ .Values.global.nextlabs.cc.ssl.truststore.password | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.ssl.truststore.password | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_TYPE
+          {{- if .Values.global.nextlabs.cc.type }}
+          value: {{ .Values.global.nextlabs.cc.type | quote }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.type | quote }}
+          {{- end }}
+        - name: NEXTLABS_CC_APPLICATION_CONFIG_ACTIVEMQCONNECTIONFACTORY_BROKERURL
+          value: failover:(tcp://{{ .Release.Name }}-nextlabs-control-center-config-service:61616)
+        - name: NEXTLABS_CC_OIDC_CLIENTSECRET
+          {{- if .Values.global.nextlabs.cc.oidc.clientSecret }}
+          value: {{ .Values.global.nextlabs.cc.oidc.clientSecret }}
+          {{- else }}
+          value: {{ .Values.nextlabs.cc.oidc.clientSecret }}
+          {{- end }}
+        - name: NEXTLABS_CC_CONSOLE_POLICYVALIDATOR_URL
+          {{- if eq (default .Values.global.nextlabs.cc.port.externalPort 443) 443 }}
+          value: https://{{ .Values.global.nextlabs.cc.dnsName }}/policy-validator
+          {{- else }}
+          value: https://{{ .Values.global.nextlabs.cc.dnsName }}:{{ .Values.global.nextlabs.cc.port.externalPort }}/policy-validator
+          {{- end }}
+        - name: NEXTLABS_CC_CONSOLE_CAS_SERVICE_URL
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/
+        - name: NEXTLABS_CC_REPORTER_CAS_SERVICE_URL
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/
+        - name: NEXTLABS_CC_ADMINISTRATOR_CAS_SERVICE_URL
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/
+        - name: NEXTLABS_CC_APPLICATION_SERVICE_URL_DEM
+          value: https://{{ .Release.Name }}-nextlabs-control-center-management-server:8443/dem/
+        - name: NEXTLABS_CC_APPLICATION_SERVICE_URL_DPS
+          value: https://{{ .Release.Name }}-nextlabs-control-center-management-server:8443/dps/
+        - name: NEXTLABS_CC_CONSOLE_SEARCH_ENGINE_HOST
+          value: {{ .Release.Name }}-nextlabs-control-center-console-elasticsearch
+        - name: NEXTLABS_CC_POLICYCONTROLLERMANAGER_SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/oidc/jwks
+        - name: NEXTLABS_CC_APPHOME_SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/oidc/jwks
+        - name: NEXTLABS_CC_SERVICEMANAGER_SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+          value: http://{{ .Release.Name }}-nextlabs-control-center-cas:8080/cas/oidc/jwks
+        - name: NEXTLABS_CC_APPLICATION_ACTIVEMQ_BROKER_SSL_ENABLED
+          value: "false"
+        - name: NEXTLABS_CC_APPLICATION_CONFIG_ACTIVEMQCONNECTIONFACTORY_BROKERURL
+          value: failover:(tcp://{{ .Release.Name }}-nextlabs-control-center-config-service:61616)
+        - name: NEXTLABS_CC_CONFIGSERVICE_ACTIVEMQ_BROKER_CONNECTOR_BINDADDRESS
+          value: tcp://0.0.0.0:61616
+        volumeMounts:
+        - name: license
+          mountPath: /opt/nextlabs/control-center/server/license/license.dat
+          subPath: license.dat
+          readOnly: true
+        {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+        - name: logs
+          mountPath: /opt/nextlabs/control-center/server/logs
+        {{- end }}
+      restartPolicy: Never
+      volumes:
+      - name: license
+        secret:
+          secretName: {{ .Release.Name }}-nextlabs-control-center-license
+      {{- if or .Values.global.nextlabs.cc.logsVolumeClaimName .Values.nextlabs.cc.logsVolumeClaimName }}
+      - name: logs
+        persistentVolumeClaim:
+          {{- if .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          claimName: {{ .Values.global.nextlabs.cc.logsVolumeClaimName }}
+          {{- else }}
+          claimName: {{ .Values.nextlabs.cc.logsVolumeClaimName }}
+          {{- end }}
+      {{- end }}
+  backoffLimit: 0
+
